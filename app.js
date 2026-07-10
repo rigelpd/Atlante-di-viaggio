@@ -258,6 +258,11 @@ async function handlePublish(event) {
   setPublishStatus("working", "Controllo la versione presente su GitHub…");
 
   try {
+    const optimizedImages = await optimizeEmbeddedImages();
+    if (optimizedImages.count) {
+      saveData(true);
+      setPublishStatus("working", `${optimizedImages.count} immagini ottimizzate automaticamente. Creo il commit…`);
+    }
     const encodedPath = path.split("/").map(encodeURIComponent).join("/");
     const apiUrl = `https://api.github.com/repos/${repository}/contents/${encodedPath}?ref=${encodeURIComponent(branch)}`;
     const currentRemote = await githubRequest(apiUrl);
@@ -707,32 +712,15 @@ function compressDataUrl(dataUrl,maxSize=1200,targetBytes=120*1024) {
   });
 }
 
-async function optimizeLocalImages() {
-  if (!isAdmin || !currentData) return;
+async function optimizeEmbeddedImages() {
+  if (!currentData) return {count:0,before:0,after:0};
   const images = [];
-  if (/^data:image\//i.test(currentData.main.image || "")) images.push(currentData.main);
-  currentData.itinerary.forEach(day => { if (/^data:image\//i.test(day.image || "")) images.push(day); });
-  if (!images.length) { showToast("Non ci sono immagini caricate dal PC da ottimizzare."); return; }
-  if (!confirm(`Ottimizzare ${images.length} immagini? Le immagini resteranno uguali, ma piu leggere.`)) return;
-  const button = $("#optimize-images-btn");
-  button.disabled = true;
+  if (/^data:image\//i.test(currentData.main.image || "") && dataUrlBytes(currentData.main.image) > 120*1024) images.push(currentData.main);
+  currentData.itinerary.forEach(day => { if (/^data:image\//i.test(day.image || "") && dataUrlBytes(day.image) > 120*1024) images.push(day); });
+  if (!images.length) return {count:0,before:0,after:0};
   const before = images.reduce((total,item) => total + dataUrlBytes(item.image),0);
-  try {
-    for (let i=0;i<images.length;i++) {
-      button.innerHTML = `<span>◈</span> Ottimizzo ${i+1}/${images.length}`;
-      images[i].image = await compressDataUrl(images[i].image);
-    }
-    saveData(true);
-    renderAll();
-    const after = images.reduce((total,item) => total + dataUrlBytes(item.image),0);
-    showToast(`Immagini ottimizzate: ${Math.max(0,Math.round((before-after)/1024))} KB liberati. Ora pubblica.`);
-  } catch (error) {
-    console.error(error);
-    showToast("Non sono riuscito a ottimizzare una delle immagini.");
-  } finally {
-    button.disabled = false;
-    button.innerHTML = "<span>◈</span> Ottimizza immagini";
-  }
+  for (const item of images) item.image = await compressDataUrl(item.image);
+  return {count:images.length,before,after:images.reduce((total,item) => total + dataUrlBytes(item.image),0)};
 }
 
 function deleteItem(collection,index,label) {
@@ -838,7 +826,6 @@ function setupEvents() {
   $("#export-json-btn").addEventListener("click",exportJSON);
   $("#import-json-btn").addEventListener("click",()=>$("#import-json-input").click());
   $("#import-json-input").addEventListener("change",event=>{importJSON(event.target.files[0]);event.target.value="";});
-  $("#optimize-images-btn").addEventListener("click",optimizeLocalImages);
   $("#export-html-btn").addEventListener("click",exportPublicHTML);
   $("#reset-btn").addEventListener("click",()=>{if(confirm("Ripristinare il JSON originale di questo viaggio?")){localStorage.removeItem(storageKey(activeTrip));currentData=clone(originalData);renderAll();showToast("Itinerario ripristinato.");}});
 
