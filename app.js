@@ -211,25 +211,31 @@ function focusAtlasGlobeCoordinates(points,duration=420,zoomFactor=1) {
   const radians = points.map(point => point.lng * Math.PI / 180);
   const lng = Math.atan2(radians.reduce((sum,value) => sum + Math.sin(value),0),radians.reduce((sum,value) => sum + Math.cos(value),0)) * 180 / Math.PI;
   const latSpread = Math.max(...points.map(point => point.lat)) - Math.min(...points.map(point => point.lat));
-  const lngSpread = Math.max(...points.map(point => Math.abs((((point.lng - lng) + 540) % 360) - 180)));
-  const altitude = Math.min(2.75,Math.max(1.45,(1.4 + Math.max(latSpread,lngSpread) / 42) * zoomFactor));
+  const lngSpread = Math.max(...points.map(point => Math.abs((((point.lng - lng) + 540) % 360) - 180))) * 2;
+  const stage = $("#atlas-globe-stage")?.getBoundingClientRect();
+  const aspect = stage?.width && stage?.height ? stage.width / stage.height : 1;
+  // La dimensione dominante deve entrare nel lato utile del riquadro: il fattore
+  // 1.5 lascia intorno alla rotta un margine pari al 50% della sua estensione.
+  const fitSpan = Math.max(latSpread,lngSpread / Math.max(aspect,.65)) * zoomFactor;
+  const altitude = Math.min(2.6,Math.max(1.26,1.18 + fitSpan / 58));
   atlasGlobe.pointOfView({lat,lng,altitude},window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration);
 }
 
 function globeTripFocusPoints(trip) {
   const points = [];
-  trip.data.itinerary.slice(1).forEach(day => {
+  trip.data.itinerary.slice(1,-1).forEach(day => {
     const lat = Number(day.location_coords?.lat), lng = Number(day.location_coords?.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     const previous = points.at(-1);
     if (!previous || previous.lat !== lat || previous.lng !== lng) points.push({lat,lng});
   });
-  return points.length ? points : trip.stops;
+  const fallback = trip.stops.filter(stop => stop.key !== trip.stops[0]?.key && stop.key !== trip.stops.at(-1)?.key);
+  return points.length ? points : (fallback.length ? fallback : trip.stops);
 }
 
 function focusAtlasGlobeTrip(slug,duration=420) {
   const trip = atlasGlobeTrips.find(item => item.slug === slug);
-  if (trip) focusAtlasGlobeCoordinates(globeTripFocusPoints(trip),duration,1.2);
+  if (trip) focusAtlasGlobeCoordinates(globeTripFocusPoints(trip),duration,1.5);
 }
 
 function renderAtlasGlobePins(slug=null,{balloon=false}={}) {
@@ -260,9 +266,9 @@ function previewAtlasGlobeTrip(slug) {
   const trip = atlasGlobeTrips.find(item => item.slug === slug);
   if (!trip || !atlasGlobe) return;
   atlasGlobePreview = slug;
-  renderAtlasGlobePins(slug,{balloon:false});
+  renderAtlasGlobePins(slug,{balloon:true});
   focusAtlasGlobeTrip(slug,260);
-  updateAtlasGlobeStatus(`Anteprima di ${trip.title}: ${trip.stops.length} tappe sul mappamondo.`);
+  updateAtlasGlobeStatus(`${trip.title}: sono visibili tutte le tappe.`);
 }
 
 function restoreAtlasGlobeAfterPreview() {
@@ -272,13 +278,13 @@ function restoreAtlasGlobeAfterPreview() {
   else resetAtlasGlobe(false);
 }
 
-function resetAtlasGlobe(refocus=true) {
+function resetAtlasGlobe(refocus=true,instant=false) {
   atlasGlobeSelection = null;
   atlasGlobePreview = null;
+  if (refocus) focusAtlasGlobeCoordinates(globeMainPins(),instant ? 0 : 520);
   renderAtlasGlobePins();
   $("#globe-reset-btn").hidden = true;
   updateAtlasGlobeStatus("Ogni colore rappresenta un itinerario. Passa sopra una copertina per vedere tutte le sue tappe, oppure seleziona una bandierina.");
-  if (refocus) focusAtlasGlobeCoordinates(globeMainPins(),520);
 }
 
 function updateAtlasGlobeBalloonPlacement() {
@@ -341,15 +347,14 @@ function initializeAtlasGlobe(trips) {
       .arcStartLat("startLat").arcStartLng("startLng").arcEndLat("endLat").arcEndLng("endLng").arcColor("color").arcAltitudeAutoScale(.18).arcStroke(.45).arcDashLength(.5).arcDashGap(.25).arcDashAnimateTime(2200)
       .ringLat("lat").ringLng("lng").ringColor(pin => pin.color).ringMaxRadius(pin => pin.isMain ? 3.2 : 1.8).ringPropagationSpeed(1.25).ringRepeatPeriod(1700)
       .onGlobeReady(() => { loading?.classList.add("is-hidden"); focusAtlasGlobeCoordinates(globeMainPins(),650); })
-      .onZoom(() => { if (atlasGlobeSelection) requestAnimationFrame(updateAtlasGlobeBalloonPlacement); })
-      .onGlobeRightClick(() => resetAtlasGlobe());
+      .onZoom(() => { if (atlasGlobeSelection || atlasGlobePreview) requestAnimationFrame(updateAtlasGlobeBalloonPlacement); });
     const controls = atlasGlobe.controls();
     controls.autoRotate = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     controls.autoRotateSpeed = .32;
     controls.enableDamping = true;
     controls.dampingFactor = .08;
     host.addEventListener("pointerdown",() => { controls.autoRotate = false; },{passive:true});
-    host.addEventListener("contextmenu",event => { event.preventDefault(); resetAtlasGlobe(); });
+    host.addEventListener("contextmenu",event => { event.preventDefault(); event.stopPropagation(); resetAtlasGlobe(true,true); },true);
     atlasGlobeResizeObserver = new ResizeObserver(resizeAtlasGlobe);
     atlasGlobeResizeObserver.observe(host);
   }
@@ -361,7 +366,7 @@ function initializeAtlasGlobe(trips) {
 
 function bindAtlasCardGlobeInteractions() {
   $$(".atlas-card").forEach(card => {
-    const slug = $("[data-open-trip]",card)?.dataset.openTrip;
+    const slug = card.dataset.openTrip;
     if (!slug) return;
     card.addEventListener("mouseenter",() => previewAtlasGlobeTrip(slug));
     card.addEventListener("mouseleave",restoreAtlasGlobeAfterPreview);
