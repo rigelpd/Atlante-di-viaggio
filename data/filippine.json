@@ -58,11 +58,11 @@
   "itinerary": [
     {
       "date": "2026-02-27",
-      "location": "Bologna ",
+      "location": "Bologna",
       "isFlight": true,
       "isCruise": false,
       "accommodation": "Casa",
-      "activities": "Partenza da Bologna alle 19:35, volo Turkish per Hong Kong.",
+      "activities": "Partenza da Bologna alle 19:35, volo Turkish per Hong Kong...",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-02%20195203.png",
       "location_coords": {
         "lat": 44.494586,
