@@ -128,10 +128,17 @@ async function loadTrip(slug, preferSaved = true) {
 
 function saveData(silent = false) {
   if (!currentData || window.__EMBEDDED_DATA__) return;
-  localStorage.setItem(storageKey(activeTrip), JSON.stringify(currentData));
+  try {
+    localStorage.setItem(storageKey(activeTrip), JSON.stringify(currentData));
+  } catch (error) {
+    console.error(error);
+    showToast("Memoria del browser piena: le modifiche restano aperte. Pubblicale prima di ricaricare la pagina.");
+    return false;
+  }
   publishStateByTrip[activeTrip] = { ...(publishStateByTrip[activeTrip] || {}), dirty: true };
   setPublishIndicator("local", "Modifiche locali");
   if (!silent) showToast("Modifiche salvate nel browser.");
+  return true;
 }
 
 function sortForStableJson(value) {
@@ -288,8 +295,18 @@ async function handlePublish(event) {
 
     const newContentSha = update.payload.content?.sha || "";
     const commitUrl = update.payload.commit?.html_url || `https://github.com/${repository}/commits/${branch}`;
-    localStorage.setItem(`atlante:remoteSha:${activeTrip}`, newContentSha);
-    localStorage.setItem(`atlante:publishedFingerprint:${activeTrip}`, fingerprintData(currentData));
+    try {
+      localStorage.setItem(`atlante:remoteSha:${activeTrip}`, newContentSha);
+      localStorage.setItem(`atlante:publishedFingerprint:${activeTrip}`, fingerprintData(currentData));
+    } catch (storageError) {
+      // Il commit GitHub e' gia' riuscito: rimuoviamo soltanto la copia locale, ormai superflua.
+      console.warn("Memoria locale piena dopo la pubblicazione", storageError);
+      localStorage.removeItem(storageKey(activeTrip));
+      try {
+        localStorage.setItem(`atlante:remoteSha:${activeTrip}`, newContentSha);
+        localStorage.setItem(`atlante:publishedFingerprint:${activeTrip}`, fingerprintData(currentData));
+      } catch (retryError) { console.warn("Impossibile salvare lo stato locale della pubblicazione", retryError); }
+    }
     publishStateByTrip[activeTrip] = { dirty: false, sha: newContentSha };
     originalData = clone(currentData);
     setPublishIndicator("published", "Pubblicato");
@@ -650,17 +667,72 @@ function applyDateRange(startValue,endValue) {
   currentData.itinerary = days;
 }
 
-function compressImage(file,maxSize=1500,quality=.82) {
+function dataUrlBytes(dataUrl) {
+  const base64 = String(dataUrl || "").split(",")[1] || "";
+  return Math.ceil(base64.length * 3 / 4);
+}
+
+function canvasToCompressedDataUrl(image,maxSize=1200,targetBytes=120*1024) {
+  const sourceMax = Math.max(image.width,image.height) || 1;
+  let scale = Math.min(1,maxSize/sourceMax);
+  let result = "";
+  for (let attempt=0;attempt<6;attempt++) {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1,Math.round(image.width*scale));
+    canvas.height = Math.max(1,Math.round(image.height*scale));
+    canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height);
+    for (const quality of [.78,.68,.58,.5]) {
+      result = canvas.toDataURL("image/jpeg",quality);
+      if (dataUrlBytes(result) <= targetBytes) return result;
+    }
+    scale *= .82;
+  }
+  return result;
+}
+
+function compressImage(file,maxSize=1200,targetBytes=120*1024) {
   if (!file) return Promise.resolve("");
   return new Promise((resolve,reject) => {
     const reader = new FileReader(); reader.onerror=reject; reader.onload=() => {
       const image = new Image(); image.onerror=reject; image.onload=() => {
-        const scale = Math.min(1,maxSize/Math.max(image.width,image.height));
-        const canvas = document.createElement("canvas"); canvas.width=Math.round(image.width*scale); canvas.height=Math.round(image.height*scale);
-        canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height); resolve(canvas.toDataURL("image/jpeg",quality));
+        resolve(canvasToCompressedDataUrl(image,maxSize,targetBytes));
       }; image.src=reader.result;
     }; reader.readAsDataURL(file);
   });
+}
+
+function compressDataUrl(dataUrl,maxSize=1200,targetBytes=120*1024) {
+  return new Promise((resolve,reject) => {
+    const image = new Image(); image.onerror=reject; image.onload=() => resolve(canvasToCompressedDataUrl(image,maxSize,targetBytes)); image.src=dataUrl;
+  });
+}
+
+async function optimizeLocalImages() {
+  if (!isAdmin || !currentData) return;
+  const images = [];
+  if (/^data:image\//i.test(currentData.main.image || "")) images.push(currentData.main);
+  currentData.itinerary.forEach(day => { if (/^data:image\//i.test(day.image || "")) images.push(day); });
+  if (!images.length) { showToast("Non ci sono immagini caricate dal PC da ottimizzare."); return; }
+  if (!confirm(`Ottimizzare ${images.length} immagini? Le immagini resteranno uguali, ma piu leggere.`)) return;
+  const button = $("#optimize-images-btn");
+  button.disabled = true;
+  const before = images.reduce((total,item) => total + dataUrlBytes(item.image),0);
+  try {
+    for (let i=0;i<images.length;i++) {
+      button.innerHTML = `<span>◈</span> Ottimizzo ${i+1}/${images.length}`;
+      images[i].image = await compressDataUrl(images[i].image);
+    }
+    saveData(true);
+    renderAll();
+    const after = images.reduce((total,item) => total + dataUrlBytes(item.image),0);
+    showToast(`Immagini ottimizzate: ${Math.max(0,Math.round((before-after)/1024))} KB liberati. Ora pubblica.`);
+  } catch (error) {
+    console.error(error);
+    showToast("Non sono riuscito a ottimizzare una delle immagini.");
+  } finally {
+    button.disabled = false;
+    button.innerHTML = "<span>◈</span> Ottimizza immagini";
+  }
 }
 
 function deleteItem(collection,index,label) {
@@ -766,6 +838,7 @@ function setupEvents() {
   $("#export-json-btn").addEventListener("click",exportJSON);
   $("#import-json-btn").addEventListener("click",()=>$("#import-json-input").click());
   $("#import-json-input").addEventListener("change",event=>{importJSON(event.target.files[0]);event.target.value="";});
+  $("#optimize-images-btn").addEventListener("click",optimizeLocalImages);
   $("#export-html-btn").addEventListener("click",exportPublicHTML);
   $("#reset-btn").addEventListener("click",()=>{if(confirm("Ripristinare il JSON originale di questo viaggio?")){localStorage.removeItem(storageKey(activeTrip));currentData=clone(originalData);renderAll();showToast("Itinerario ripristinato.");}});
 
