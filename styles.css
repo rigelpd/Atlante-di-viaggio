@@ -91,7 +91,8 @@ textarea { min-height: 130px; resize: vertical; }
 
 .topbar { height: 72px; padding: 0 clamp(1rem, 4vw, 4rem); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: sticky; top: 0; z-index: 800; color: #fff; background: rgba(17,28,37,.88); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,.09); }
 .brand { display: inline-flex; justify-self: start; align-items: center; gap: .7rem; color: #fff; font-family: var(--font-display); font-size: 1.25rem; text-decoration: none; }
-.trip-select { width: auto; min-width: 230px; padding: .58rem 2.5rem .58rem 1rem; border-color: rgba(255,255,255,.13); color: #fff; background-color: rgba(255,255,255,.08); }
+.trip-select { width: auto; min-width: 230px; padding: .58rem 2.5rem .58rem 1rem; border-color: rgba(255,255,255,.18); color: #fff; color-scheme: dark; background-color: #243943; }
+.trip-select:hover, .trip-select:focus, .trip-select:active { color: #fff; background-color: #31515d; border-color: rgba(160,232,225,.72); outline: none; }
 .trip-select option { color: var(--ink); background: #fff; }
 .topbar-actions { justify-self: end; display: flex; align-items: center; gap: .55rem; }
 .publish-indicator { align-items: center; gap: .42rem; padding: .4rem .65rem; border: 1px solid rgba(255,255,255,.11); border-radius: 999px; color: rgba(255,255,255,.72); font-size: .68rem; font-weight: 700; white-space: nowrap; }
