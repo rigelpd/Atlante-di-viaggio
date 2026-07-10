@@ -40,6 +40,15 @@ let publishStateByTrip = {};
 let atlasCatalogCache = {};
 let mapFilter = "all";
 let pendingSharedDay = Number(urlState.get("day"));
+let atlasGlobe = null;
+let atlasGlobeTrips = [];
+let atlasGlobeSelection = null;
+let atlasGlobePreview = null;
+let atlasGlobeResizeObserver = null;
+
+const GLOBE_TEXTURE_ROOT = "https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img";
+const GLOBE_TRIP_COLORS = { giappone:"#ff6f61", filippine:"#45c9c0", "rajasthan-maldive":"#f2b84b" };
+const GLOBE_STYLE = { texture:`${GLOBE_TEXTURE_ROOT}/earth-blue-marble.jpg`, bump:`${GLOBE_TEXTURE_ROOT}/earth-topology.png`, background:`${GLOBE_TEXTURE_ROOT}/night-sky.png`, backgroundColor:"#050b13", atmosphere:"#8bdcff", tint:"#ffffff", emissive:"#000000", emissiveIntensity:0, shininess:18 };
 
 const DEFAULT_PUBLISH_TARGETS = {
   giappone: { repository: "rigelpd/Atlante-di-viaggio", branch: "main", path: "data/giappone.json", siteUrl: "https://rigelpd.github.io/Atlante-di-viaggio/" },
@@ -102,6 +111,10 @@ function setAppView(view) {
   $("#atlas-home").classList.toggle("is-hidden", !isAtlas);
   $("#trip-view").classList.toggle("is-hidden", isAtlas);
   document.body.classList.toggle("atlas-view", isAtlas);
+  if (atlasGlobe) {
+    if (isAtlas) { atlasGlobe.resumeAnimation(); setTimeout(resizeAtlasGlobe,60); }
+    else atlasGlobe.pauseAnimation();
+  }
 }
 
 function updateUrlState({trip = null, day = null} = {}) {
@@ -132,17 +145,245 @@ function catalogRange(data) {
   return first && last ? `${formatDate(first,{month:"short",year:"numeric"})} · ${data.itinerary.length} giorni` : `${data.itinerary.length} giorni`;
 }
 
+function globeStopsForTrip(slug,data) {
+  const grouped = new Map();
+  data.itinerary.forEach((day,index) => {
+    const lat = Number(day.location_coords?.lat), lng = Number(day.location_coords?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const name = day.location?.trim() || `Tappa ${index + 1}`;
+    const key = name.toLocaleLowerCase("it-IT");
+    if (!grouped.has(key)) grouped.set(key,{ key,name,lat,lng,days:0,firstIndex:index });
+    grouped.get(key).days += 1;
+  });
+  const stops = [...grouped.values()].sort((a,b) => a.firstIndex - b.firstIndex);
+  const main = stops.reduce((best,stop) => !best || stop.days > best.days ? stop : best,null);
+  return { slug, data, title:data.main.title || CONFIG.catalog[slug].label, color:GLOBE_TRIP_COLORS[slug] || "#f06d54", stops, main, totalDays:data.itinerary.length };
+}
+
+function globeRouteForTrip(trip) {
+  const sequence = [];
+  trip.data.itinerary.forEach(day => {
+    const lat = Number(day.location_coords?.lat), lng = Number(day.location_coords?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const previous = sequence.at(-1);
+    if (!previous || previous.lat !== lat || previous.lng !== lng) sequence.push({lat,lng});
+  });
+  return sequence.slice(1).map((stop,index) => ({ startLat:sequence[index].lat,startLng:sequence[index].lng,endLat:stop.lat,endLng:stop.lng,color:trip.color }));
+}
+
+function globeMainPins() {
+  return atlasGlobeTrips.filter(trip => trip.main).map(trip => ({ kind:"trip",slug:trip.slug,name:trip.title,location:trip.main.name,lat:trip.main.lat,lng:trip.main.lng,color:trip.color,isMain:true,balloon:false }));
+}
+
+function globeStopPins(trip,showBalloon=false) {
+  return trip.stops.map(stop => ({ kind:"stop",slug:trip.slug,name:stop.name,lat:stop.lat,lng:stop.lng,color:trip.color,isMain:stop.key === trip.main?.key,balloon:showBalloon && stop.key === trip.main?.key,itineraryTitle:trip.title,totalDays:trip.totalDays,totalStops:trip.stops.length }));
+}
+
+function globeMarkerElement(pin) {
+  const wrapper = document.createElement("div");
+  wrapper.className = `globe-marker-wrap ${pin.balloon ? "has-balloon" : ""}`;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `globe-pin ${pin.isMain ? "is-main" : "is-stop"}`;
+  button.style.setProperty("--pin-color",pin.color);
+  button.setAttribute("aria-label",pin.kind === "trip" ? `${pin.name}, località principale ${pin.location}` : `${pin.name}, ${pin.days} giorni`);
+  button.title = pin.kind === "trip" ? `${pin.name} · ${pin.location}` : `${pin.name} · ${pin.days} giorni`;
+  button.innerHTML = `<span></span>`;
+  button.addEventListener("click",event => {
+    event.stopPropagation();
+    if (pin.kind === "trip") selectAtlasGlobeTrip(pin.slug);
+    else focusAtlasGlobeTrip(pin.slug,300);
+  });
+  wrapper.append(button);
+  if (pin.balloon) {
+    const balloon = document.createElement("div");
+    balloon.className = "globe-balloon";
+    balloon.innerHTML = `<small>Itinerario selezionato</small><strong>${escapeHtml(pin.itineraryTitle)}</strong><span>${pin.totalDays} giorni · ${pin.totalStops} tappe</span><button type="button">Apri il viaggio →</button>`;
+    balloon.querySelector("button").addEventListener("click",event => { event.stopPropagation(); loadTrip(pin.slug); });
+    wrapper.append(balloon);
+  }
+  return wrapper;
+}
+
+function focusAtlasGlobeCoordinates(points,duration=420,zoomFactor=1) {
+  if (!atlasGlobe || !points.length) return;
+  const lat = points.reduce((sum,point) => sum + point.lat,0) / points.length;
+  const radians = points.map(point => point.lng * Math.PI / 180);
+  const lng = Math.atan2(radians.reduce((sum,value) => sum + Math.sin(value),0),radians.reduce((sum,value) => sum + Math.cos(value),0)) * 180 / Math.PI;
+  const latSpread = Math.max(...points.map(point => point.lat)) - Math.min(...points.map(point => point.lat));
+  const lngSpread = Math.max(...points.map(point => Math.abs((((point.lng - lng) + 540) % 360) - 180)));
+  const altitude = Math.min(2.75,Math.max(1.45,(1.4 + Math.max(latSpread,lngSpread) / 42) * zoomFactor));
+  atlasGlobe.pointOfView({lat,lng,altitude},window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration);
+}
+
+function globeTripFocusPoints(trip) {
+  const points = [];
+  trip.data.itinerary.slice(1).forEach(day => {
+    const lat = Number(day.location_coords?.lat), lng = Number(day.location_coords?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const previous = points.at(-1);
+    if (!previous || previous.lat !== lat || previous.lng !== lng) points.push({lat,lng});
+  });
+  return points.length ? points : trip.stops;
+}
+
+function focusAtlasGlobeTrip(slug,duration=420) {
+  const trip = atlasGlobeTrips.find(item => item.slug === slug);
+  if (trip) focusAtlasGlobeCoordinates(globeTripFocusPoints(trip),duration,1.2);
+}
+
+function renderAtlasGlobePins(slug=null,{balloon=false}={}) {
+  if (!atlasGlobe) return;
+  const trip = slug ? atlasGlobeTrips.find(item => item.slug === slug) : null;
+  const pins = trip ? globeStopPins(trip,balloon) : globeMainPins();
+  atlasGlobe.htmlElementsData(pins).arcsData(trip ? globeRouteForTrip(trip) : []).ringsData(pins.filter(pin => pin.isMain));
+  if (balloon) setTimeout(updateAtlasGlobeBalloonPlacement,320);
+}
+
+function updateAtlasGlobeStatus(message) {
+  const status = $("#atlas-globe-status");
+  if (status) status.textContent = message;
+}
+
+function selectAtlasGlobeTrip(slug) {
+  const trip = atlasGlobeTrips.find(item => item.slug === slug);
+  if (!trip) return;
+  atlasGlobeSelection = slug;
+  atlasGlobePreview = null;
+  renderAtlasGlobePins(slug,{balloon:true});
+  focusAtlasGlobeTrip(slug,480);
+  $("#globe-reset-btn").hidden = false;
+  updateAtlasGlobeStatus(`${trip.title}: sono visibili tutte le tappe. Seleziona “Mostra tutti i viaggi” per tornare alla panoramica.`);
+}
+
+function previewAtlasGlobeTrip(slug) {
+  const trip = atlasGlobeTrips.find(item => item.slug === slug);
+  if (!trip || !atlasGlobe) return;
+  atlasGlobePreview = slug;
+  renderAtlasGlobePins(slug,{balloon:false});
+  focusAtlasGlobeTrip(slug,260);
+  updateAtlasGlobeStatus(`Anteprima di ${trip.title}: ${trip.stops.length} tappe sul mappamondo.`);
+}
+
+function restoreAtlasGlobeAfterPreview() {
+  if (!atlasGlobePreview) return;
+  atlasGlobePreview = null;
+  if (atlasGlobeSelection) selectAtlasGlobeTrip(atlasGlobeSelection);
+  else resetAtlasGlobe(false);
+}
+
+function resetAtlasGlobe(refocus=true) {
+  atlasGlobeSelection = null;
+  atlasGlobePreview = null;
+  renderAtlasGlobePins();
+  $("#globe-reset-btn").hidden = true;
+  updateAtlasGlobeStatus("Ogni colore rappresenta un itinerario. Passa sopra una copertina per vedere tutte le sue tappe, oppure seleziona una bandierina.");
+  if (refocus) focusAtlasGlobeCoordinates(globeMainPins(),520);
+}
+
+function updateAtlasGlobeBalloonPlacement() {
+  const stage = $("#atlas-globe-stage");
+  const wrapper = $(".globe-marker-wrap.has-balloon",stage);
+  const anchor = wrapper ? $(".globe-pin",wrapper) : null;
+  const balloon = wrapper ? $(".globe-balloon",wrapper) : null;
+  if (!stage || !wrapper || !anchor || !balloon) return;
+  const stageRect = stage.getBoundingClientRect();
+  const anchorRect = anchor.getBoundingClientRect();
+  const x = anchorRect.left - stageRect.left + anchorRect.width / 2;
+  const y = anchorRect.top - stageRect.top + anchorRect.height / 2;
+  const width = balloon.offsetWidth || 230, height = balloon.offsetHeight || 128;
+  const candidates = {
+    right:{x:x+28,y:y-72}, left:{x:x-width-28,y:y-72}, top:{x:x-width/2,y:y-height-35}, bottom:{x:x-width/2,y:y+30}
+  };
+  const pinRects = $$(".globe-marker-wrap .globe-pin",stage).filter(pin => pin !== anchor && pin.getClientRects().length).map(pin => {
+    const rect = pin.getBoundingClientRect();
+    return {x:rect.left-stageRect.left+rect.width/2,y:rect.top-stageRect.top+rect.height/2};
+  });
+  let best = "right", bestScore = Infinity;
+  Object.entries(candidates).forEach(([position,rect]) => {
+    let score = Math.max(0,-rect.x) * 20 + Math.max(0,-rect.y) * 20 + Math.max(0,rect.x + width - stageRect.width) * 20 + Math.max(0,rect.y + height - stageRect.height) * 20;
+    pinRects.forEach(pin => { if (pin.x > rect.x - 12 && pin.x < rect.x + width + 12 && pin.y > rect.y - 12 && pin.y < rect.y + height + 12) score += 200; });
+    if (score < bestScore) { best = position; bestScore = score; }
+  });
+  wrapper.dataset.balloonPlacement = best;
+}
+
+function applyAtlasGlobeStyle() {
+  if (!atlasGlobe) return;
+  const config = GLOBE_STYLE;
+  atlasGlobe.globeImageUrl(config.texture).bumpImageUrl(config.bump).backgroundImageUrl(config.background).backgroundColor(config.backgroundColor).atmosphereColor(config.atmosphere).showGraticules(false).polygonsData([]);
+  const material = atlasGlobe.globeMaterial();
+  material.color?.set?.(config.tint);
+  material.emissive?.set?.(config.emissive);
+  material.emissiveIntensity = config.emissiveIntensity;
+  material.shininess = config.shininess;
+  material.needsUpdate = true;
+}
+
+function resizeAtlasGlobe() {
+  if (!atlasGlobe) return;
+  const host = $("#atlas-globe");
+  const rect = host?.getBoundingClientRect();
+  if (rect?.width && rect?.height) atlasGlobe.width(Math.round(rect.width)).height(Math.round(rect.height));
+}
+
+function initializeAtlasGlobe(trips) {
+  atlasGlobeTrips = trips.map(({slug,data}) => globeStopsForTrip(slug,data));
+  const host = $("#atlas-globe");
+  const loading = $("#atlas-globe-loading");
+  if (!window.Globe || !host) {
+    if (loading) loading.innerHTML = "Il mappamondo 3D non è disponibile su questo dispositivo.";
+    return;
+  }
+  if (!atlasGlobe) {
+    atlasGlobe = window.Globe({waitForGlobeReady:true,animateIn:true})(host)
+      .htmlLat("lat").htmlLng("lng").htmlAltitude(pin => pin.isMain ? .035 : .018).htmlElement(globeMarkerElement).htmlTransitionDuration(280)
+      .arcStartLat("startLat").arcStartLng("startLng").arcEndLat("endLat").arcEndLng("endLng").arcColor("color").arcAltitudeAutoScale(.18).arcStroke(.45).arcDashLength(.5).arcDashGap(.25).arcDashAnimateTime(2200)
+      .ringLat("lat").ringLng("lng").ringColor(pin => pin.color).ringMaxRadius(pin => pin.isMain ? 3.2 : 1.8).ringPropagationSpeed(1.25).ringRepeatPeriod(1700)
+      .onGlobeReady(() => { loading?.classList.add("is-hidden"); focusAtlasGlobeCoordinates(globeMainPins(),650); })
+      .onZoom(() => { if (atlasGlobeSelection) requestAnimationFrame(updateAtlasGlobeBalloonPlacement); })
+      .onGlobeRightClick(() => resetAtlasGlobe());
+    const controls = atlasGlobe.controls();
+    controls.autoRotate = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    controls.autoRotateSpeed = .32;
+    controls.enableDamping = true;
+    controls.dampingFactor = .08;
+    host.addEventListener("pointerdown",() => { controls.autoRotate = false; },{passive:true});
+    host.addEventListener("contextmenu",event => { event.preventDefault(); resetAtlasGlobe(); });
+    atlasGlobeResizeObserver = new ResizeObserver(resizeAtlasGlobe);
+    atlasGlobeResizeObserver.observe(host);
+  }
+  applyAtlasGlobeStyle();
+  resetAtlasGlobe(false);
+  resizeAtlasGlobe();
+  atlasGlobe.resumeAnimation();
+}
+
+function bindAtlasCardGlobeInteractions() {
+  $$(".atlas-card").forEach(card => {
+    const slug = $("[data-open-trip]",card)?.dataset.openTrip;
+    if (!slug) return;
+    card.addEventListener("mouseenter",() => previewAtlasGlobeTrip(slug));
+    card.addEventListener("mouseleave",restoreAtlasGlobeAfterPreview);
+    card.addEventListener("focusin",() => previewAtlasGlobeTrip(slug));
+    card.addEventListener("focusout",event => { if (!card.contains(event.relatedTarget)) restoreAtlasGlobeAfterPreview(); });
+    card.addEventListener("keydown",event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); loadTrip(slug); } });
+  });
+}
+
 function renderAtlasHome(trips) {
   $("#atlas-trip-count").textContent = `${trips.length} viaggi nell’atlante`;
   $("#atlas-grid").innerHTML = trips.map(({slug,data},index) => {
     const image = safeImage(data.main.image) || safeImage(data.itinerary.find(day => safeImage(day.image))?.image);
     const locations = new Set(data.itinerary.map(day => day.location?.trim()).filter(Boolean)).size;
-    return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""}" style="--card-index:${index}">
+    return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""}" style="--card-index:${index}" data-open-trip="${slug}" role="link" tabindex="0" aria-label="Apri l’itinerario ${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}">
       <div class="atlas-card-media" ${image ? `style="background-image:url('${escapeHtml(image).replace(/'/g,"%27")}')"` : ""}></div>
       <div class="atlas-card-shade"></div>
-      <div class="atlas-card-content"><p>${escapeHtml(catalogRange(data))}</p><h3>${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}</h3><span>${locations} tappe · ${escapeHtml(CONFIG.catalog[slug].subtitle)}</span><button class="atlas-card-open" type="button" data-open-trip="${slug}">Esplora <b>→</b></button></div>
+      <div class="atlas-card-content"><p>${escapeHtml(catalogRange(data))}</p><h3>${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}</h3><span>${locations} tappe · ${escapeHtml(CONFIG.catalog[slug].subtitle)}</span><span class="atlas-card-open">Esplora <b>→</b></span></div>
     </article>`;
   }).join("");
+  bindAtlasCardGlobeInteractions();
+  initializeAtlasGlobe(trips);
 }
 
 async function showAtlasHome() {
@@ -989,6 +1230,7 @@ function setupEvents() {
   $("#trip-select").addEventListener("change",event=>loadTrip(event.target.value));
   $("#atlas-home-btn").addEventListener("click",showAtlasHome);
   $("#atlas-open-current").addEventListener("click",()=>loadTrip(activeTrip));
+  $("#globe-reset-btn").addEventListener("click",()=>resetAtlasGlobe());
   $("#admin-login-btn").addEventListener("click",()=>openDialog($("#admin-dialog")));
   $("#admin-form").addEventListener("submit",event=>{event.preventDefault();if($("#admin-password").value===CONFIG.adminPassword){closeDialog($("#admin-dialog"));setAdminMode(true);showToast("Modalità editor attiva.");}else{$("#admin-error").hidden=false;}});
   $("#admin-logout-btn").addEventListener("click",()=>setAdminMode(false));
@@ -1021,8 +1263,9 @@ function setupEvents() {
   $("#reset-btn").addEventListener("click",()=>{if(confirm("Ripristinare il JSON originale di questo viaggio?")){localStorage.removeItem(storageKey(activeTrip));currentData=clone(originalData);renderAll();showToast("Itinerario ripristinato.");}});
 
   document.addEventListener("click",event=>{
+    const tripCard=event.target.closest(".atlas-card[data-open-trip]");
+    if(tripCard){loadTrip(tripCard.dataset.openTrip);return;}
     const target=event.target.closest("button"); if(!target)return;
-    if(target.dataset.openTrip) loadTrip(target.dataset.openTrip);
     if(target.dataset.jumpDay!==undefined) scrollToDay(Number(target.dataset.jumpDay));
     if(target.dataset.focusDay!==undefined) focusDayOnMap(Number(target.dataset.focusDay));
     if(target.dataset.mapStop!==undefined) focusDayOnMap(Number(target.dataset.mapStop));

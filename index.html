@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="app.js" defer></script>
@@ -66,14 +67,30 @@
       <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
         <div class="atlas-intro">
           <p class="eyebrow">Raccolta privata · 2026</p>
-          <h1 id="atlas-title">Ogni viaggio merita il suo capitolo.</h1>
+          <h1 id="atlas-title">Il tuo Atlante.</h1>
           <p>Itinerari, luoghi da ricordare e dettagli pratici riuniti in un unico atlante personale.</p>
           <div class="atlas-intro-actions"><button id="atlas-open-current" class="button button-primary" type="button">Apri l’ultimo viaggio <span>→</span></button><span id="atlas-trip-count" class="atlas-count">3 viaggi nell’atlante</span></div>
         </div>
+        <div class="atlas-showcase">
+        <section class="atlas-globe-section" aria-labelledby="atlas-globe-title">
+          <div class="atlas-globe-copy">
+            <p class="eyebrow">Il mondo dei tuoi viaggi</p>
+            <h2 id="atlas-globe-title">Gira il globo. Segui le bandierine.</h2>
+            <p id="atlas-globe-status">Ogni colore rappresenta un itinerario. Passa sopra una copertina per vedere tutte le sue tappe, oppure seleziona una bandierina.</p>
+            <p class="globe-style-note">Stile definitivo · Realistico</p>
+            <button id="globe-reset-btn" class="globe-reset-button no-print" type="button" hidden>← Mostra tutti i viaggi</button>
+          </div>
+          <div id="atlas-globe-stage" class="atlas-globe-stage">
+            <div id="atlas-globe" aria-label="Mappamondo tridimensionale interattivo"></div>
+            <div id="atlas-globe-loading" class="atlas-globe-loading"><span></span>Preparo il mappamondo…</div>
+            <div class="globe-drag-hint no-print"><span>↔</span> Trascina per girare</div>
+          </div>
+        </section>
         <section class="atlas-collection" aria-labelledby="atlas-collection-title">
           <div class="section-heading atlas-heading"><div><p class="eyebrow">Destinazioni</p><h2 id="atlas-collection-title">Scegli dove andare.</h2></div><p>Ogni viaggio conserva la sua rotta, i suoi appunti e il suo ritmo.</p></div>
           <div id="atlas-grid" class="atlas-grid" aria-live="polite"><div class="atlas-loading">Sto preparando i tuoi viaggi…</div></div>
         </section>
+        </div>
       </section>
 
       <div id="trip-view" class="is-hidden">
