@@ -42,10 +42,10 @@
 
   <div id="app-shell" class="app-shell is-hidden">
     <header class="topbar no-print">
-      <a class="brand" href="#top" aria-label="Atlante, torna all'inizio">
+      <button id="atlas-home-btn" class="brand" type="button" aria-label="Atlante, torna alla raccolta dei viaggi">
         <span class="brand-mark small" aria-hidden="true"><span></span><span></span></span>
         <span>Atlante</span>
-      </a>
+      </button>
       <div class="topbar-center">
         <label class="sr-only" for="trip-select">Scegli itinerario</label>
         <select id="trip-select" class="trip-select">
@@ -63,6 +63,20 @@
     </header>
 
     <main id="main-content">
+      <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
+        <div class="atlas-intro">
+          <p class="eyebrow">Raccolta privata · 2026</p>
+          <h1 id="atlas-title">Ogni viaggio merita il suo capitolo.</h1>
+          <p>Itinerari, luoghi da ricordare e dettagli pratici riuniti in un unico atlante personale.</p>
+          <div class="atlas-intro-actions"><button id="atlas-open-current" class="button button-primary" type="button">Apri l’ultimo viaggio <span>→</span></button><span id="atlas-trip-count" class="atlas-count">3 viaggi nell’atlante</span></div>
+        </div>
+        <section class="atlas-collection" aria-labelledby="atlas-collection-title">
+          <div class="section-heading atlas-heading"><div><p class="eyebrow">Destinazioni</p><h2 id="atlas-collection-title">Scegli dove andare.</h2></div><p>Ogni viaggio conserva la sua rotta, i suoi appunti e il suo ritmo.</p></div>
+          <div id="atlas-grid" class="atlas-grid" aria-live="polite"><div class="atlas-loading">Sto preparando i tuoi viaggi…</div></div>
+        </section>
+      </section>
+
+      <div id="trip-view" class="is-hidden">
       <section id="top" class="hero" aria-labelledby="trip-title">
         <div id="hero-media" class="hero-media"></div>
         <div class="hero-shade"></div>
@@ -72,18 +86,19 @@
           <h1 id="trip-title">Caricamento itinerario…</h1>
           <p id="hero-subtitle" class="hero-subtitle"></p>
           <div id="hero-stats" class="hero-stats" aria-label="Riepilogo del viaggio"></div>
+          <div class="hero-actions no-print"><button id="share-trip-btn" class="button button-glass" type="button">Condividi itinerario <span>↗</span></button></div>
         </div>
         <button id="edit-cover-btn" class="floating-edit admin-only no-print" type="button">Modifica copertina</button>
         <div class="hero-scroll no-print" aria-hidden="true"><span></span> Esplora</div>
       </section>
 
       <nav id="section-nav" class="section-nav no-print" aria-label="Sezioni itinerario">
-        <button class="section-tab is-active" data-tab="itinerary" type="button">Itinerario</button>
-        <button class="section-tab" data-tab="map" type="button">Mappa</button>
-        <button class="section-tab" data-tab="flights" type="button">Voli</button>
-        <button class="section-tab" data-tab="tours" type="button">Esperienze</button>
-        <button class="section-tab" data-tab="budget" type="button">Budget</button>
-        <button class="section-tab" data-tab="links" type="button">Link</button>
+        <button class="section-tab is-active" data-tab="itinerary" type="button"><span class="tab-icon">◌</span>Itinerario</button>
+        <button class="section-tab" data-tab="map" type="button"><span class="tab-icon">⌖</span>Mappa</button>
+        <button class="section-tab" data-tab="flights" type="button"><span class="tab-icon">↗</span>Voli</button>
+        <button class="section-tab" data-tab="tours" type="button"><span class="tab-icon">✦</span>Esperienze</button>
+        <button class="section-tab" data-tab="budget" type="button"><span class="tab-icon">€</span>Budget</button>
+        <button class="section-tab" data-tab="links" type="button"><span class="tab-icon">⌁</span>Link</button>
       </nav>
 
       <div class="content-wrap">
@@ -105,8 +120,10 @@
             <div><p class="eyebrow">Vista d’insieme</p><h2>La geografia del viaggio.</h2></div>
             <button id="define-route-btn" class="button button-primary admin-only no-print" type="button">Definisci percorso</button>
           </div>
+          <div class="map-toolbar no-print" aria-label="Filtra la mappa"><button class="map-filter is-active" data-map-filter="all" type="button">Tutto</button><button class="map-filter" data-map-filter="stops" type="button">Tappe</button><button class="map-filter" data-map-filter="stays" type="button">Alloggi</button><button class="map-filter" data-map-filter="travel" type="button">Spostamenti</button></div>
           <div class="map-frame"><div id="map" aria-label="Mappa interattiva dell'itinerario"></div></div>
           <div class="map-legend"><span><i class="legend-dot coral"></i> Tappe</span><span><i class="legend-dot blue"></i> Alloggi</span><span><i class="legend-line"></i> Percorso</span></div>
+          <div id="map-stops" class="map-stops no-print"></div>
         </section>
 
         <section id="panel-flights" class="content-panel" data-panel="flights">
@@ -135,6 +152,7 @@
           <div id="links-content"></div>
         </section>
       </div>
+      </div>
     </main>
 
     <footer class="site-footer">
@@ -143,6 +161,7 @@
     </footer>
 
     <div class="utility-dock no-print" aria-label="Azioni rapide">
+      <button id="utility-share-btn" type="button"><span>↗</span> Condividi</button>
       <button id="pdf-btn" type="button"><span>▤</span> PDF</button>
       <button id="publish-btn" class="admin-only publish-action" type="button"><span>↑</span> Pubblica</button>
       <button id="export-json-btn" class="admin-only" type="button"><span>⇩</span> JSON</button>
@@ -214,7 +233,7 @@
     <form id="publish-form">
       <button class="modal-close" type="button" aria-label="Chiudi">×</button>
       <p class="eyebrow">Pubblicazione</p><h2>Porta online le modifiche.</h2>
-      <p class="modal-copy">Il JSON verrà aggiornato direttamente nella repository e GitHub Pages pubblicherà la nuova versione.</p>
+      <p class="modal-copy">Il JSON verrà aggiornato direttamente nella repository. Le immagini caricate dal PC verranno automaticamente salvate nella libreria del viaggio, poi GitHub Pages pubblicherà la nuova versione.</p>
       <div class="publish-destination">
         <div class="field full"><label for="publish-repository">Repository</label><input id="publish-repository" required placeholder="utente/repository" autocomplete="off"></div>
         <div class="field"><label for="publish-branch">Branch</label><input id="publish-branch" required value="main" autocomplete="off"></div>
@@ -229,6 +248,16 @@
         <i></i><span>Pronto per pubblicare.</span>
       </div>
       <div class="modal-actions"><button class="button button-soft" type="button" data-close-dialog>Annulla</button><button id="publish-submit-btn" class="button button-primary" type="submit">Pubblica ora</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="share-dialog" class="modal">
+    <form method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Condividi</p><h2>Porta il viaggio con te.</h2>
+      <p class="modal-copy">Questo link apre direttamente l’itinerario selezionato. Puoi anche scansionare il QR code dal telefono.</p>
+      <div class="share-qr-wrap"><img id="share-qr" alt="QR code per aprire questo itinerario"></div>
+      <label for="share-url">Link diretto</label><div class="share-url-row"><input id="share-url" readonly><button id="share-copy-btn" class="button button-primary" type="button">Copia</button></div>
     </form>
   </dialog>
 

@@ -24,8 +24,9 @@ const currency = value => new Intl.NumberFormat("it-IT", { style: "currency", cu
 const makeId = prefix => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 const storageKey = slug => `atlante:${slug}`;
 const safeImage = url => url && !url.endsWith("/") ? url : "";
+const urlState = new URLSearchParams(window.location.search);
 
-let activeTrip = window.__EMBEDDED_SLUG__ || localStorage.getItem("atlante:activeTrip") || "rajasthan-maldive";
+let activeTrip = window.__EMBEDDED_SLUG__ || urlState.get("trip") || localStorage.getItem("atlante:activeTrip") || "rajasthan-maldive";
 let currentData = null;
 let originalData = null;
 let isAdmin = sessionStorage.getItem("atlante:admin") === "true";
@@ -36,6 +37,9 @@ let tempRoute = [];
 let publishConfig = { trips: {} };
 let sessionGithubToken = "";
 let publishStateByTrip = {};
+let atlasCatalogCache = {};
+let mapFilter = "all";
+let pendingSharedDay = Number(urlState.get("day"));
 
 const DEFAULT_PUBLISH_TARGETS = {
   giappone: { repository: "rigelpd/Atlante-di-viaggio", branch: "main", path: "data/giappone.json", siteUrl: "https://rigelpd.github.io/Atlante-di-viaggio/" },
@@ -93,6 +97,67 @@ function setAdminMode(enabled) {
   renderAll();
 }
 
+function setAppView(view) {
+  const isAtlas = view === "atlas";
+  $("#atlas-home").classList.toggle("is-hidden", !isAtlas);
+  $("#trip-view").classList.toggle("is-hidden", isAtlas);
+  document.body.classList.toggle("atlas-view", isAtlas);
+}
+
+function updateUrlState({trip = null, day = null} = {}) {
+  if (window.__PUBLIC_EXPORT__) return;
+  const url = new URL(window.location.href);
+  url.search = "";
+  if (trip) url.searchParams.set("trip", trip);
+  if (Number.isInteger(day) && day >= 0) url.searchParams.set("day", String(day + 1));
+  history.replaceState({}, "", url);
+}
+
+async function getCatalogTrip(slug) {
+  if (atlasCatalogCache[slug]) return atlasCatalogCache[slug];
+  if (slug === activeTrip && currentData) return currentData;
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(storageKey(slug))); } catch { data = null; }
+  if (!data) {
+    const response = await fetch(`${CONFIG.catalog[slug].file}?v=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    data = await response.json();
+  }
+  atlasCatalogCache[slug] = normalizeData(data);
+  return atlasCatalogCache[slug];
+}
+
+function catalogRange(data) {
+  const first = data.itinerary[0]?.date, last = data.itinerary.at(-1)?.date;
+  return first && last ? `${formatDate(first,{month:"short",year:"numeric"})} · ${data.itinerary.length} giorni` : `${data.itinerary.length} giorni`;
+}
+
+function renderAtlasHome(trips) {
+  $("#atlas-trip-count").textContent = `${trips.length} viaggi nell’atlante`;
+  $("#atlas-grid").innerHTML = trips.map(({slug,data},index) => {
+    const image = safeImage(data.main.image) || safeImage(data.itinerary.find(day => safeImage(day.image))?.image);
+    const locations = new Set(data.itinerary.map(day => day.location?.trim()).filter(Boolean)).size;
+    return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""}" style="--card-index:${index}">
+      <div class="atlas-card-media" ${image ? `style="background-image:url('${escapeHtml(image).replace(/'/g,"%27")}')"` : ""}></div>
+      <div class="atlas-card-shade"></div>
+      <div class="atlas-card-content"><p>${escapeHtml(catalogRange(data))}</p><h3>${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}</h3><span>${locations} tappe · ${escapeHtml(CONFIG.catalog[slug].subtitle)}</span><button class="atlas-card-open" type="button" data-open-trip="${slug}">Esplora <b>→</b></button></div>
+    </article>`;
+  }).join("");
+}
+
+async function showAtlasHome() {
+  setAppView("atlas");
+  updateUrlState();
+  $("#atlas-grid").innerHTML = `<div class="atlas-loading">Sto preparando i tuoi viaggi…</div>`;
+  try {
+    const trips = await Promise.all(Object.keys(CONFIG.catalog).map(async slug => ({slug,data:await getCatalogTrip(slug)})));
+    renderAtlasHome(trips);
+  } catch (error) {
+    console.error(error);
+    $("#atlas-grid").innerHTML = `<div class="empty-state"><h3>Non riesco a caricare la raccolta</h3><p>Riprova tra poco.</p></div>`;
+  }
+}
+
 async function loadTrip(slug, preferSaved = true) {
   activeTrip = slug in CONFIG.catalog ? slug : "rajasthan-maldive";
   localStorage.setItem("atlante:activeTrip", activeTrip);
@@ -119,11 +184,20 @@ async function loadTrip(slug, preferSaved = true) {
   }
   originalData = normalizeData(clone(data));
   currentData = normalizeData(data);
+  atlasCatalogCache[activeTrip] = clone(currentData);
   const publishedFingerprint = localStorage.getItem(`atlante:publishedFingerprint:${activeTrip}`);
   const hasUnpublishedLocalData = Boolean(localStorage.getItem(storageKey(activeTrip))) && publishedFingerprint !== fingerprintData(currentData);
   publishStateByTrip[activeTrip] = { ...(publishStateByTrip[activeTrip] || {}), dirty: hasUnpublishedLocalData };
   setPublishIndicator(hasUnpublishedLocalData ? "local" : "clean", hasUnpublishedLocalData ? "Modifiche locali" : "Nessuna modifica");
+  setAppView("trip");
+  updateUrlState({trip:activeTrip,day:Number.isInteger(pendingSharedDay) && pendingSharedDay > 0 ? pendingSharedDay - 1 : null});
+  document.title = `${currentData.main.title || CONFIG.catalog[activeTrip].label} — Atlante`;
   renderAll();
+  if (Number.isInteger(pendingSharedDay) && pendingSharedDay > 0) {
+    const day = pendingSharedDay - 1;
+    pendingSharedDay = NaN;
+    setTimeout(() => scrollToDay(day), 120);
+  }
 }
 
 function saveData(silent = false) {
@@ -237,6 +311,39 @@ async function readPackagedTrip() {
   } catch { return null; }
 }
 
+function embeddedImageTargets() {
+  const targets = [];
+  if (/^data:image\//i.test(currentData?.main?.image || "")) targets.push(currentData.main);
+  currentData?.itinerary?.forEach(day => { if (/^data:image\//i.test(day.image || "")) targets.push(day); });
+  return targets;
+}
+
+function mediaFileDetails(dataUrl,index) {
+  const match = String(dataUrl || "").match(/^data:image\/(jpeg|jpg|png|webp);base64,([\s\S]+)$/i);
+  if (!match) throw new Error("Una delle immagini caricate non è in un formato supportato.");
+  const extension = match[1].toLowerCase() === "jpeg" ? "jpg" : match[1].toLowerCase();
+  return { content:match[2], path:`media/${activeTrip}/${Date.now()}-${index + 1}-${Math.random().toString(36).slice(2,7)}.${extension}` };
+}
+
+async function publishEmbeddedImages(repository,branch) {
+  const targets = embeddedImageTargets();
+  if (!targets.length) return 0;
+  for (let index=0;index<targets.length;index++) {
+    setPublishStatus("working", `Carico e ottimizzo l’immagine ${index + 1} di ${targets.length}…`);
+    const file = mediaFileDetails(targets[index].image,index);
+    const encodedPath = file.path.split("/").map(encodeURIComponent).join("/");
+    const upload = await githubRequest(`https://api.github.com/repos/${repository}/contents/${encodedPath}`, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message:`Aggiunge immagine per ${currentData.main.title}`, content:file.content.replace(/\s/g,""), branch })
+    });
+    if (!upload.response.ok) throw new Error(githubErrorMessage(upload.response.status,upload.payload));
+    targets[index].image = file.path;
+  }
+  saveData(true);
+  atlasCatalogCache[activeTrip] = clone(currentData);
+  return targets.length;
+}
+
 async function handlePublish(event) {
   event.preventDefault();
   if (!isAdmin || !currentData) return;
@@ -288,6 +395,8 @@ async function handlePublish(event) {
       return;
     }
 
+    const uploadedImages = await publishEmbeddedImages(repository,branch);
+    if (uploadedImages) setPublishStatus("working", `${uploadedImages} immagini salvate nella libreria del viaggio. Creo il commit…`);
     setPublishStatus("working", "Creo il commit con il nuovo itinerario…");
     const body = {
       message: `Aggiorna ${currentData.main.title} dal sito`,
@@ -352,11 +461,11 @@ function formatDate(value, options = { weekday: "long", day: "numeric", month: "
   return date && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat("it-IT", options).format(date) : "Data da definire";
 }
 
-function tripStats() {
-  const days = currentData.itinerary.length;
-  const locations = new Set(currentData.itinerary.map(item => item.location?.trim()).filter(Boolean)).size;
-  const first = currentData.itinerary[0]?.date;
-  const last = currentData.itinerary.at(-1)?.date;
+function tripStats(data = currentData) {
+  const days = data.itinerary.length;
+  const locations = new Set(data.itinerary.map(item => item.location?.trim()).filter(Boolean)).size;
+  const first = data.itinerary[0]?.date;
+  const last = data.itinerary.at(-1)?.date;
   return { days, locations, range: first && last ? `${formatDate(first,{day:"numeric",month:"short"})} — ${formatDate(last,{day:"numeric",month:"short",year:"numeric"})}` : "Date aperte" };
 }
 
@@ -369,6 +478,7 @@ function renderAll() {
   renderTours();
   renderBudget();
   renderLinks();
+  renderMapStops();
   if ($('[data-panel="map"]').classList.contains("is-active")) setTimeout(initializeMap, 80);
 }
 
@@ -407,9 +517,11 @@ function renderItinerary() {
       <div class="day-marker"><span class="number">${String(index+1).padStart(2,"0")}</span><time datetime="${escapeHtml(day.date)}">${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time></div>
       <div class="day-body">
         <div class="day-copy">
+          <p class="day-kicker">Giorno ${String(index+1).padStart(2,"0")} · ${escapeHtml(formatDate(day.date,{weekday:"long",day:"numeric",month:"long"}))}</p>
           <div class="day-location"><h3>${escapeHtml(day.location || "Tappa da definire")}</h3>${tags}</div>
           <p class="day-accommodation">⌂ ${escapeHtml(day.accommodation || "Alloggio da definire")}</p>
           <p class="day-activities">${nl2br(day.activities || "Attività da definire.")}</p>
+          <div class="day-story-actions no-print"><button class="text-action" type="button" data-share-day="${index}">Condividi questo giorno <span>↗</span></button></div>
         </div>
         <div class="day-image">
           ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(day.location || "Immagine del viaggio")}" loading="lazy">` : `<div class="day-placeholder"><span>Immagine da aggiungere<br><small>${escapeHtml(day.location || "")}</small></span></div>`}
@@ -419,6 +531,12 @@ function renderItinerary() {
       </div>
     </article>`;
   }).join("");
+}
+
+function renderMapStops() {
+  const route = (currentData.route || []).map(name => currentData.itinerary.findIndex(day => day.location?.trim() === String(name).trim())).filter(index => index >= 0);
+  const stops = route.length ? route : currentData.itinerary.map((_,index) => index).filter((index,value) => !value || currentData.itinerary[index].location !== currentData.itinerary[index-1].location);
+  $("#map-stops").innerHTML = stops.map(index => `<button class="map-stop" type="button" data-map-stop="${index}"><span>${String(index+1).padStart(2,"0")}</span>${escapeHtml(currentData.itinerary[index].location || "Tappa")}</button>`).join("");
 }
 
 function timezoneLabel(value) {
@@ -529,6 +647,29 @@ function switchPanel(name) {
   $("#section-nav").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function scrollToDay(index) {
+  if (!currentData.itinerary[index]) return;
+  switchPanel("itinerary");
+  updateUrlState({trip:activeTrip,day:index});
+  setTimeout(() => $("#day-" + index)?.scrollIntoView({behavior:"smooth",block:"center"}), 100);
+}
+
+function updateMapFilter() {
+  if (!map || !mapLayers) return;
+  const visibility = {
+    all: ["places","hotels","travel","routeLayer"],
+    stops: ["places","routeLayer"],
+    stays: ["hotels"],
+    travel: ["travel","routeLayer"]
+  }[mapFilter] || ["places","hotels","travel","routeLayer"];
+  Object.entries(mapLayers).forEach(([name,layer]) => {
+    if (!layer || name === "markers") return;
+    if (visibility.includes(name) && !map.hasLayer(layer)) layer.addTo(map);
+    if (!visibility.includes(name) && map.hasLayer(layer)) map.removeLayer(layer);
+  });
+  $$("[data-map-filter]").forEach(button => button.classList.toggle("is-active",button.dataset.mapFilter === mapFilter));
+}
+
 function initializeMap() {
   if (!window.L || !$("#map") || !currentData) return;
   if (map) map.remove();
@@ -536,7 +677,7 @@ function initializeMap() {
   const topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenStreetMap, SRTM" });
   const satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Tiles © Esri" });
   map = L.map("map", { center: [25,70], zoom: 4, layers: [street], zoomControl: true });
-  const places = L.layerGroup().addTo(map), hotels = L.layerGroup(), routeLayer = L.layerGroup().addTo(map);
+  const places = L.layerGroup().addTo(map), hotels = L.layerGroup().addTo(map), travel = L.layerGroup().addTo(map), routeLayer = L.layerGroup().addTo(map);
   const bounds = [];
   const byLocation = new Map();
   currentData.itinerary.forEach((day,index) => {
@@ -548,15 +689,20 @@ function initializeMap() {
     if (day.accommodation_coords?.lat && day.accommodation_coords?.lng) {
       L.circleMarker([day.accommodation_coords.lat,day.accommodation_coords.lng],{radius:7,color:"#fff",weight:2,fillColor:"#368f9d",fillOpacity:1}).bindPopup(`<strong>${escapeHtml(day.accommodation)}</strong>`).addTo(hotels);
     }
+    if (day.isFlight || day.isCruise) {
+      const label = day.isFlight ? "Spostamento aereo" : "Spostamento in barca";
+      L.circleMarker([day.location_coords.lat,day.location_coords.lng],{radius:6,color:"#fff",weight:2,fillColor:"#d7a34b",fillOpacity:1}).bindPopup(`<strong>${label}</strong><br><small>${escapeHtml(day.location)}</small>`).on("click", () => scrollToDay(index)).addTo(travel);
+    }
   });
   byLocation.forEach(place => {
-    L.circleMarker([place.location_coords.lat,place.location_coords.lng],{radius:9,color:"#fff",weight:3,fillColor:"#f06d54",fillOpacity:1}).bindPopup(`<strong>${escapeHtml(place.location)}</strong><br><small>${place.dates.map(d => escapeHtml(formatDate(d,{day:"numeric",month:"short"}))).join(" · ")}</small>`).on("click", () => {}).addTo(places);
+    L.circleMarker([place.location_coords.lat,place.location_coords.lng],{radius:9,color:"#fff",weight:3,fillColor:"#f06d54",fillOpacity:1}).bindPopup(`<strong>${escapeHtml(place.location)}</strong><br><small>${place.dates.map(d => escapeHtml(formatDate(d,{day:"numeric",month:"short"}))).join(" · ")}</small>`).on("click", () => scrollToDay(place.index)).addTo(places);
   });
   const routePoints = (currentData.route || []).map(name => currentData.itinerary.find(day => day.location?.trim() === String(name).trim())?.location_coords).filter(coords => coords?.lat && coords?.lng).map(coords => [coords.lat,coords.lng]);
-  if (routePoints.length > 1) L.polyline(routePoints,{color:"#f06d54",weight:3,opacity:.82,dashArray:"7 9"}).addTo(routeLayer);
-  L.control.layers({"Stradale":street,"Satellite":satellite,"Topografica":topo},{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels},{collapsed:true}).addTo(map);
+  if (routePoints.length > 1) L.polyline(routePoints,{color:"#f06d54",weight:3,opacity:.86,dashArray:"7 9",className:"route-pulse"}).addTo(routeLayer);
+  L.control.layers({"Stradale":street,"Satellite":satellite,"Topografica":topo},{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels,"Spostamenti":travel},{collapsed:true}).addTo(map);
   if (bounds.length) map.fitBounds(bounds,{padding:[35,35],maxZoom:8});
-  mapLayers = { places, hotels, routeLayer };
+  mapLayers = { places, hotels, travel, routeLayer };
+  updateMapFilter();
   setTimeout(() => map.invalidateSize(), 100);
 }
 
@@ -565,6 +711,37 @@ function focusDayOnMap(index) {
   if (!day?.location_coords?.lat) return;
   switchPanel("map");
   setTimeout(() => map?.flyTo([day.location_coords.lat,day.location_coords.lng],12,{duration:1.1}),200);
+}
+
+function shareLink(day = null) {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.searchParams.set("trip",activeTrip);
+  if (Number.isInteger(day) && day >= 0) url.searchParams.set("day",String(day + 1));
+  return url.toString();
+}
+
+function openShareDialog(day = null) {
+  const url = shareLink(day);
+  $("#share-url").value = url;
+  $("#share-qr").src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&format=svg&data=${encodeURIComponent(url)}`;
+  $("#share-qr").alt = `QR code per ${currentData.main.title || "questo itinerario"}`;
+  openDialog($("#share-dialog"));
+}
+
+async function shareTrip(day = null) {
+  const url = shareLink(day);
+  const title = day === null ? currentData.main.title : `${currentData.main.title} — Giorno ${day + 1}`;
+  if (navigator.share) {
+    try { await navigator.share({title,text:"Apri questo itinerario su Atlante.",url}); return; } catch (error) { if (error?.name === "AbortError") return; }
+  }
+  openShareDialog(day);
+}
+
+async function copyShareLink() {
+  const input = $("#share-url");
+  try { await navigator.clipboard.writeText(input.value); showToast("Link copiato negli appunti."); }
+  catch { input.select(); document.execCommand("copy"); showToast("Link copiato negli appunti."); }
 }
 
 function fieldMarkup({id,label,type="text",value="",full=false,options=null,step=null,placeholder=""}) {
@@ -756,13 +933,21 @@ async function importJSON(file) {
   } catch(error) { console.error(error); showToast("Il file JSON non è valido."); }
 }
 
+function dataForStandaloneExport() {
+  const data = clone(currentData);
+  const makeAbsolute = image => image && !/^(https?:|data:)/i.test(image) ? new URL(image,window.location.href).toString() : image;
+  data.main.image = makeAbsolute(data.main.image);
+  data.itinerary.forEach(day => { day.image = makeAbsolute(day.image); });
+  return data;
+}
+
 async function exportPublicHTML() {
   try {
     const [css,js,html] = await Promise.all([fetch("styles.css").then(r=>r.text()),fetch("app.js").then(r=>r.text()),fetch("index.html").then(r=>r.text())]);
     const parser = new DOMParser(); const doc=parser.parseFromString(html,"text/html");
     doc.querySelector('link[href="styles.css"]')?.replaceWith(Object.assign(doc.createElement("style"),{textContent:css}));
     doc.querySelector('script[src="app.js"]')?.remove();
-    const embedded=doc.createElement("script"); embedded.textContent=`window.__EMBEDDED_SLUG__=${JSON.stringify(activeTrip)};window.__EMBEDDED_DATA__=${JSON.stringify(currentData).replace(/<\//g,"<\\/")};window.__PUBLIC_EXPORT__=true;`; doc.body.append(embedded);
+    const embedded=doc.createElement("script"); embedded.textContent=`window.__EMBEDDED_SLUG__=${JSON.stringify(activeTrip)};window.__EMBEDDED_DATA__=${JSON.stringify(dataForStandaloneExport()).replace(/<\//g,"<\\/")};window.__PUBLIC_EXPORT__=true;`; doc.body.append(embedded);
     const script=doc.createElement("script"); script.textContent=js; doc.body.append(script);
     doc.querySelector("#access-screen")?.classList.add("is-hidden");
     doc.querySelector("#app-shell")?.classList.remove("is-hidden");
@@ -799,18 +984,24 @@ function handleLinkSubmit(event) {
 }
 
 function setupEvents() {
-  $("#access-form").addEventListener("submit",event=>{event.preventDefault();if($("#access-password").value===CONFIG.accessPassword){sessionStorage.setItem("atlante:access","true");$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");loadTrip(activeTrip);}else{$("#access-error").hidden=false;$("#access-password").select();}});
+  $("#access-form").addEventListener("submit",event=>{event.preventDefault();if($("#access-password").value===CONFIG.accessPassword){sessionStorage.setItem("atlante:access","true");$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-error").hidden=false;$("#access-password").select();}});
   $$('[data-toggle-password]').forEach(button=>button.addEventListener("click",()=>{const input=$(`#${button.dataset.togglePassword}`);input.type=input.type==="password"?"text":"password";}));
   $("#trip-select").addEventListener("change",event=>loadTrip(event.target.value));
+  $("#atlas-home-btn").addEventListener("click",showAtlasHome);
+  $("#atlas-open-current").addEventListener("click",()=>loadTrip(activeTrip));
   $("#admin-login-btn").addEventListener("click",()=>openDialog($("#admin-dialog")));
   $("#admin-form").addEventListener("submit",event=>{event.preventDefault();if($("#admin-password").value===CONFIG.adminPassword){closeDialog($("#admin-dialog"));setAdminMode(true);showToast("Modalità editor attiva.");}else{$("#admin-error").hidden=false;}});
   $("#admin-logout-btn").addEventListener("click",()=>setAdminMode(false));
   $("#quick-save-btn").addEventListener("click",()=>saveData());
   $("#publish-btn").addEventListener("click",openPublishDialog);
   $("#publish-form").addEventListener("submit",handlePublish);
+  $("#share-trip-btn").addEventListener("click",()=>shareTrip());
+  $("#utility-share-btn").addEventListener("click",()=>shareTrip());
+  $("#share-copy-btn").addEventListener("click",copyShareLink);
   $$("dialog").forEach(dialog=>dialog.addEventListener("close",()=>document.body.classList.remove("modal-open")));
   $$(".modal-close,[data-close-dialog]").forEach(button=>button.addEventListener("click",()=>closeDialog(button.closest("dialog"))));
   $$(".section-tab").forEach(button=>button.addEventListener("click",()=>switchPanel(button.dataset.tab)));
+  $$("[data-map-filter]").forEach(button=>button.addEventListener("click",()=>{mapFilter=button.dataset.mapFilter;updateMapFilter();}));
   $("#edit-cover-btn").addEventListener("click",()=>openEditor("cover"));
   $("#edit-dates-btn").addEventListener("click",()=>openEditor("dates"));
   $("#add-day-btn").addEventListener("click",()=>openEditor("day"));
@@ -831,8 +1022,11 @@ function setupEvents() {
 
   document.addEventListener("click",event=>{
     const target=event.target.closest("button"); if(!target)return;
-    if(target.dataset.jumpDay!==undefined) $(`#day-${target.dataset.jumpDay}`)?.scrollIntoView({behavior:"smooth",block:"center"});
+    if(target.dataset.openTrip) loadTrip(target.dataset.openTrip);
+    if(target.dataset.jumpDay!==undefined) scrollToDay(Number(target.dataset.jumpDay));
     if(target.dataset.focusDay!==undefined) focusDayOnMap(Number(target.dataset.focusDay));
+    if(target.dataset.mapStop!==undefined) focusDayOnMap(Number(target.dataset.mapStop));
+    if(target.dataset.shareDay!==undefined) shareTrip(Number(target.dataset.shareDay));
     if(target.dataset.editDay!==undefined) openEditor("day",Number(target.dataset.editDay));
     if(target.dataset.deleteDay!==undefined && confirm("Eliminare questa giornata?")){currentData.itinerary.splice(Number(target.dataset.deleteDay),1);saveData(true);renderAll();}
     if(target.dataset.editFlight!==undefined) openEditor("flight",Number(target.dataset.editFlight));
@@ -857,5 +1051,5 @@ document.addEventListener("DOMContentLoaded",async()=>{
   if (window.__PUBLIC_EXPORT__) {
     sessionStorage.setItem("atlante:access","true"); isAdmin=false; $("#app-shell").classList.remove("is-hidden"); loadTrip(activeTrip,false); return;
   }
-  if(sessionStorage.getItem("atlante:access")==="true"){$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");loadTrip(activeTrip);}else{$("#access-password").focus();}
+  if(sessionStorage.getItem("atlante:access")==="true"){$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-password").focus();}
 });
