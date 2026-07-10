@@ -1,0 +1,424 @@
+{
+  "main": {
+    "title": "Dalle Spezie del Rajasthan al Turchese di Dhigurah",
+    "subtitle": "Delhi, la Via d'Oro del Rajasthan e una settimana nell'Atollo di Ari Sud",
+    "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=2000&q=85"
+  },
+  "flights": [
+    {
+      "idPrefix": "out",
+      "title": "Volo di andata: Bologna → Delhi",
+      "depAirport": "Aeroporto Guglielmo Marconi di Bologna (BLQ)",
+      "arrAirport": "Indira Gandhi International Airport (DEL)",
+      "depTime": "",
+      "arrTime": "",
+      "depTz": 1,
+      "arrTz": 5.5,
+      "notes": "Operativo e scalo da definire. Arrivo previsto il 1 gennaio."
+    },
+    {
+      "idPrefix": "internal",
+      "title": "Volo interno: Jaisalmer → Delhi",
+      "depAirport": "Jaisalmer Airport (JSA)",
+      "arrAirport": "Indira Gandhi International Airport (DEL)",
+      "depTime": "",
+      "arrTime": "",
+      "depTz": 5.5,
+      "arrTz": 5.5,
+      "notes": "Previsto il 14 gennaio; verificare l'operativo stagionale prima di bloccare gli hotel."
+    },
+    {
+      "idPrefix": "tropical",
+      "title": "Volo: Delhi → Malé",
+      "depAirport": "Indira Gandhi International Airport (DEL)",
+      "arrAirport": "Velana International Airport, Malé (MLE)",
+      "depTime": "",
+      "arrTime": "",
+      "depTz": 5.5,
+      "arrTz": 5,
+      "notes": "Previsto il 16 gennaio. Scegliere un arrivo compatibile con il trasferimento per Dhigurah."
+    },
+    {
+      "idPrefix": "return",
+      "title": "Volo di ritorno: Malé → Bologna",
+      "depAirport": "Velana International Airport, Malé (MLE)",
+      "arrAirport": "Aeroporto Guglielmo Marconi di Bologna (BLQ)",
+      "depTime": "",
+      "arrTime": "",
+      "depTz": 5,
+      "arrTz": 1,
+      "notes": "Previsto il 23 gennaio; lasciare margine dopo il trasferimento mattutino da Dhigurah."
+    }
+  ],
+  "itinerary": [
+    {
+      "date": "2026-12-31",
+      "location": "Bologna",
+      "isFlight": true,
+      "isCruise": false,
+      "accommodation": "Volo notturno",
+      "activities": "Mattina: ultimi controlli di passaporto, e-Visa, assicurazione e bagagli.\nPomeriggio: arrivo a BLQ con almeno 3 ore di anticipo e check-in del bagaglio fino a Delhi.\nSera: partenza con scalo in Medio Oriente; Capodanno in volo. Tenere nel bagaglio a mano un cambio, farmaci, adattatore e documenti stampati.\nAlternativa: se l'operativo parte molto presto, pernottare vicino all'aeroporto la sera precedente.",
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 44.4949, "lng": 11.3426 }
+    },
+    {
+      "date": "2027-01-01",
+      "location": "Delhi",
+      "isFlight": true,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — New Delhi o Aerocity",
+      "activities": "Arrivo all'Indira Gandhi International Airport, controllo passaporti e ritiro bagagli. Incontro con l'autista privato e trasferimento in hotel.\nPomeriggio: riposo completo per assorbire il fuso; breve passeggiata solo se resta energia.\nSera: cena leggera in hotel, acqua sigillata e sonno presto. Evitare di riempire il primo giorno: traffico e formalità possono allungare molto i tempi.",
+      "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 28.6139, "lng": 77.209 }
+    },
+    {
+      "date": "2027-01-02",
+      "location": "Old Delhi",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — New Delhi",
+      "activities": "Mattina presto: Jama Masjid, cortile e vista sui tetti; portare calze e abbigliamento rispettoso. Proseguire in risciò tra Chandni Chowk, Kinari Bazaar e le botteghe delle spezie di Khari Baoli.\nPranzo: assaggi guidati in un locale affidabile oppure cucina moghul vicino alla moschea.\nPomeriggio: esterni del Red Fort e memoriale di Raj Ghat; se il Forte Rosso è chiuso o affollato, scegliere il Museo Nazionale.\nSera: passeggiata a Connaught Place o cena tranquilla. Prenotare una guida per rendere più leggibili storia e quartieri.",
+      "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 28.6562, "lng": 77.241 }
+    },
+    {
+      "date": "2027-01-03",
+      "location": "New Delhi",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — New Delhi",
+      "activities": "Mattina: Tomba di Humayun all'apertura e passeggiata nei giardini moghul; possibile estensione alla vicina Nizamuddin Dargah.\nPranzo: Khan Market o Lodhi Colony.\nPomeriggio: Qutub Minar e complesso archeologico, poi passaggio panoramico da India Gate e asse istituzionale.\nSera: Lodhi Art District oppure spettacolo culturale. Alternativa rilassata: Lotus Temple e giardini Lodhi, riducendo gli spostamenti.",
+      "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 28.5921, "lng": 77.2507 }
+    },
+    {
+      "date": "2027-01-04",
+      "location": "Agra",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — Taj Ganj, Agra",
+      "activities": "Partenza di prima mattina per Agra con treno rapido da confermare; transfer dalla stazione all'hotel e deposito bagagli.\nTarda mattina: Agra Fort, palazzi di arenaria e affacci sul Taj Mahal.\nPomeriggio: Itmad-ud-Daulah, spesso chiamato Baby Taj; al tramonto Mehtab Bagh per la vista oltre lo Yamuna.\nSera: preparare biglietti, documento e abbigliamento per l'ingresso all'alba. Verificare sempre giorno di chiusura e regole aggiornate del Taj Mahal.",
+      "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 27.1767, "lng": 78.0081 }
+    },
+    {
+      "date": "2027-01-05",
+      "location": "Fatehpur Sikri → Jaipur",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaipur",
+      "activities": "Prima dell'alba: ingresso al Taj Mahal appena apre; dedicare 2-3 ore ai giardini, alla moschea e al mausoleo.\nRientro in hotel per colazione e partenza con auto privata verso Jaipur.\nSosta principale: Fatehpur Sikri, città imperiale abbandonata; possibile seconda sosta al pozzo a gradini Chand Baori di Abhaneri se luce e tempi lo consentono.\nSera: check-in nella Città Rosa e cena sul rooftop. Giornata lunga: tenere acqua e snack in auto.",
+      "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 27.0945, "lng": 77.6679 }
+    },
+    {
+      "date": "2027-01-06",
+      "location": "Jaipur — Amber",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaipur",
+      "activities": "Mattina: Amber Fort all'apertura, salita a piedi o in jeep; esplorare cortili, Sheesh Mahal e bastioni. Evitare le passeggiate con elefanti.\nTarda mattina: Panna Meena ka Kund e tempio Jagat Shiromani nel villaggio di Amer.\nPomeriggio: sosta fotografica al Jal Mahal e visita al museo tessile Anokhi oppure al Nahargarh Fort.\nTramonto: vista sulla città da Nahargarh, rientrando prima del buio con autista.",
+      "image": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.9855, "lng": 75.8513 }
+    },
+    {
+      "date": "2027-01-07",
+      "location": "Jaipur — Città Rosa",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaipur",
+      "activities": "Alba: foto della facciata dell'Hawa Mahal dalla terrazza opposta, poi visita degli interni.\nMattina: City Palace e Jantar Mantar con guida per comprendere gli strumenti astronomici.\nPomeriggio: bazar Johari e Bapu, laboratorio serio di block printing oppure Galtaji, il tempio tra le colline.\nSera: cena rajastana con musica tradizionale. Per acquisti di gemme chiedere certificazione e confrontare più negozi.",
+      "image": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.9124, "lng": 75.7873 }
+    },
+    {
+      "date": "2027-01-08",
+      "location": "Jaipur → Jodhpur",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jodhpur old city",
+      "activities": "Partenza dopo colazione in auto privata per Jodhpur, circa 5-6 ore più soste.\nPausa pranzo lungo la strada in struttura affidabile; arrivo e check-in nel pomeriggio.\nPasseggiata orientativa nella Blue City tra Navchokiya e le case indaco, con prudenza nei vicoli e rispetto per gli abitanti.\nTramonto: terrazza con vista sul Mehrangarh Fort; cena vicino alla Clock Tower.",
+      "image": "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.2389, "lng": 73.0243 }
+    },
+    {
+      "date": "2027-01-09",
+      "location": "Jodhpur",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jodhpur old city",
+      "activities": "Mattina: Mehrangarh Fort con audioguida, palazzi, collezioni e bastioni sulla città blu.\nTarda mattina: Jaswant Thada e il suo giardino tranquillo.\nPomeriggio: Rao Jodha Desert Rock Park oppure Umaid Bhawan Palace Museum; chi preferisce la vita locale può scegliere un tour a piedi dei quartieri blu.\nSera: mercato Sardar attorno alla Clock Tower, spezie e lassi. Indossare scarpe con buona aderenza sui vicoli ripidi.",
+      "image": "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.2978, "lng": 73.0185 }
+    },
+    {
+      "date": "2027-01-10",
+      "location": "Jodhpur → Jaisalmer",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaisalmer",
+      "activities": "Partenza al mattino per Jaisalmer, circa 5 ore attraverso il paesaggio semiarido del Thar.\nPossibile sosta ai templi di Osian, se non visitati in escursione separata, oppure pranzo a Pokhran.\nArrivo nel pomeriggio, check-in e prima passeggiata attorno al forte dorato.\nTramonto: Gadisar Lake o Bada Bagh. Scegliere una struttura fuori dalle mura del forte per ridurre pressione su drenaggio e patrimonio.",
+      "image": "https://images.unsplash.com/photo-1600954700722-b9a768fc9399?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.9157, "lng": 70.9083 }
+    },
+    {
+      "date": "2027-01-11",
+      "location": "Jaisalmer → Deserto del Thar",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Campo tendato responsabile — Khuri o Sam",
+      "activities": "Mattina: Jaisalmer Fort, templi giainisti e vicoli della cittadella; proseguire con Patwon Ki Haveli e Nathmal Ki Haveli.\nPrimo pomeriggio: partenza verso dune meno affollate, preferibilmente Khuri o un campo piccolo e responsabile.\nTramonto: safari in jeep e breve cammellata con operatore attento al benessere animale; possibilità di camminare invece di cavalcare.\nSera: cena rajastana, musica tradizionale e osservazione del cielo. Portare strati caldi: la notte nel deserto può essere fredda.",
+      "image": "https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.84, "lng": 70.52 }
+    },
+    {
+      "date": "2027-01-12",
+      "location": "Deserto del Thar → Jaisalmer",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaisalmer",
+      "activities": "Alba sulle dune e colazione al campo. Rientro lento verso Jaisalmer con eventuale sosta al villaggio abbandonato di Kuldhara.\nPomeriggio libero: riposo, caffè con vista sul forte oppure visita al Desert Culture Centre.\nTramonto: Gadisar Lake in barca a remi o passeggiata ai chhatri di Bada Bagh.\nSera: cena su terrazza. Questa giornata cuscinetto assorbe eventuali ritardi e restituisce energia dopo la notte nel deserto.",
+      "image": "https://images.unsplash.com/photo-1600954700722-b9a768fc9399?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.9157, "lng": 70.9083 }
+    },
+    {
+      "date": "2027-01-13",
+      "location": "Jaisalmer",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Haveli da prenotare — Jaisalmer",
+      "activities": "Giornata flessibile prima del volo interno.\nOpzione cultura: approfondire i templi giainisti, il palazzo del Maharawal e le havelis con guida.\nOpzione natura: escursione all'alba nel Desert National Park, solo con guida autorizzata e aspettative realistiche sugli avvistamenti.\nOpzione relax: hammam, acquisti artigianali e lunga pausa in terrazza. Sera dedicata a riordinare il bagaglio e verificare l'operativo JSA-DEL.",
+      "image": "https://images.unsplash.com/photo-1600954700722-b9a768fc9399?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 26.9157, "lng": 70.9083 }
+    },
+    {
+      "date": "2027-01-14",
+      "location": "Jaisalmer → Delhi",
+      "isFlight": true,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — Aerocity, Delhi",
+      "activities": "Mattina libera e check-out secondo l'orario del volo. Transfer al piccolo aeroporto di Jaisalmer con margine adeguato.\nVolo interno diretto per Delhi, soggetto a operativo stagionale. All'arrivo trasferimento ad Aerocity per semplificare la partenza internazionale.\nSera: lavanderia, cena in hotel e riposo. Piano B se il diretto non opera: volo via Jaipur o Jodhpur, oppure treno notturno da prenotare con largo anticipo.",
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 28.5562, "lng": 77.1 }
+    },
+    {
+      "date": "2027-01-15",
+      "location": "Delhi",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Hotel da prenotare — Aerocity, Delhi",
+      "activities": "Giornata cuscinetto prima delle Maldive.\nOpzione intensa: Akshardham con controlli di sicurezza e deposito elettronica, poi mercato Dilli Haat.\nOpzione arte: National Crafts Museum e Lodhi Art District.\nOpzione relax: spa, ultimi acquisti e riassetto bagaglio, spostando abiti invernali e lasciando a portata costume e sandali.\nSera: completare online la Traveller Declaration IMUGA entro la finestra richiesta e confermare trasferimento Malé-Dhigurah con la guesthouse.",
+      "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 28.6139, "lng": 77.209 }
+    },
+    {
+      "date": "2027-01-16",
+      "location": "Delhi → Malé → Dhigurah",
+      "isFlight": true,
+      "isCruise": true,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Volo del mattino da Delhi a Malé. Immigrazione, SIM/eSIM e incontro con il referente del trasferimento.\nTrasferimento verso Dhigurah: la traccia prevede speedboat intorno alle 16:00 e circa 2 ore di navigazione, ma orari e pontile vanno riconfermati con la guesthouse. Piano B: volo domestico per Maamigili più barca locale.\nArrivo, check-in, breve orientamento sull'isola e cena. Tenere farmaco per il mal di mare nel bagaglio a mano e proteggere i dispositivi dagli spruzzi.",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.531, "lng": 72.929 }
+    },
+    {
+      "date": "2027-01-17",
+      "location": "Dhigurah",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Mattina lenta: noleggio bici e percorso ombreggiato lungo l'isola fino alla Bikini Beach. Bagno, snorkeling leggero dalla riva e riposo.\nPomeriggio: camminata verso la punta sud e la lunga lingua di sabbia, scegliendo l'orario in base a marea, sole e indicazioni locali.\nTramonto sulla sandbank, rientrando prima del buio. Portare acqua abbondante, cappello e crema reef-friendly: il tratto finale è esposto e senza ombra. Nel villaggio coprire spalle e ginocchia.",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.531, "lng": 72.929 }
+    },
+    {
+      "date": "2027-01-18",
+      "location": "South Ari Marine Protected Area",
+      "isFlight": false,
+      "isCruise": true,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Escursione principale: whale shark safari con briefing sulla distanza dagli animali e ingresso in acqua solo su indicazione della guida. Partenza indicativa 08:30 da confermare.\nRicerca lungo il margine esterno dell'Atollo di Ari Sud, più soste snorkeling e pranzo leggero secondo operatore. Gli avvistamenti non sono garantiti: sono animali selvatici.\nPomeriggio di recupero a Bikini Beach. Scegliere un centro che limiti il gruppo, non insegua l'animale e spieghi il codice di condotta.",
+      "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.48, "lng": 72.91 }
+    },
+    {
+      "date": "2027-01-19",
+      "location": "Dhigurah Reef",
+      "isFlight": false,
+      "isCruise": true,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Mattina: snorkeling guidato su un thila adatto alle condizioni, con possibilità di tartarughe, pesci di barriera e coralli. Chiedere un sito alternativo se corrente o visibilità non sono ideali.\nPomeriggio: passeggiata nel villaggio, porto, campetto e piccoli caffè; abbigliamento rispettoso fuori dalla Bikini Beach.\nSera: cena di pesce alla griglia o cucina maldiviana. Alternativa per sub certificati: immersione su Kudarah Thila o altro sito scelto dal diving center in base al brevetto.",
+      "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.531, "lng": 72.929 }
+    },
+    {
+      "date": "2027-01-20",
+      "location": "Atollo di Ari Sud",
+      "isFlight": false,
+      "isCruise": true,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Mattina o primo pomeriggio: escursione mante in una stazione di pulizia o area di alimentazione scelta in base agli avvistamenti recenti. Rispettare distanze, non toccare e non tagliare la traiettoria degli animali.\nRientro e pausa.\nTardo pomeriggio: dolphin cruise al tramonto, con osservazione responsabile e senza promesse di avvistamento.\nSe il mare è mosso, spostare l'uscita e scegliere kayak nella laguna o un pomeriggio di spiaggia.",
+      "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.61, "lng": 72.88 }
+    },
+    {
+      "date": "2027-01-21",
+      "location": "Sandbank di Ari Sud",
+      "isFlight": false,
+      "isCruise": true,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Escursione sandbank picnic in piccolo gruppo: trasferimento in barca, ombrellone, tempo per nuotare e pranzo semplice. Verificare cosa include la quota e riportare a terra ogni rifiuto.\nPomeriggio: snorkeling in laguna oppure sosta su un reef vicino, solo se condizioni e energie lo permettono.\nTramonto libero a Dhigurah. Portare rash guard, sacca stagna e molta protezione solare: sulla lingua di sabbia l'irraggiamento è intenso.",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.49, "lng": 72.94 }
+    },
+    {
+      "date": "2027-01-22",
+      "location": "Dhigurah",
+      "isFlight": false,
+      "isCruise": false,
+      "accommodation": "Guesthouse da prenotare — Dhigurah",
+      "activities": "Ultimo giorno volutamente libero.\nMattina: kayak trasparente o SUP nella laguna quando il vento è debole; in alternativa bagno e lettura a Bikini Beach.\nPomeriggio: ripetere l'esperienza preferita, massaggio oppure ultima passeggiata sulla sandbank.\nSera: cena sulla spiaggia organizzata dalla guesthouse, se disponibile e nel rispetto delle regole locali. Preparare il bagaglio e riconfermare orario, pontile e durata della speedboat del mattino.",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 3.531, "lng": 72.929 }
+    },
+    {
+      "date": "2027-01-23",
+      "location": "Dhigurah → Malé → Bologna",
+      "isFlight": true,
+      "isCruise": true,
+      "accommodation": "Volo di rientro",
+      "activities": "Sveglia presto e trasferimento verso Malé. La traccia indica una speedboat intorno alle 06:30 con arrivo 08:30-09:00, da riconfermare direttamente con struttura e operatore.\nCheck-in al Velana International Airport e volo di rientro verso Bologna con scalo. Lasciare un margine prudente tra barca e partenza internazionale: meteo e mare possono causare ritardi.\nPiano B da valutare in anticipo: trasferimento via Maamigili o ultima notte a Malé/Hulhumalé se il volo parte presto.",
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+      "location_coords": { "lat": 4.1755, "lng": 73.5093 }
+    }
+  ],
+  "tours": [
+    {
+      "id": 1,
+      "title": "Alba al Taj Mahal",
+      "depTime": "2027-01-05T06:30",
+      "arrTime": "2027-01-05T09:30",
+      "type": "cultural",
+      "description": "Ingresso all'apertura, orario esatto da aggiornare in base ad alba e biglietto. Verificare sempre chiusure e regole ufficiali."
+    },
+    {
+      "id": 2,
+      "title": "Notte nel Deserto del Thar",
+      "depTime": "2027-01-11T14:00",
+      "arrTime": "2027-01-12T10:30",
+      "type": "cultural",
+      "description": "Campo piccolo e responsabile, safari al tramonto, cena, musica e pernottamento. Chiedere standard della tenda e politiche sul benessere dei cammelli."
+    },
+    {
+      "id": 3,
+      "title": "Speedboat Malé → Dhigurah",
+      "depTime": "2027-01-16T16:00",
+      "arrTime": "2027-01-16T18:00",
+      "type": "transfer",
+      "description": "Orari indicativi dalla traccia originale: confermare con la guesthouse, perché operativo, pontile e durata possono cambiare."
+    },
+    {
+      "id": 4,
+      "title": "Whale Shark Safari",
+      "depTime": "2027-01-18T08:30",
+      "arrTime": "2027-01-18T13:30",
+      "type": "boat",
+      "description": "Ricerca e snorkeling responsabile con squalo balena nell'Atollo di Ari Sud. Avvistamento non garantito; scegliere piccoli gruppi e guida naturalistica."
+    },
+    {
+      "id": 5,
+      "title": "Thila Snorkeling",
+      "depTime": "2027-01-19T09:00",
+      "arrTime": "2027-01-19T12:30",
+      "type": "boat",
+      "description": "Sito scelto il giorno stesso in base a corrente e visibilità; chiedere giubbotto, guida in acqua e briefing completo."
+    },
+    {
+      "id": 6,
+      "title": "Mante e Dolphin Sunset Cruise",
+      "depTime": "2027-01-20T13:30",
+      "arrTime": "2027-01-20T18:30",
+      "type": "boat",
+      "description": "Combinazione da verificare con l'operatore; gli orari dipendono da avvistamenti e condizioni del mare."
+    },
+    {
+      "id": 7,
+      "title": "Sandbank Picnic",
+      "depTime": "2027-01-21T09:00",
+      "arrTime": "2027-01-21T14:00",
+      "type": "boat",
+      "description": "Uscita in piccolo gruppo con ombra, acqua e pranzo inclusi da confermare. Nessun rifiuto deve restare sulla sandbank."
+    },
+    {
+      "id": 8,
+      "title": "Speedboat Dhigurah → Malé",
+      "depTime": "2027-01-23T06:30",
+      "arrTime": "2027-01-23T09:00",
+      "type": "transfer",
+      "description": "Orario indicativo dalla traccia originale. Riconfermare e lasciare ampio margine prima del volo internazionale."
+    }
+  ],
+  "budget": {
+    "total": 0,
+    "expenses": [
+      { "id": 1, "description": "Voli internazionali multi-tratta", "amount": 0, "category": "flights", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 2, "description": "Volo interno Jaisalmer–Delhi", "amount": 0, "category": "flights", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 3, "description": "Alloggi India — 14 notti", "amount": 0, "category": "hotels", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 4, "description": "Guesthouse Dhigurah — 7 notti", "amount": 0, "category": "hotels", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 5, "description": "Auto privata Rajasthan e transfer", "amount": 0, "category": "car_rental", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 6, "description": "Treno Delhi–Agra", "amount": 0, "category": "car_rental", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 7, "description": "Speedboat A/R Malé–Dhigurah", "amount": 0, "category": "car_rental", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 8, "description": "Escursioni mare Dhigurah", "amount": 0, "category": "tours", "person": "Da quotare", "status": "booked", "onSplid": false },
+      { "id": 9, "description": "Visti, assicurazione e connettività", "amount": 0, "category": "misc", "person": "Da quotare", "status": "booked", "onSplid": false }
+    ]
+  },
+  "usefulLinks": [
+    { "id": 1, "title": "India e-Visa — portale governativo ufficiale", "url": "https://indianvisaonline.gov.in/evisa/" },
+    { "id": 2, "title": "Archaeological Survey of India", "url": "https://asi.nic.in/" },
+    { "id": 3, "title": "Rajasthan Tourism — sito ufficiale", "url": "https://www.tourism.rajasthan.gov.in/" },
+    { "id": 4, "title": "Delhi Tourism — sito ufficiale", "url": "https://delhitourism.gov.in/" },
+    { "id": 5, "title": "Maldives Immigration — visto turistico", "url": "https://www.immigration.gov.mv/visa/tourist-visa" },
+    { "id": 6, "title": "IMUGA — Traveller Declaration ufficiale", "url": "https://imuga.immigration.gov.mv/" },
+    { "id": 7, "title": "Visit Maldives — portale turistico ufficiale", "url": "https://visitmaldives.com/" },
+    { "id": 8, "title": "Mappa e ricerca alloggi a Dhigurah", "url": "https://www.google.com/maps/search/?api=1&query=guesthouse+Dhigurah+Maldives" }
+  ],
+  "checklist": [
+    { "id": "india-visa", "title": "e-Visa India", "detail": "Richiedere solo sul portale governativo, caricare foto e pagina passaporto, attendere l'ETA e stamparla." },
+    { "id": "passport", "title": "Passaporto e copie", "detail": "Verificare validità richiesta per entrambe le destinazioni; salvare copie offline e lasciare una copia a casa." },
+    { "id": "imuga", "title": "Traveller Declaration IMUGA", "detail": "Compilare gratuitamente entro 96 ore dall'arrivo alle Maldive usando il portale ufficiale." },
+    { "id": "insurance", "title": "Assicurazione completa", "detail": "Includere spese mediche, evacuazione, ritardi, attività in mare e annullamento se necessario." },
+    { "id": "transfers", "title": "Trasferimenti Dhigurah", "detail": "Riconfermare con la guesthouse andata e ritorno, pontile, bagaglio e piano B via Maamigili." },
+    { "id": "clothing", "title": "Due climi, un bagaglio", "detail": "Strati caldi per le mattine nel Rajasthan; rash guard, crema reef-friendly e abiti rispettosi per l'isola locale." },
+    { "id": "money", "title": "Pagamenti", "detail": "Rupie in India; carte e USD in buono stato alle Maldive. Verificare commissioni e disponibilità ATM." },
+    { "id": "health", "title": "Salute e farmaci", "detail": "Consultare per tempo un centro di medicina dei viaggi; portare farmaci personali, repellente e rimedio per mal di mare." }
+  ],
+  "practicalInfo": [
+    { "title": "Clima Rajasthan", "detail": "Gennaio è secco: giornate spesso piacevoli, ma mattine e notti possono essere fredde, soprattutto nel deserto." },
+    { "title": "Clima Maldive", "detail": "Gennaio cade normalmente nella stagione più secca, ma mare, vento e piogge restano variabili." },
+    { "title": "Isola locale", "detail": "Costume solo nelle aree designate; nel villaggio coprire spalle e ginocchia. L'alcol non è disponibile sulle isole locali." },
+    { "title": "Fauna marina", "detail": "Squalo balena, mante, tartarughe e delfini sono selvatici: nessun avvistamento è garantito e non vanno toccati o inseguiti." }
+  ],
+  "route": [
+    "Bologna",
+    "Delhi",
+    "Old Delhi",
+    "New Delhi",
+    "Agra",
+    "Fatehpur Sikri → Jaipur",
+    "Jaipur — Amber",
+    "Jaipur — Città Rosa",
+    "Jaipur → Jodhpur",
+    "Jodhpur",
+    "Jodhpur → Jaisalmer",
+    "Jaisalmer → Deserto del Thar",
+    "Deserto del Thar → Jaisalmer",
+    "Jaisalmer",
+    "Jaisalmer → Delhi",
+    "Delhi → Malé → Dhigurah",
+    "Dhigurah",
+    "South Ari Marine Protected Area",
+    "Atollo di Ari Sud",
+    "Sandbank di Ari Sud",
+    "Dhigurah → Malé → Bologna"
+  ]
+}

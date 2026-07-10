@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Atlante — Itinerari di viaggio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Vai al contenuto</a>
+
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <div id="access-screen" class="gate" role="dialog" aria-modal="true" aria-labelledby="access-title">
+    <div class="gate-card">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
+      <p class="eyebrow">Atlante privato</p>
+      <h1 id="access-title">Il viaggio comincia qui.</h1>
+      <p class="gate-copy">Inserisci la password per aprire la raccolta dei tuoi itinerari.</p>
+      <form id="access-form" class="stack-form">
+        <label for="access-password">Password</label>
+        <div class="password-row">
+          <input id="access-password" type="password" autocomplete="current-password" required placeholder="••••••••">
+          <button class="icon-button" type="button" data-toggle-password="access-password" aria-label="Mostra password">◉</button>
+        </div>
+        <p id="access-error" class="form-error" hidden>Password non corretta. Riprova.</p>
+        <button class="button button-primary button-wide" type="submit">Apri l’atlante <span>→</span></button>
+      </form>
+      <p class="microcopy">I dati restano nel browser e possono essere esportati in qualsiasi momento.</p>
+    </div>
+  </div>
+
+  <div id="app-shell" class="app-shell is-hidden">
+    <header class="topbar no-print">
+      <a class="brand" href="#top" aria-label="Atlante, torna all'inizio">
+        <span class="brand-mark small" aria-hidden="true"><span></span><span></span></span>
+        <span>Atlante</span>
+      </a>
+      <div class="topbar-center">
+        <label class="sr-only" for="trip-select">Scegli itinerario</label>
+        <select id="trip-select" class="trip-select">
+          <option value="giappone">Giappone</option>
+          <option value="filippine">Hong Kong & Filippine</option>
+          <option value="rajasthan-maldive">Rajasthan & Maldive</option>
+        </select>
+      </div>
+      <div class="topbar-actions">
+        <span id="publish-indicator" class="publish-indicator admin-only" data-state="local"><i></i><span>Solo locale</span></span>
+        <button id="quick-save-btn" class="ghost-action admin-only" type="button">Salva</button>
+        <button id="admin-login-btn" class="avatar-button" type="button" aria-label="Accedi come amministratore">A</button>
+        <button id="admin-logout-btn" class="ghost-action admin-only" type="button">Esci admin</button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section id="top" class="hero" aria-labelledby="trip-title">
+        <div id="hero-media" class="hero-media"></div>
+        <div class="hero-shade"></div>
+        <div class="hero-grain"></div>
+        <div class="hero-content">
+          <p id="hero-kicker" class="hero-kicker">ITINERARIO CURATO</p>
+          <h1 id="trip-title">Caricamento itinerario…</h1>
+          <p id="hero-subtitle" class="hero-subtitle"></p>
+          <div id="hero-stats" class="hero-stats" aria-label="Riepilogo del viaggio"></div>
+        </div>
+        <button id="edit-cover-btn" class="floating-edit admin-only no-print" type="button">Modifica copertina</button>
+        <div class="hero-scroll no-print" aria-hidden="true"><span></span> Esplora</div>
+      </section>
+
+      <nav id="section-nav" class="section-nav no-print" aria-label="Sezioni itinerario">
+        <button class="section-tab is-active" data-tab="itinerary" type="button">Itinerario</button>
+        <button class="section-tab" data-tab="map" type="button">Mappa</button>
+        <button class="section-tab" data-tab="flights" type="button">Voli</button>
+        <button class="section-tab" data-tab="tours" type="button">Esperienze</button>
+        <button class="section-tab" data-tab="budget" type="button">Budget</button>
+        <button class="section-tab" data-tab="links" type="button">Link</button>
+      </nav>
+
+      <div class="content-wrap">
+        <section id="calendar-summary" class="calendar-strip" aria-label="Calendario del viaggio"></section>
+
+        <section id="panel-itinerary" class="content-panel is-active" data-panel="itinerary">
+          <div class="section-heading">
+            <div><p class="eyebrow">Giorno per giorno</p><h2>La rotta, senza fretta.</h2></div>
+            <div class="heading-actions no-print">
+              <button id="edit-dates-btn" class="button button-soft admin-only" type="button">Modifica date</button>
+              <button id="add-day-btn" class="button button-primary admin-only" type="button">+ Aggiungi giorno</button>
+            </div>
+          </div>
+          <div id="itinerary-list" class="timeline"></div>
+        </section>
+
+        <section id="panel-map" class="content-panel" data-panel="map">
+          <div class="section-heading">
+            <div><p class="eyebrow">Vista d’insieme</p><h2>La geografia del viaggio.</h2></div>
+            <button id="define-route-btn" class="button button-primary admin-only no-print" type="button">Definisci percorso</button>
+          </div>
+          <div class="map-frame"><div id="map" aria-label="Mappa interattiva dell'itinerario"></div></div>
+          <div class="map-legend"><span><i class="legend-dot coral"></i> Tappe</span><span><i class="legend-dot blue"></i> Alloggi</span><span><i class="legend-line"></i> Percorso</span></div>
+        </section>
+
+        <section id="panel-flights" class="content-panel" data-panel="flights">
+          <div class="section-heading">
+            <div><p class="eyebrow">Spostamenti</p><h2>Voli e tempi reali.</h2></div>
+            <button id="add-flight-btn" class="button button-primary admin-only no-print" type="button">+ Aggiungi volo</button>
+          </div>
+          <div id="flights-list" class="cards-grid"></div>
+        </section>
+
+        <section id="panel-tours" class="content-panel" data-panel="tours">
+          <div class="section-heading">
+            <div><p class="eyebrow">Da ricordare</p><h2>Esperienze e prenotazioni.</h2></div>
+            <button id="add-tour-btn" class="button button-primary admin-only no-print" type="button">+ Aggiungi esperienza</button>
+          </div>
+          <div id="tours-list" class="cards-grid"></div>
+        </section>
+
+        <section id="panel-budget" class="content-panel" data-panel="budget">
+          <div class="section-heading"><div><p class="eyebrow">Conti chiari</p><h2>Il budget, a colpo d’occhio.</h2></div></div>
+          <div id="budget-content"></div>
+        </section>
+
+        <section id="panel-links" class="content-panel" data-panel="links">
+          <div class="section-heading"><div><p class="eyebrow">Prima di partire</p><h2>Indirizzi, documenti, ispirazioni.</h2></div></div>
+          <div id="links-content"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div><span class="brand-mark small" aria-hidden="true"><span></span><span></span></span><strong>Atlante</strong></div>
+      <p>Tre viaggi, un solo posto dove immaginarli e organizzarli.</p>
+    </footer>
+
+    <div class="utility-dock no-print" aria-label="Azioni rapide">
+      <button id="pdf-btn" type="button"><span>▤</span> PDF</button>
+      <button id="publish-btn" class="admin-only publish-action" type="button"><span>↑</span> Pubblica</button>
+      <button id="export-json-btn" class="admin-only" type="button"><span>⇩</span> JSON</button>
+      <button id="import-json-btn" class="admin-only" type="button"><span>⇧</span> Importa</button>
+      <button id="export-html-btn" class="admin-only" type="button"><span>◇</span> HTML</button>
+      <button id="reset-btn" class="admin-only danger" type="button"><span>↺</span> Ripristina</button>
+      <input id="import-json-input" type="file" accept="application/json" hidden>
+    </div>
+  </div>
+
+  <div id="modal-backdrop" class="modal-backdrop" hidden></div>
+
+  <dialog id="admin-dialog" class="modal">
+    <form id="admin-form" method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Area riservata</p><h2>Modalità editor</h2>
+      <p class="modal-copy">Sblocca modifica, importazione ed esportazione dei dati.</p>
+      <label for="admin-password">Password amministratore</label>
+      <input id="admin-password" type="password" required autocomplete="current-password">
+      <p id="admin-error" class="form-error" hidden>Password non corretta.</p>
+      <button class="button button-primary button-wide" value="default">Accedi</button>
+    </form>
+  </dialog>
+
+  <dialog id="editor-dialog" class="modal modal-wide">
+    <form id="editor-form" method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p id="editor-kicker" class="eyebrow">Modifica</p><h2 id="editor-title">Dettagli</h2>
+      <div id="editor-fields" class="editor-fields"></div>
+      <div class="modal-actions"><button class="button button-soft" type="button" data-close-dialog>Annulla</button><button id="editor-save-btn" class="button button-primary" value="default">Salva modifiche</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="route-dialog" class="modal modal-wide">
+    <form id="route-form" method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Mappa</p><h2>Ordine delle tappe</h2>
+      <p class="modal-copy">Aggiungi le località nell’ordine in cui devono essere collegate.</p>
+      <div class="route-add"><select id="route-location-select"></select><button id="route-add-btn" class="button button-soft" type="button">Aggiungi</button></div>
+      <ol id="route-list" class="route-list"></ol>
+      <div class="modal-actions"><button class="button button-soft" type="button" data-close-dialog>Annulla</button><button id="route-save-btn" class="button button-primary" value="default">Salva percorso</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="pdf-dialog" class="modal">
+    <form method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Esporta</p><h2>Qualità PDF</h2>
+      <div class="quality-grid">
+        <button class="quality-card" value="default" data-quality="1.4"><strong>Leggero</strong><span>Condivisione rapida</span></button>
+        <button class="quality-card is-featured" value="default" data-quality="2"><strong>Bilanciato</strong><span>Scelta consigliata</span></button>
+        <button class="quality-card" value="default" data-quality="2.7"><strong>Stampa</strong><span>Massima definizione</span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="github-dialog" class="modal modal-wide">
+    <form id="github-form">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Libreria immagini</p><h2>Scegli da GitHub</h2>
+      <p class="modal-copy">Indica un repository pubblico. Verranno mostrate le immagini presenti nella cartella principale.</p>
+      <div class="github-controls"><div class="field"><label for="github-user">Utente</label><input id="github-user" required placeholder="nome-utente"></div><div class="field"><label for="github-repo">Repository</label><input id="github-repo" required placeholder="nome-repository"></div><button class="button button-primary" type="submit">Carica immagini</button></div>
+      <p id="github-feedback" class="modal-copy"></p>
+      <div id="github-grid" class="github-grid"></div>
+    </form>
+  </dialog>
+
+  <dialog id="publish-dialog" class="modal modal-wide">
+    <form id="publish-form">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Pubblicazione</p><h2>Porta online le modifiche.</h2>
+      <p class="modal-copy">Il JSON verrà aggiornato direttamente nella repository e GitHub Pages pubblicherà la nuova versione.</p>
+      <div class="publish-destination">
+        <div class="field full"><label for="publish-repository">Repository</label><input id="publish-repository" required placeholder="utente/repository" autocomplete="off"></div>
+        <div class="field"><label for="publish-branch">Branch</label><input id="publish-branch" required value="main" autocomplete="off"></div>
+        <div class="field"><label for="publish-path">Percorso JSON</label><input id="publish-path" required value="itinerary.json" autocomplete="off"></div>
+      </div>
+      <div class="publish-token-field">
+        <label for="publish-token">GitHub fine-grained token</label>
+        <input id="publish-token" type="password" autocomplete="off" placeholder="github_pat_…">
+        <small>Usato soltanto in memoria durante questa sessione. Non viene salvato né inserito nei file.</small>
+      </div>
+      <div id="publish-status" class="publish-status" data-state="idle" role="status" aria-live="polite">
+        <i></i><span>Pronto per pubblicare.</span>
+      </div>
+      <div class="modal-actions"><button class="button button-soft" type="button" data-close-dialog>Annulla</button><button id="publish-submit-btn" class="button button-primary" type="submit">Pubblica ora</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

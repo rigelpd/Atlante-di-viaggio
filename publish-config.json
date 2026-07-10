@@ -1,0 +1,24 @@
+{
+  "provider": "github-direct",
+  "owner": "rigelpd",
+  "trips": {
+    "giappone": {
+      "repository": "rigelpd/Atlante-di-viaggio",
+      "branch": "main",
+      "path": "data/giappone.json",
+      "siteUrl": "https://rigelpd.github.io/Atlante-di-viaggio/"
+    },
+    "filippine": {
+      "repository": "rigelpd/Atlante-di-viaggio",
+      "branch": "main",
+      "path": "data/filippine.json",
+      "siteUrl": "https://rigelpd.github.io/Atlante-di-viaggio/"
+    },
+    "rajasthan-maldive": {
+      "repository": "rigelpd/Atlante-di-viaggio",
+      "branch": "main",
+      "path": "data/rajasthan-maldive.json",
+      "siteUrl": "https://rigelpd.github.io/Atlante-di-viaggio/"
+    }
+  }
+}
