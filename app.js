@@ -76,7 +76,35 @@ function normalizeData(raw) {
   data.budget.expenses = Array.isArray(data.budget.expenses) ? data.budget.expenses : [];
   data.usefulLinks = Array.isArray(data.usefulLinks) ? data.usefulLinks : [];
   data.route = Array.isArray(data.route) ? data.route : [];
+  data.planning ||= {};
+  data.planning.documents = Array.isArray(data.planning.documents) ? data.planning.documents : [];
+  data.planning.emergency = Array.isArray(data.planning.emergency) ? data.planning.emergency : [];
+  data.planning.notes ||= "";
   return data;
+}
+
+function valuePresent(value) {
+  return Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && String(value).trim() !== "";
+}
+
+function tripCompletion(data) {
+  const checks = [
+    {key:"cover",label:"Copertina e presentazione",section:"itinerary",done:valuePresent(data.main?.image) && valuePresent(data.main?.subtitle)},
+    {key:"days",label:"Date e località di ogni giorno",section:"itinerary",done:data.itinerary.length > 0 && data.itinerary.every(day=>valuePresent(day.date)&&valuePresent(day.location))},
+    {key:"stories",label:"Attività giorno per giorno",section:"itinerary",done:data.itinerary.length > 0 && data.itinerary.every(day=>valuePresent(day.activities))},
+    {key:"stays",label:"Alloggi",section:"itinerary",done:data.itinerary.length > 0 && data.itinerary.every(day=>day.isFlight || valuePresent(day.accommodation))},
+    {key:"photos",label:"Immagini delle giornate",section:"itinerary",done:data.itinerary.length > 0 && data.itinerary.every(day=>valuePresent(day.image))},
+    {key:"coordinates",label:"Coordinate di tappe e alloggi",section:"map",done:data.itinerary.length > 0 && data.itinerary.every(day=>Number.isFinite(Number(day.location_coords?.lat))&&Number.isFinite(Number(day.location_coords?.lng)))},
+    {key:"route",label:"Ordine completo della rotta",section:"map",done:data.route.length > 1},
+    {key:"flights",label:"Voli e orari",section:"flights",done:data.flights.length > 0 && data.flights.every(f=>valuePresent(f.depAirport)&&valuePresent(f.arrAirport)&&valuePresent(f.depTime)&&valuePresent(f.arrTime))},
+    {key:"tours",label:"Esperienze e prenotazioni",section:"tours",done:data.tours.length > 0},
+    {key:"budget",label:"Budget e spese",section:"budget",done:Number(data.budget?.total)>0 && data.budget.expenses.length>0},
+    {key:"links",label:"Link e documenti utili",section:"links",done:data.usefulLinks.length>0 && data.planning.documents.length>0},
+    {key:"checklist",label:"Checklist di preparazione",section:"links",done:(data.checklist||[]).length>0},
+    {key:"practical",label:"Informazioni pratiche ed emergenze",section:"links",done:(data.practicalInfo||[]).length>0 && data.planning.emergency.length>0}
+  ];
+  const complete = checks.filter(item=>item.done).length;
+  return {checks,complete,total:checks.length,percent:Math.round(complete/checks.length*100),missing:checks.filter(item=>!item.done)};
 }
 
 function showToast(message) {
@@ -418,9 +446,11 @@ function renderAtlasHome(trips) {
   $("#atlas-grid").innerHTML = trips.map(({slug,data},index) => {
     const image = safeImage(data.main.image) || safeImage(data.itinerary.find(day => safeImage(day.image))?.image);
     const locations = new Set(data.itinerary.map(day => day.location?.trim()).filter(Boolean)).size;
+    const completion = tripCompletion(data);
     return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""}" style="--card-index:${index}" data-open-trip="${slug}" role="link" tabindex="0" aria-label="Apri l’itinerario ${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}">
       <div class="atlas-card-media" ${image ? `style="background-image:url('${escapeHtml(image).replace(/'/g,"%27")}')"` : ""}></div>
       <div class="atlas-card-shade"></div>
+      <div class="completion-stamp ${completion.percent===100?"is-complete":""}"><b>${completion.percent}%</b><span>${completion.percent===100?"Completo":"Da completare"}</span></div>
       <div class="atlas-card-content"><p>${escapeHtml(catalogRange(data))}</p><h3>${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}</h3><span>${locations} tappe · ${escapeHtml(CONFIG.catalog[slug].subtitle)}</span><span class="atlas-card-open">Esplora <b>→</b></span></div>
     </article>`;
   }).join("");
@@ -756,13 +786,57 @@ function renderAll() {
   if (!currentData) return;
   renderHero();
   renderCalendar();
+  renderCompletionCenter();
   renderItinerary();
   renderFlights();
   renderTours();
   renderBudget();
   renderLinks();
   renderMapStops();
+  applySharedSections();
+  renderTravelCompanion();
   if ($('[data-panel="map"]').classList.contains("is-active")) setTimeout(initializeMap, 80);
+}
+
+function applySharedSections() {
+  const raw = urlState.get("sections");
+  if (!raw) return;
+  const allowed = new Set(raw.split(","));
+  $$(".section-tab").forEach(button=>button.hidden=!allowed.has(button.dataset.tab));
+  $$(".content-panel").forEach(panel=>panel.hidden=!allowed.has(panel.dataset.panel));
+}
+
+function renderTravelCompanion() {
+  const host = $("#travel-companion");
+  if (!host || !currentData) return;
+  const today = new Date().toISOString().slice(0,10);
+  let index = currentData.itinerary.findIndex(day=>day.date===today);
+  if (index < 0) index = currentData.itinerary.findIndex(day=>day.date>=today);
+  if (index < 0) index = 0;
+  const day = currentData.itinerary[index];
+  host.innerHTML = day ? `<button class="travel-close" type="button" aria-label="Chiudi modalità viaggio">×</button><p>PROSSIMA TAPPA · GIORNO ${index+1}</p><h2>${escapeHtml(day.location||"Da definire")}</h2><time>${escapeHtml(formatDate(day.date))}</time><div class="travel-now-details"><span><b>Attività</b>${escapeHtml(day.activities||"Da completare")}</span><span><b>Alloggio</b>${escapeHtml(day.accommodation||"Da completare")}</span></div><div class="travel-now-actions"><button type="button" data-jump-day="${index}">Apri giornata</button>${day.location_coords?.lat?`<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${day.location_coords.lat},${day.location_coords.lng}`)}" target="_blank" rel="noopener">Portami qui ↗</a>`:""}</div>` : `<p>Nessuna giornata disponibile.</p>`;
+}
+
+async function runGlobalSearch(query) {
+  const host = $("#global-search-results"), term = query.trim().toLocaleLowerCase("it-IT");
+  if (!term) { host.innerHTML='<p class="empty-state">Inizia a scrivere per cercare nei tre viaggi.</p>'; return; }
+  const trips = await Promise.all(Object.keys(CONFIG.catalog).map(async slug=>({slug,data:await getCatalogTrip(slug)})));
+  const results = [];
+  trips.forEach(({slug,data})=>{
+    const add = (kind,title,detail,day=null) => { if (`${title} ${detail}`.toLocaleLowerCase("it-IT").includes(term)) results.push({slug,kind,title,detail,day}); };
+    data.itinerary.forEach((day,index)=>add("Giornata",day.location,`${day.activities||""} ${day.accommodation||""}`,index));
+    data.flights.forEach(item=>add("Volo",item.title,`${item.depAirport||""} ${item.arrAirport||""}`));
+    data.tours.forEach(item=>add("Esperienza",item.title,item.description||""));
+    data.usefulLinks.forEach(item=>add("Link",item.title,item.url||""));
+  });
+  host.innerHTML = results.length ? results.slice(0,30).map(item=>`<button type="button" class="search-result" data-search-trip="${item.slug}" ${Number.isInteger(item.day)?`data-search-day="${item.day}"`:""}><span>${escapeHtml(item.kind)}</span><strong>${escapeHtml(item.title||"Senza titolo")}</strong><small>${escapeHtml(item.detail||CONFIG.catalog[item.slug].label)}</small></button>`).join("") : '<p class="empty-state">Nessun risultato. Prova con una città, un hotel o un’attività.</p>';
+}
+
+function renderCompletionCenter() {
+  const result = tripCompletion(currentData), host = $("#completion-center");
+  if (!host) return;
+  const missing = result.missing.map(item=>`<button type="button" class="missing-chip" data-completion-section="${item.section}"><span>!</span>${escapeHtml(item.label)}</button>`).join("");
+  host.innerHTML = `<div class="completion-summary"><div class="completion-ring" style="--completion:${result.percent}"><strong>${result.percent}%</strong></div><div><p class="eyebrow">Centro di completamento</p><h2 id="completion-title">${result.missing.length ? `${result.missing.length} punti ancora da sistemare` : "Itinerario completo"}</h2><p>${result.missing.length ? "Gli elementi contrassegnati restano visibili finché non li completiamo insieme." : "Tutte le informazioni previste sono presenti."}</p></div><button class="completion-toggle no-print" type="button" aria-expanded="false">Mostra dettagli</button></div><div class="completion-missing" hidden>${missing}</div>`;
 }
 
 function renderHero() {
@@ -794,14 +868,15 @@ function renderItinerary() {
   }
   container.innerHTML = currentData.itinerary.map((day,index) => {
     const image = safeImage(day.image);
+    const missingFields = [!valuePresent(day.activities)&&"attività",!valuePresent(day.accommodation)&&!day.isFlight&&"alloggio",!image&&"immagine",(!day.location_coords||!Number.isFinite(Number(day.location_coords.lat)))&&"coordinate"].filter(Boolean);
     const tags = `${day.isFlight ? '<span class="tag">✈ Volo</span>' : ""}${day.isCruise ? '<span class="tag blue">≈ Barca</span>' : ""}`;
     const mapButton = day.location_coords?.lat && day.location_coords?.lng ? `<button class="day-focus no-print" type="button" data-focus-day="${index}">◎ Mostra sulla mappa</button>` : "";
-    return `<article id="day-${index}" class="day-card" style="--i:${Math.min(index,12)}">
+    return `<article id="day-${index}" class="day-card ${missingFields.length?"is-incomplete":""}" style="--i:${Math.min(index,12)}">
       <div class="day-marker"><span class="number">${String(index+1).padStart(2,"0")}</span><time datetime="${escapeHtml(day.date)}">${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time></div>
       <div class="day-body">
         <div class="day-copy">
           <p class="day-kicker">Giorno ${String(index+1).padStart(2,"0")} · ${escapeHtml(formatDate(day.date,{weekday:"long",day:"numeric",month:"long"}))}</p>
-          <div class="day-location"><h3>${escapeHtml(day.location || "Tappa da definire")}</h3>${tags}</div>
+          <div class="day-location"><h3>${escapeHtml(day.location || "Tappa da definire")}</h3>${tags}${missingFields.length?`<span class="incomplete-badge" title="Mancano: ${escapeHtml(missingFields.join(", "))}">! Da completare</span>`:""}</div>
           <p class="day-accommodation">⌂ ${escapeHtml(day.accommodation || "Alloggio da definire")}</p>
           <p class="day-activities">${nl2br(day.activities || "Attività da definire.")}</p>
           <div class="day-story-actions no-print"><button class="text-action" type="button" data-share-day="${index}">Condividi questo giorno <span>↗</span></button></div>
@@ -1001,6 +1076,8 @@ function shareLink(day = null) {
   url.search = "";
   url.searchParams.set("trip",activeTrip);
   if (Number.isInteger(day) && day >= 0) url.searchParams.set("day",String(day + 1));
+  const selected = $$('[data-share-section]:checked').map(input=>input.dataset.shareSection);
+  if (selected.length && selected.length < 6) url.searchParams.set("sections",selected.join(","));
   return url.toString();
 }
 
@@ -1274,6 +1351,9 @@ function setupEvents() {
   $("#atlas-home-btn").addEventListener("click",showAtlasHome);
   $("#atlas-open-current").addEventListener("click",()=>loadTrip(activeTrip));
   $("#globe-reset-btn").addEventListener("click",()=>resetAtlasGlobe());
+  $("#search-toggle-btn").addEventListener("click",()=>{openDialog($("#search-dialog"));setTimeout(()=>$("#global-search").focus(),50);});
+  $("#global-search").addEventListener("input",event=>runGlobalSearch(event.target.value));
+  $("#travel-mode-btn").addEventListener("click",()=>{const host=$("#travel-companion");host.hidden=!host.hidden;$("#travel-mode-btn").setAttribute("aria-pressed",String(!host.hidden));document.body.classList.toggle("travel-mode",!host.hidden);});
   $("#theme-toggle-btn").addEventListener("click",event=>{event.stopPropagation();toggleThemePanel();});
   $$('[data-theme-choice]').forEach(button=>button.addEventListener("click",()=>{applySiteTheme(button.dataset.themeChoice,true);toggleThemePanel(false);}));
   $("#admin-login-btn").addEventListener("click",()=>openDialog($("#admin-dialog")));
@@ -1285,6 +1365,7 @@ function setupEvents() {
   $("#share-trip-btn").addEventListener("click",()=>shareTrip());
   $("#utility-share-btn").addEventListener("click",()=>shareTrip());
   $("#share-copy-btn").addEventListener("click",copyShareLink);
+  $$('[data-share-section]').forEach(input=>input.addEventListener("change",()=>{const url=shareLink();$("#share-url").value=url;$("#share-qr").src=`https://api.qrserver.com/v1/create-qr-code/?size=280x280&format=svg&data=${encodeURIComponent(url)}`;}));
   $$("dialog").forEach(dialog=>dialog.addEventListener("close",()=>document.body.classList.remove("modal-open")));
   $$(".modal-close,[data-close-dialog]").forEach(button=>button.addEventListener("click",()=>closeDialog(button.closest("dialog"))));
   $$(".section-tab").forEach(button=>button.addEventListener("click",()=>switchPanel(button.dataset.tab)));
@@ -1312,6 +1393,10 @@ function setupEvents() {
     const tripCard=event.target.closest(".atlas-card[data-open-trip]");
     if(tripCard){loadTrip(tripCard.dataset.openTrip);return;}
     const target=event.target.closest("button"); if(!target)return;
+    if(target.classList.contains("completion-toggle")){const details=$(".completion-missing",target.closest("#completion-center"));details.hidden=!details.hidden;target.setAttribute("aria-expanded",String(!details.hidden));target.textContent=details.hidden?"Mostra dettagli":"Nascondi dettagli";}
+    if(target.dataset.completionSection) switchPanel(target.dataset.completionSection);
+    if(target.classList.contains("travel-close")){const host=$("#travel-companion");host.hidden=true;document.body.classList.remove("travel-mode");$("#travel-mode-btn").setAttribute("aria-pressed","false");}
+    if(target.dataset.searchTrip){const day=Number(target.dataset.searchDay);closeDialog($("#search-dialog"));loadTrip(target.dataset.searchTrip).then(()=>{if(Number.isInteger(day)&&day>=0)scrollToDay(day);});}
     if(target.dataset.jumpDay!==undefined) scrollToDay(Number(target.dataset.jumpDay));
     if(target.dataset.focusDay!==undefined) focusDayOnMap(Number(target.dataset.focusDay));
     if(target.dataset.mapStop!==undefined) focusDayOnMap(Number(target.dataset.mapStop));
@@ -1330,6 +1415,7 @@ function setupEvents() {
   });
   document.addEventListener("change",event=>{if(event.target.dataset.toggleSplid!==undefined){currentData.budget.expenses[Number(event.target.dataset.toggleSplid)].onSplid=event.target.checked;saveData(true);renderBudget();}});
   document.addEventListener("submit",event=>{if(event.target.id==="expense-form")handleExpenseSubmit(event);if(event.target.id==="link-form")handleLinkSubmit(event);});
+  document.addEventListener("keydown",event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();openDialog($("#search-dialog"));setTimeout(()=>$("#global-search").focus(),50);}});
 }
 
 document.addEventListener("DOMContentLoaded",async()=>{
@@ -1341,4 +1427,5 @@ document.addEventListener("DOMContentLoaded",async()=>{
     sessionStorage.setItem("atlante:access","true"); isAdmin=false; $("#app-shell").classList.remove("is-hidden"); loadTrip(activeTrip,false); return;
   }
   if(sessionStorage.getItem("atlante:access")==="true"){$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-password").focus();}
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js?v=20260711c").catch(()=>{});
 });

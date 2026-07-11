@@ -4,17 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#111827">
+  <meta name="description" content="Atlante personale per organizzare e raccontare itinerari di viaggio.">
+  <link rel="manifest" href="manifest.webmanifest?v=20260711c">
   <title>Atlante — Itinerari di viaggio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Fredoka:wght@500;600;700&family=Special+Elite&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=20260711b">
+  <link rel="stylesheet" href="styles.css?v=20260711c">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  <script src="app.js?v=20260711b" defer></script>
+  <script src="app.js?v=20260711c" defer></script>
 </head>
 <body data-theme="travel-map">
   <a class="skip-link" href="#main-content">Vai al contenuto</a>
@@ -56,6 +58,8 @@
         </select>
       </div>
       <div class="topbar-actions">
+        <button id="search-toggle-btn" class="theme-toggle" type="button" aria-label="Cerca in tutti gli itinerari"><span aria-hidden="true">⌕</span> Cerca</button>
+        <button id="travel-mode-btn" class="theme-toggle" type="button" aria-pressed="false"><span aria-hidden="true">◎</span> In viaggio</button>
         <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-expanded="false" aria-controls="theme-panel"><span aria-hidden="true">◐</span> Stili</button>
         <span id="publish-indicator" class="publish-indicator admin-only" data-state="local"><i></i><span>Solo locale</span></span>
         <button id="quick-save-btn" class="ghost-action admin-only" type="button">Salva</button>
@@ -121,6 +125,7 @@
 
       <div class="content-wrap">
         <section id="calendar-summary" class="calendar-strip" aria-label="Calendario del viaggio"></section>
+        <section id="completion-center" class="completion-center" aria-labelledby="completion-title"></section>
 
         <section id="panel-itinerary" class="content-panel is-active" data-panel="itinerary">
           <div class="section-heading">
@@ -188,6 +193,8 @@
       </div>
       <p>La scelta resta salvata solo in questo browser.</p>
     </aside>
+
+    <aside id="travel-companion" class="travel-companion no-print" aria-label="Modalità durante il viaggio" hidden></aside>
 
     <div class="utility-dock no-print" aria-label="Azioni rapide">
       <button id="utility-share-btn" type="button"><span>↗</span> Condividi</button>
@@ -286,7 +293,18 @@
       <p class="eyebrow">Condividi</p><h2>Porta il viaggio con te.</h2>
       <p class="modal-copy">Questo link apre direttamente l’itinerario selezionato. Puoi anche scansionare il QR code dal telefono.</p>
       <div class="share-qr-wrap"><img id="share-qr" alt="QR code per aprire questo itinerario"></div>
+      <fieldset class="share-sections"><legend>Sezioni da condividere</legend><label><input type="checkbox" data-share-section="itinerary" checked> Itinerario</label><label><input type="checkbox" data-share-section="map" checked> Mappa</label><label><input type="checkbox" data-share-section="flights"> Voli</label><label><input type="checkbox" data-share-section="tours" checked> Esperienze</label><label><input type="checkbox" data-share-section="budget"> Budget</label><label><input type="checkbox" data-share-section="links"> Link e documenti</label></fieldset>
       <label for="share-url">Link diretto</label><div class="share-url-row"><input id="share-url" readonly><button id="share-copy-btn" class="button button-primary" type="button">Copia</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="search-dialog" class="modal modal-wide search-dialog">
+    <form method="dialog">
+      <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+      <p class="eyebrow">Ricerca globale</p><h2>Trova qualsiasi dettaglio.</h2>
+      <label for="global-search" class="sr-only">Cerca in tutti gli itinerari</label>
+      <input id="global-search" class="global-search-input" type="search" placeholder="Città, hotel, volo, attività…" autocomplete="off">
+      <div id="global-search-results" class="global-search-results" aria-live="polite"><p class="empty-state">Inizia a scrivere per cercare nei tre viaggi.</p></div>
     </form>
   </dialog>
 

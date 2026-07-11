@@ -1,0 +1,14 @@
+{
+  "name": "Atlante di viaggio",
+  "short_name": "Atlante",
+  "description": "Itinerari, mappe e dettagli pratici sempre disponibili.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#e9dcc0",
+  "theme_color": "#1e4c51",
+  "lang": "it",
+  "orientation": "any",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

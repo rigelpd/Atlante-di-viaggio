@@ -472,5 +472,10 @@
     "Osaka",
     "Kyoto",
     "Volo per l'Italia"
-  ]
+  ],
+  "planning": {
+    "documents": [],
+    "emergency": [],
+    "notes": ""
+  }
 }

@@ -574,5 +574,10 @@
     "El Nido",
     "Manila",
     "Bologna"
-  ]
+  ],
+  "planning": {
+    "documents": [],
+    "emergency": [],
+    "notes": ""
+  }
 }
