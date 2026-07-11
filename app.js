@@ -84,6 +84,21 @@ function normalizeData(raw) {
   return data;
 }
 
+function mergePublishedAdditions(saved,published) {
+  const local = normalizeData(clone(saved)), source = normalizeData(clone(published));
+  ["subtitle","participants","tripStatus","tripYear"].forEach(key => { if (!valuePresent(local.main[key]) && valuePresent(source.main[key])) local.main[key] = source.main[key]; });
+  const sourceDays = new Map(source.itinerary.map(day => [`${day.date}|${day.location}`,day]));
+  local.itinerary.forEach(day => {
+    const sourceDay = sourceDays.get(`${day.date}|${day.location}`);
+    if (!sourceDay) return;
+    if (!valuePresent(day.activities) && valuePresent(sourceDay.activities)) day.activities = sourceDay.activities;
+    if (!day.travel && sourceDay.travel) day.travel = clone(sourceDay.travel);
+  });
+  ["tours","checklist","practicalInfo","usefulLinks"].forEach(key => { if (!local[key]?.length && source[key]?.length) local[key] = clone(source[key]); });
+  ["emergency","notApplicable"].forEach(key => { if (!local.planning[key]?.length && source.planning[key]?.length) local.planning[key] = clone(source.planning[key]); });
+  return local;
+}
+
 function valuePresent(value) {
   return Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && String(value).trim() !== "";
 }
@@ -488,27 +503,27 @@ async function loadTrip(slug, preferSaved = true) {
   activeTrip = slug in CONFIG.catalog ? slug : "rajasthan-maldive";
   localStorage.setItem("atlante:activeTrip", activeTrip);
   $("#trip-select").value = activeTrip;
-  let data = null;
+  let data = null, savedData = null, publishedData = null;
 
   if (window.__EMBEDDED_DATA__) {
     data = clone(window.__EMBEDDED_DATA__);
     $("#trip-select").disabled = true;
   } else if (preferSaved) {
-    try { data = JSON.parse(localStorage.getItem(storageKey(activeTrip))); } catch { data = null; }
+    try { savedData = JSON.parse(localStorage.getItem(storageKey(activeTrip))); } catch { savedData = null; }
   }
 
-  if (!data) {
+  if (!window.__EMBEDDED_DATA__) {
     try {
       const response = await fetch(`${CONFIG.catalog[activeTrip].file}?v=${Date.now()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      data = await response.json();
+      publishedData = await response.json();
     } catch (error) {
-      showToast("Impossibile caricare i JSON: avvia il sito con avvia-sito.bat.");
       console.error(error);
-      data = { main: { title: CONFIG.catalog[activeTrip].label, image: "" }, itinerary: [], flights: [], tours: [], budget: { total: 0, expenses: [] }, usefulLinks: [], route: [] };
+      if (!savedData) showToast("Impossibile caricare i JSON: avvia il sito con avvia-sito.bat.");
     }
   }
-  originalData = normalizeData(clone(data));
+  data ||= savedData && publishedData ? mergePublishedAdditions(savedData,publishedData) : (savedData || publishedData || { main: { title: CONFIG.catalog[activeTrip].label, image: "" }, itinerary: [], flights: [], tours: [], budget: { total: 0, expenses: [] }, usefulLinks: [], route: [] });
+  originalData = normalizeData(clone(publishedData || data));
   currentData = normalizeData(data);
   atlasCatalogCache[activeTrip] = clone(currentData);
   const publishedFingerprint = localStorage.getItem(`atlante:publishedFingerprint:${activeTrip}`);
