@@ -45,6 +45,7 @@ let atlasGlobeTrips = [];
 let atlasGlobeSelection = null;
 let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
+const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
 
 const GLOBE_TEXTURE_ROOT = "https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img";
 const GLOBE_TRIP_COLORS = { giappone:"#ff6f61", filippine:"#45c9c0", "rajasthan-maldive":"#f2b84b" };
@@ -104,6 +105,26 @@ function setAdminMode(enabled) {
   sessionStorage.setItem("atlante:admin", String(enabled));
   $("#admin-login-btn").hidden = enabled;
   renderAll();
+}
+
+function applySiteTheme(theme,announce=false) {
+  const selected = SITE_THEMES.has(theme) ? theme : "original";
+  document.body.dataset.theme = selected;
+  localStorage.setItem("atlante:theme",selected);
+  $$('[data-theme-choice]').forEach(button => {
+    const active = button.dataset.themeChoice === selected;
+    button.classList.toggle("is-active",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+  if (announce) showToast(`Stile ${$("[data-theme-choice].is-active .theme-name")?.textContent || selected} attivato.`);
+}
+
+function toggleThemePanel(force) {
+  const panel = $("#theme-panel"), button = $("#theme-toggle-btn");
+  if (!panel || !button) return;
+  const open = force ?? panel.hidden;
+  panel.hidden = !open;
+  button.setAttribute("aria-expanded",String(open));
 }
 
 function setAppView(view) {
@@ -214,28 +235,35 @@ function focusAtlasGlobeCoordinates(points,duration=420,zoomFactor=1) {
   const lngSpread = Math.max(...points.map(point => Math.abs((((point.lng - lng) + 540) % 360) - 180))) * 2;
   const stage = $("#atlas-globe-stage")?.getBoundingClientRect();
   const aspect = stage?.width && stage?.height ? stage.width / stage.height : 1;
-  // La dimensione dominante deve entrare nel lato utile del riquadro: il fattore
-  // 1.5 lascia intorno alla rotta un margine pari al 50% della sua estensione.
+  // L'altitudine di globe.gl e' la distanza dalla superficie terrestre. Deve
+  // quindi crescere con l'ampiezza della rotta, senza un minimo da panoramica
+  // continentale che impedirebbe di avvicinarsi agli itinerari compatti.
   const fitSpan = Math.max(latSpread,lngSpread / Math.max(aspect,.65)) * zoomFactor;
-  const altitude = Math.min(2.6,Math.max(1.26,1.18 + fitSpan / 58));
+  const altitude = Math.min(2.6,Math.max(.22,.16 + fitSpan / 32));
   atlasGlobe.pointOfView({lat,lng,altitude},window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration);
+}
+
+function isItalianGlobePoint(point) {
+  // Limiti geografici dell'Italia (incluse Sicilia e Sardegna), usati soltanto
+  // per escludere partenza/rientro italiani dal calcolo dell'inquadratura.
+  return point.lat >= 35.3 && point.lat <= 47.2 && point.lng >= 6.6 && point.lng <= 18.7;
 }
 
 function globeTripFocusPoints(trip) {
   const points = [];
-  trip.data.itinerary.slice(1,-1).forEach(day => {
+  trip.data.itinerary.forEach(day => {
     const lat = Number(day.location_coords?.lat), lng = Number(day.location_coords?.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    if (isItalianGlobePoint({lat,lng})) return;
     const previous = points.at(-1);
     if (!previous || previous.lat !== lat || previous.lng !== lng) points.push({lat,lng});
   });
-  const fallback = trip.stops.filter(stop => stop.key !== trip.stops[0]?.key && stop.key !== trip.stops.at(-1)?.key);
-  return points.length ? points : (fallback.length ? fallback : trip.stops);
+  return points.length ? points : trip.stops;
 }
 
 function focusAtlasGlobeTrip(slug,duration=420) {
   const trip = atlasGlobeTrips.find(item => item.slug === slug);
-  if (trip) focusAtlasGlobeCoordinates(globeTripFocusPoints(trip),duration,1.5);
+  if (trip) focusAtlasGlobeCoordinates(globeTripFocusPoints(trip),duration,1.12);
 }
 
 function renderAtlasGlobePins(slug=null,{balloon=false}={}) {
@@ -293,25 +321,34 @@ function updateAtlasGlobeBalloonPlacement() {
   const anchor = wrapper ? $(".globe-pin",wrapper) : null;
   const balloon = wrapper ? $(".globe-balloon",wrapper) : null;
   if (!stage || !wrapper || !anchor || !balloon) return;
-  const stageRect = stage.getBoundingClientRect();
-  const anchorRect = anchor.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect(), anchorRect = anchor.getBoundingClientRect();
   const x = anchorRect.left - stageRect.left + anchorRect.width / 2;
   const y = anchorRect.top - stageRect.top + anchorRect.height / 2;
-  const width = balloon.offsetWidth || 230, height = balloon.offsetHeight || 128;
-  const candidates = {
-    right:{x:x+28,y:y-72}, left:{x:x-width-28,y:y-72}, top:{x:x-width/2,y:y-height-35}, bottom:{x:x-width/2,y:y+30}
-  };
+  const width = balloon.offsetWidth || 230, height = balloon.offsetHeight || 128, gap = 34, edge = 12;
   const pinRects = $$(".globe-marker-wrap .globe-pin",stage).filter(pin => pin !== anchor && pin.getClientRects().length).map(pin => {
     const rect = pin.getBoundingClientRect();
-    return {x:rect.left-stageRect.left+rect.width/2,y:rect.top-stageRect.top+rect.height/2};
+    return {left:rect.left-stageRect.left-8,top:rect.top-stageRect.top-8,right:rect.right-stageRect.left+8,bottom:rect.bottom-stageRect.top+8};
   });
-  let best = "right", bestScore = Infinity;
-  Object.entries(candidates).forEach(([position,rect]) => {
-    let score = Math.max(0,-rect.x) * 20 + Math.max(0,-rect.y) * 20 + Math.max(0,rect.x + width - stageRect.width) * 20 + Math.max(0,rect.y + height - stageRect.height) * 20;
-    pinRects.forEach(pin => { if (pin.x > rect.x - 12 && pin.x < rect.x + width + 12 && pin.y > rect.y - 12 && pin.y < rect.y + height + 12) score += 200; });
-    if (score < bestScore) { best = position; bestScore = score; }
-  });
-  wrapper.dataset.balloonPlacement = best;
+  const candidates = [
+    {position:"right",x:x+gap,y:y-height/2}, {position:"left",x:x-width-gap,y:y-height/2},
+    {position:"top",x:x-width/2,y:y-height-gap}, {position:"bottom",x:x-width/2,y:y+gap},
+    {position:"corner",x:edge,y:edge}, {position:"corner",x:stageRect.width-width-edge,y:edge},
+    {position:"corner",x:edge,y:stageRect.height-height-edge}, {position:"corner",x:stageRect.width-width-edge,y:stageRect.height-height-edge}
+  ];
+  const overlapArea = (a,b) => Math.max(0,Math.min(a.x+width,b.right)-Math.max(a.x,b.left)) * Math.max(0,Math.min(a.y+height,b.bottom)-Math.max(a.y,b.top));
+  const score = candidate => {
+    const overflow = Math.max(0,edge-candidate.x)+Math.max(0,edge-candidate.y)+Math.max(0,candidate.x+width-stageRect.width+edge)+Math.max(0,candidate.y+height-stageRect.height+edge);
+    return overflow * 100000 + pinRects.reduce((sum,pin) => sum + overlapArea(candidate,pin),0) * 10000 + Math.hypot(candidate.x+width/2-x,candidate.y+height/2-y);
+  };
+  const best = candidates.reduce((winner,candidate) => score(candidate) < score(winner) ? candidate : winner,candidates[0]);
+  wrapper.dataset.balloonPlacement = best.position;
+  // Le coordinate sono relative all'ancora della bandierina: anche le posizioni
+  // di emergenza agli angoli restano quindi valide durante lo zoom animato.
+  balloon.style.left = `${best.x - (anchorRect.left-stageRect.left)}px`;
+  balloon.style.top = `${best.y - (anchorRect.top-stageRect.top)}px`;
+  balloon.style.right = "auto";
+  balloon.style.bottom = "auto";
+  balloon.style.transform = "none";
 }
 
 function applyAtlasGlobeStyle() {
@@ -354,7 +391,7 @@ function initializeAtlasGlobe(trips) {
     controls.enableDamping = true;
     controls.dampingFactor = .08;
     host.addEventListener("pointerdown",() => { controls.autoRotate = false; },{passive:true});
-    host.addEventListener("contextmenu",event => { event.preventDefault(); event.stopPropagation(); resetAtlasGlobe(true,true); },true);
+    host.addEventListener("contextmenu",event => { event.preventDefault(); event.stopPropagation(); resetAtlasGlobe(true,false); },true);
     atlasGlobeResizeObserver = new ResizeObserver(resizeAtlasGlobe);
     atlasGlobeResizeObserver.observe(host);
   }
@@ -1191,8 +1228,8 @@ async function exportPublicHTML() {
   try {
     const [css,js,html] = await Promise.all([fetch("styles.css").then(r=>r.text()),fetch("app.js").then(r=>r.text()),fetch("index.html").then(r=>r.text())]);
     const parser = new DOMParser(); const doc=parser.parseFromString(html,"text/html");
-    doc.querySelector('link[href="styles.css"]')?.replaceWith(Object.assign(doc.createElement("style"),{textContent:css}));
-    doc.querySelector('script[src="app.js"]')?.remove();
+    doc.querySelector('link[href^="styles.css"]')?.replaceWith(Object.assign(doc.createElement("style"),{textContent:css}));
+    doc.querySelector('script[src^="app.js"]')?.remove();
     const embedded=doc.createElement("script"); embedded.textContent=`window.__EMBEDDED_SLUG__=${JSON.stringify(activeTrip)};window.__EMBEDDED_DATA__=${JSON.stringify(dataForStandaloneExport()).replace(/<\//g,"<\\/")};window.__PUBLIC_EXPORT__=true;`; doc.body.append(embedded);
     const script=doc.createElement("script"); script.textContent=js; doc.body.append(script);
     doc.querySelector("#access-screen")?.classList.add("is-hidden");
@@ -1230,12 +1267,15 @@ function handleLinkSubmit(event) {
 }
 
 function setupEvents() {
+  applySiteTheme(localStorage.getItem("atlante:theme") || "travel-map");
   $("#access-form").addEventListener("submit",event=>{event.preventDefault();if($("#access-password").value===CONFIG.accessPassword){sessionStorage.setItem("atlante:access","true");$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-error").hidden=false;$("#access-password").select();}});
   $$('[data-toggle-password]').forEach(button=>button.addEventListener("click",()=>{const input=$(`#${button.dataset.togglePassword}`);input.type=input.type==="password"?"text":"password";}));
   $("#trip-select").addEventListener("change",event=>loadTrip(event.target.value));
   $("#atlas-home-btn").addEventListener("click",showAtlasHome);
   $("#atlas-open-current").addEventListener("click",()=>loadTrip(activeTrip));
   $("#globe-reset-btn").addEventListener("click",()=>resetAtlasGlobe());
+  $("#theme-toggle-btn").addEventListener("click",event=>{event.stopPropagation();toggleThemePanel();});
+  $$('[data-theme-choice]').forEach(button=>button.addEventListener("click",()=>{applySiteTheme(button.dataset.themeChoice,true);toggleThemePanel(false);}));
   $("#admin-login-btn").addEventListener("click",()=>openDialog($("#admin-dialog")));
   $("#admin-form").addEventListener("submit",event=>{event.preventDefault();if($("#admin-password").value===CONFIG.adminPassword){closeDialog($("#admin-dialog"));setAdminMode(true);showToast("Modalità editor attiva.");}else{$("#admin-error").hidden=false;}});
   $("#admin-logout-btn").addEventListener("click",()=>setAdminMode(false));
@@ -1268,6 +1308,7 @@ function setupEvents() {
   $("#reset-btn").addEventListener("click",()=>{if(confirm("Ripristinare il JSON originale di questo viaggio?")){localStorage.removeItem(storageKey(activeTrip));currentData=clone(originalData);renderAll();showToast("Itinerario ripristinato.");}});
 
   document.addEventListener("click",event=>{
+    if (!event.target.closest("#theme-panel") && !event.target.closest("#theme-toggle-btn")) toggleThemePanel(false);
     const tripCard=event.target.closest(".atlas-card[data-open-trip]");
     if(tripCard){loadTrip(tripCard.dataset.openTrip);return;}
     const target=event.target.closest("button"); if(!target)return;
