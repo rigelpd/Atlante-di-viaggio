@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#111827">
   <meta name="description" content="Atlante personale per organizzare e raccontare itinerari di viaggio.">
-  <link rel="manifest" href="manifest.webmanifest?v=20260711d">
+  <link rel="manifest" href="manifest.webmanifest?v=20260711e">
   <title>Atlante — Itinerari di viaggio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Fredoka:wght@500;600;700&family=Special+Elite&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=20260711d">
+  <link rel="stylesheet" href="styles.css?v=20260711e">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  <script src="app.js?v=20260711d" defer></script>
+  <script src="app.js?v=20260711e" defer></script>
 </head>
 <body data-theme="travel-map">
   <a class="skip-link" href="#main-content">Vai al contenuto</a>
@@ -115,12 +115,12 @@
       </section>
 
       <nav id="section-nav" class="section-nav no-print" aria-label="Sezioni itinerario">
-        <button class="section-tab is-active" data-tab="itinerary" type="button"><span class="tab-icon">◌</span>Itinerario</button>
-        <button class="section-tab" data-tab="map" type="button"><span class="tab-icon">⌖</span>Mappa</button>
-        <button class="section-tab" data-tab="flights" type="button"><span class="tab-icon">↗</span>Voli</button>
-        <button class="section-tab" data-tab="tours" type="button"><span class="tab-icon">✦</span>Esperienze</button>
-        <button class="section-tab" data-tab="budget" type="button"><span class="tab-icon">€</span>Budget</button>
-        <button class="section-tab" data-tab="links" type="button"><span class="tab-icon">⌁</span>Link</button>
+        <button class="section-tab is-active" data-tab="itinerary" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM9 3v18M12 7h4M12 11h4M12 15h4"/></svg></span>Itinerario</button>
+        <button class="section-tab" data-tab="map" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/></svg></span>Mappa</button>
+        <button class="section-tab" data-tab="flights" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>Voli</button>
+        <button class="section-tab" data-tab="tours" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m15 9-2 5-5 2 2-5Z"/><path d="M12 4v2M20 12h-2M12 20v-2M4 12h2"/></svg></span>Esperienze</button>
+        <button class="section-tab" data-tab="budget" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M16 7.5c-.5-1.2-2-2-4-2-2.2 0-4 1.1-4 3s1.6 2.6 4 3c2.4.5 4 1.2 4 3s-1.8 3-4 3c-2 0-3.5-.8-4-2"/></svg></span>Budget</button>
+        <button class="section-tab" data-tab="links" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10.5 13.5 13.5 10.5M8 16H6a4 4 0 0 1 0-8h3M16 8h2a4 4 0 0 1 0 8h-3"/></svg></span>Link</button>
       </nav>
 
       <div class="content-wrap">

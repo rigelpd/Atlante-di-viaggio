@@ -46,6 +46,15 @@ let atlasGlobeSelection = null;
 let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
 const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
+const budgetIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const BUDGET_CATEGORY_META = {
+  flights: { label:"Voli", icon:budgetIcon('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>'), tone:"flight" },
+  hotels: { label:"Alloggi", icon:budgetIcon('<path d="m3 10 9-7 9 7v11H3Z"/><path d="M9 21v-6h6v6"/>'), tone:"stay" },
+  car_rental: { label:"Trasporti", icon:budgetIcon('<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M6 16c0-6 12-2 12-8"/>'), tone:"transport" },
+  tours: { label:"Esperienze", icon:budgetIcon('<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/>'), tone:"tour" },
+  food: { label:"Cibo", icon:budgetIcon('<path d="M4 5h12v8a6 6 0 0 1-12 0Z"/><path d="M16 7h2a3 3 0 0 1 0 6h-2M8 2v3M12 2v3M6 22h10"/>'), tone:"food" },
+  misc: { label:"Varie", icon:budgetIcon('<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/>'), tone:"misc" }
+};
 
 const GLOBE_TEXTURE_ROOT = "https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img";
 const GLOBE_TRIP_COLORS = { giappone:"#ff6f61", filippine:"#45c9c0", "rajasthan-maldive":"#f2b84b" };
@@ -86,13 +95,39 @@ function normalizeData(raw) {
 
 function mergePublishedAdditions(saved,published) {
   const local = normalizeData(clone(saved)), source = normalizeData(clone(published));
+  const isPlaceholder = value => {
+    const text = String(value || "").trim().toLocaleLowerCase("it-IT");
+    return !text || /da prenotare|da quotare|da definire|operativo e scalo|^previsto|multi-tratta/.test(text);
+  };
   ["subtitle","participants","tripStatus","tripYear"].forEach(key => { if (!valuePresent(local.main[key]) && valuePresent(source.main[key])) local.main[key] = source.main[key]; });
+  const localFlights = new Map(local.flights.map(flight => [flight.idPrefix,flight]));
+  source.flights.forEach(sourceFlight => {
+    const localFlight = localFlights.get(sourceFlight.idPrefix);
+    if (!localFlight) { local.flights.push(clone(sourceFlight)); return; }
+    ["depTime","arrTime"].forEach(key => { if (!valuePresent(localFlight[key]) && valuePresent(sourceFlight[key])) localFlight[key] = sourceFlight[key]; });
+    if (isPlaceholder(localFlight.notes) && valuePresent(sourceFlight.notes)) localFlight.notes = sourceFlight.notes;
+  });
   const sourceDays = new Map(source.itinerary.map(day => [`${day.date}|${day.location}`,day]));
   local.itinerary.forEach((day,index) => {
     const sourceDay = sourceDays.get(`${day.date}|${day.location}`) || source.itinerary[index];
     if (!sourceDay) return;
     if (!valuePresent(day.activities) && valuePresent(sourceDay.activities)) day.activities = sourceDay.activities;
     if (!day.travel && sourceDay.travel) day.travel = clone(sourceDay.travel);
+    if (isPlaceholder(day.accommodation) && valuePresent(sourceDay.accommodation)) day.accommodation = sourceDay.accommodation;
+    const flightCodes = sourceDay.activities?.match(/\b[A-Z]{2}\d{3,4}\b/g) || [];
+    if (flightCodes.some(code => !String(day.activities || "").includes(code))) day.activities = sourceDay.activities;
+    if (sourceDay.travel && (/in base all.operativo|circa 2.*12/i.test(String(day.travel?.duration || "")))) day.travel = clone(sourceDay.travel);
+  });
+  const localExpenses = new Map(local.budget.expenses.map(expense => [expense.id,expense]));
+  if (Number(local.budget.total || 0) <= 0 && Number(source.budget.total || 0) > 0) local.budget.total = source.budget.total;
+  source.budget.expenses.forEach(sourceExpense => {
+    const localExpense = localExpenses.get(sourceExpense.id);
+    if (!localExpense) { local.budget.expenses.push(clone(sourceExpense)); return; }
+    if (Number(localExpense.amount || 0) <= 0 && Number(sourceExpense.amount || 0) > 0) localExpense.amount = sourceExpense.amount;
+    if (isPlaceholder(localExpense.description) && valuePresent(sourceExpense.description)) localExpense.description = sourceExpense.description;
+    if (isPlaceholder(localExpense.person) && valuePresent(sourceExpense.person)) localExpense.person = sourceExpense.person;
+    if (sourceExpense.status === "paid") localExpense.status = "paid";
+    if (sourceExpense.onSplid) localExpense.onSplid = true;
   });
   ["tours","checklist","practicalInfo","usefulLinks"].forEach(key => { if (!local[key]?.length && source[key]?.length) local[key] = clone(source[key]); });
   ["emergency","notApplicable"].forEach(key => { if (!local.planning[key]?.length && source.planning[key]?.length) local.planning[key] = clone(source.planning[key]); });
@@ -887,8 +922,19 @@ function renderCalendar() {
     const date = dateObject(day.date);
     const number = date ? date.getDate() : index + 1;
     const month = date ? new Intl.DateTimeFormat("it-IT",{month:"short"}).format(date) : "—";
-    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${day.isFlight || day.isCruise ? "<i></i>" : ""}</button>`;
+    const transport = calendarTransportIcon(day);
+    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
   }).join("") || `<p class="empty-state">Aggiungi le date per vedere il calendario.</p>`;
+}
+
+function calendarTransportIcon(day) {
+  const mode = String(day.travel?.mode || "").toLocaleLowerCase("it-IT");
+  const duration = String(day.travel?.duration || "").toLocaleLowerCase("it-IT");
+  if (day.isFlight || /aereo|volo/.test(mode)) return { type:"flight", label:"Volo", icon:budgetIcon('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>') };
+  if (/treno/.test(mode)) return { type:"train", label:"Treno", icon:budgetIcon('<rect x="5" y="3" width="14" height="15" rx="2"/><path d="M8 7h8M8 11h8M8 18l-2 3M16 18l2 3"/>') };
+  if (/speedboat/.test(mode) || (/barca|crociera/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration))) return { type:"boat", label:"Barca", icon:budgetIcon('<path d="M3 15h18l-3 5H6Z"/><path d="M12 3v12M12 5l5 4M3 21c2 1 4 1 6 0 2 1 4 1 6 0 2 1 4 1 6 0"/>') };
+  if (/auto|strada|transfer/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration)) return { type:"road", label:"Trasferimento su strada", icon:budgetIcon('<path d="M5 21c5-5 1-9 7-14 2-2 4-3 7-4"/><circle cx="5" cy="21" r="1.5"/><circle cx="19" cy="3" r="1.5"/>') };
+  return null;
 }
 
 function renderItinerary() {
@@ -992,16 +1038,30 @@ function renderBudget() {
   const totals = budgetTotals();
   const paidPct = totals.total ? Math.min(100, totals.paid / totals.total * 100) : 0;
   const bookedPct = totals.total ? Math.min(100-paidPct, totals.booked / totals.total * 100) : 0;
-  const expenses = currentData.budget.expenses.map((expense,index) => `<div class="expense-row">
-    <div class="expense-row-main"><strong>${escapeHtml(expense.description || "Spesa")}</strong><span>${escapeHtml(CONFIG.budgetCategories[expense.category] || expense.category || "Varie")} · ${escapeHtml(expense.person || "—")}${expense.onSplid ? " · Splid" : ""}</span></div>
-    <div class="expense-amount"><strong>${currency(expense.amount)}</strong><button class="status ${expense.status === "paid" ? "" : "booked"} admin-only" type="button" data-toggle-expense="${index}">${expense.status === "paid" ? "Pagata" : "Prenotata"}</button><span class="status ${expense.status === "paid" ? "" : "booked"} user-only">${expense.status === "paid" ? "Pagata" : "Prenotata"}</span><label class="splid-control admin-only"><input type="checkbox" data-toggle-splid="${index}" ${expense.onSplid ? "checked" : ""}> Splid</label><button class="delete-button admin-only" type="button" data-delete-expense="${index}">Elimina</button></div>
-  </div>`).join("");
+  const renderExpense = (expense,index) => {
+    const isPaid = expense.status === "paid";
+    return `<div class="expense-row ${isPaid ? "is-paid" : "is-todo"}">
+    <div class="expense-row-main"><strong>${escapeHtml(expense.description || "Spesa")}</strong><div class="expense-meta"><span class="expense-payer"><small>${isPaid ? "Pagato da" : "Responsabile"}</small><b>${escapeHtml(expense.person || "Da definire")}</b></span>${expense.onSplid ? '<span class="splid-badge">✓ Splid</span>' : ""}</div></div>
+    <div class="expense-amount">${isPaid ? `<strong>${currency(expense.amount)}</strong>` : ""}<button class="status ${isPaid ? "" : "booked"} admin-only" type="button" data-toggle-expense="${index}">${isPaid ? "Pagata" : "Da fare"}</button><span class="status ${isPaid ? "" : "booked"} user-only">${isPaid ? "Pagata" : "Da fare"}</span><label class="splid-control admin-only"><input type="checkbox" data-toggle-splid="${index}" ${expense.onSplid ? "checked" : ""}> Splid</label><button class="delete-button admin-only" type="button" data-delete-expense="${index}">Elimina</button></div>
+  </div>`;
+  };
+  const expenses = Object.keys(BUDGET_CATEGORY_META).map(category => {
+    const meta = BUDGET_CATEGORY_META[category];
+    const items = currentData.budget.expenses.map((expense,index) => ({expense,index})).filter(({expense}) => (expense.category || "misc") === category);
+    if (!items.length) return "";
+    const amount = items.filter(({expense}) => expense.status === "paid").reduce((sum,{expense}) => sum + Number(expense.amount || 0),0);
+    const paid = items.filter(({expense}) => expense.status === "paid").length;
+    return `<section class="expense-category expense-category--${meta.tone}">
+      <header class="expense-category-head"><span class="expense-category-icon">${meta.icon}</span><div><span>${meta.label}</span><strong>${paid ? currency(amount) : "Da definire"}</strong></div><small>${items.length} ${items.length === 1 ? "voce" : "voci"} · ${paid} ${paid === 1 ? "pagata" : "pagate"}</small></header>
+      <div class="expense-category-list">${items.map(({expense,index}) => renderExpense(expense,index)).join("")}</div>
+    </section>`;
+  }).join("");
   $("#budget-content").innerHTML = `
     <div class="budget-hero">
       <div class="budget-total"><span>Budget complessivo</span><strong>${currency(totals.total)}</strong><span>${currency(totals.spent)} impegnati</span><div class="budget-progress"><div class="paid" style="width:${paidPct}%"></div><div class="booked" style="width:${bookedPct}%"></div></div></div>
       <div class="budget-stats"><div class="budget-stat"><span>Pagato</span><strong>${currency(totals.paid)}</strong></div><div class="budget-stat"><span>Rimanente</span><strong>${currency(totals.remaining)}</strong></div></div>
     </div>
-    <div class="expense-layout">
+    <div class="expense-layout ${isAdmin ? "with-expense-form" : "public-expense-layout"}">
       <form id="expense-form" class="expense-form admin-only"><h3>Aggiungi una spesa</h3><div class="form-grid">
         <div class="field full"><label for="expense-description">Descrizione</label><input id="expense-description" required></div>
         <div class="field"><label for="expense-amount">Importo (€)</label><input id="expense-amount" type="number" min="0" step=".01" required></div>
@@ -1012,7 +1072,7 @@ function renderBudget() {
         <div class="field full"><label for="budget-total-input">Budget totale</label><input id="budget-total-input" type="number" min="0" step="1" value="${totals.total}"></div>
         <button class="button button-primary full" type="submit">Aggiungi spesa</button>
       </div></form>
-      <div class="expense-list">${expenses || '<div class="empty-state">Nessuna spesa registrata.</div>'}</div>
+      <div class="expense-board">${expenses || '<div class="empty-state">Nessuna spesa registrata.</div>'}</div>
     </div>`;
 }
 
