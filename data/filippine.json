@@ -1,6 +1,9 @@
 {
   "main": {
     "title": "Viaggio a Hong Kong, Macao e Filippine",
+    "tripStatus": "completed",
+    "tripYear": 2026,
+    "subtitle": "Dalle luci di Hong Kong alle lagune di Palawan, tra isole, mare e città verticali",
     "image": "https://raw.githubusercontent.com/rigelpd/mio-itinerario/main/Screenshot%202025-08-02%20170955.png"
   },
   "flights": [
@@ -160,7 +163,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": " The Coral Blue Oriental Beach Villas and Suites",
-      "activities": "",
+      "activities": "Giornata in barca verso Virgin Island, con tempo per mare, snorkeling e relax sulle spiagge dell’isola. Rientro a Bantayan nel pomeriggio.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-12%20204331.jpg",
       "location_coords": {
         "lat": 11.178792,
@@ -177,7 +180,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": " The Coral Blue Oriental Beach Villas and Suites",
-      "activities": "",
+      "activities": "Giornata libera a Bantayan: ritmo lento tra spiaggia, resort e tramonto. Possibilità di esplorare l’isola senza programma rigido.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-12%20204653.jpg",
       "location_coords": {
         "lat": 11.178792,
@@ -194,7 +197,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": " The Coral Blue Oriental Beach Villas and Suites",
-      "activities": "",
+      "activities": "Seconda uscita in barca verso Virgin Island e i punti mare vicini, dedicata a snorkeling, bagni e relax.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-12%20204424.jpg",
       "location_coords": {
         "lat": 11.178792,
@@ -211,7 +214,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": " The Coral Blue Oriental Beach Villas and Suites",
-      "activities": "",
+      "activities": "Giornata di mare a Bantayan, con tempo flessibile per tornare a Virgin Island oppure scegliere spiaggia e relax in base al meteo.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-12%20204724.jpg",
       "location_coords": {
         "lat": 11.178792,
@@ -228,7 +231,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": " The Coral Blue Oriental Beach Villas and Suites",
-      "activities": "",
+      "activities": "Ultima giornata piena a Bantayan: mare e relax, con tempo per preparare il trasferimento del mattino successivo.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-12%20204547.jpg",
       "location_coords": {
         "lat": 11.178792,
@@ -262,7 +265,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": "Two Seasons Coron Bayside Hotel",
-      "activities": "",
+      "activities": "Tour in barca tra le isole e le lagune di Coron, con soste per nuotare e fare snorkeling. Rientro in hotel nel pomeriggio.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-02%20194201.png",
       "location_coords": {
         "lat": 12.071319,
@@ -381,7 +384,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": "Mahogany Resort & Spa",
-      "activities": "",
+      "activities": "Tour in barca da El Nido: giornata dedicata alle lagune, alle isole e alle soste per il bagno e lo snorkeling.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-02%20193324.png",
       "location_coords": {
         "lat": 11.19317,
@@ -398,7 +401,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": "Mahogany Resort & Spa",
-      "activities": "",
+      "activities": "Nuovo tour in barca da El Nido, scegliendo il percorso in base a mare e disponibilità, con spiagge e snorkeling.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-02%20193335.png",
       "location_coords": {
         "lat": 11.19317,
@@ -415,7 +418,7 @@
       "isFlight": false,
       "isCruise": false,
       "accommodation": "Mahogany Resort & Spa",
-      "activities": "",
+      "activities": "Ultima escursione in barca da El Nido prima del rientro: isole, lagune e tempo per godersi il mare con calma.",
       "image": "https://raw.githubusercontent.com/rigelpd/itinerario-filippine/main/Screenshot%202025-08-02%20193437.png",
       "location_coords": {
         "lat": 11.19317,
@@ -453,7 +456,16 @@
       }
     }
   ],
-  "tours": [],
+  "tours": [
+    {
+      "id": "coron-el-nido-cruise",
+      "type": "boat",
+      "title": "Crociera Coron → El Nido",
+      "description": "Crociera di 3 giorni e 2 notti da Coron a El Nido per due persone. Il costo è già registrato nel budget; dettagli dell’operatore e orari restano da aggiungere se disponibili.",
+      "depTime": "",
+      "arrTime": ""
+    }
+  ],
   "budget": {
     "total": 7000,
     "expenses": [
@@ -563,7 +575,52 @@
       }
     ]
   },
-  "usefulLinks": [],
+  "usefulLinks": [
+    {
+      "id": "official-hong-kong-emergency",
+      "title": "Hong Kong — emergenze ufficiali",
+      "url": "https://www.gov.hk/en/nonresidents/visitinghk/usefulinfo/emergency.htm"
+    },
+    {
+      "id": "official-macao-emergency",
+      "title": "Macao — numeri di emergenza ufficiali",
+      "url": "https://www.macaotourism.gov.mo/en/travelessential/useful-info/emergency-numbers"
+    },
+    {
+      "id": "official-philippines-911",
+      "title": "Filippine — Emergency 911 National Office",
+      "url": "https://e911.gov.ph/emergency-call/"
+    },
+    {
+      "id": "official-italian-consulate-hong-kong",
+      "title": "Consolato Generale d’Italia a Hong Kong",
+      "url": "https://conshongkong.esteri.it/it/chi-siamo/"
+    },
+    {
+      "id": "official-italian-embassy-manila",
+      "title": "Ambasciata d’Italia a Manila — emergenze",
+      "url": "https://ambmanila.esteri.it/en/chi-siamo/numeri-di-emergenza/"
+    }
+  ],
+  "checklist": [
+    {"id": "ph-passports", "title": "Controllare passaporti e dati delle prenotazioni", "detail": "Verificare validità, integrità e corrispondenza dei nomi su voli, hotel e crociera."},
+    {"id": "ph-insurance", "title": "Salvare assicurazione e assistenza", "detail": "Tenere polizza, numero pratica e contatto di assistenza disponibili anche offline."},
+    {"id": "ph-copies", "title": "Preparare copie offline", "detail": "Salvare biglietti, hotel, trasferimenti, crociera e contatti utili sul telefono e in una copia separata."},
+    {"id": "ph-entry", "title": "Controllare gli adempimenti d’ingresso", "detail": "Verificare prima della partenza requisiti e moduli per Hong Kong, Macao e Filippine."},
+    {"id": "ph-esim", "title": "Attivare connettività mobile", "detail": "Installare eSIM o organizzare roaming, conservando QR e istruzioni di attivazione."},
+    {"id": "ph-payments", "title": "Preparare carte e contanti", "detail": "Controllare limiti, commissioni, prelievi e avere una piccola riserva di contanti nelle diverse valute necessarie."},
+    {"id": "ph-adapters", "title": "Mettere adattatori e ricarica", "detail": "Verificare prese e voltaggio delle tre destinazioni; portare adattatore universale e power bank."},
+    {"id": "ph-sea", "title": "Preparare il bagaglio per mare e barca", "detail": "Costume, protezione solare, sacche stagne, repellente, cappello e farmaci contro il mal di mare."},
+    {"id": "ph-health", "title": "Preparare farmaci e prescrizioni", "detail": "Portare medicinali abituali nella confezione originale e una piccola dotazione di primo soccorso."},
+    {"id": "ph-transfers", "title": "Riconfermare trasferimenti e bagagli", "detail": "Controllare navette, traghetti, voli interni, franchigie bagaglio e orari di ritrovo."}
+  ],
+  "practicalInfo": [
+    {"title": "Hong Kong — emergenze", "detail": "999 per polizia, vigili del fuoco e ambulanza; 992 via SMS per persone con disabilità uditive o del linguaggio."},
+    {"title": "Macao — emergenze", "detail": "999 per emergenze generali; 110 per polizia e 112 per ambulanza, come indicato dall’ente del turismo di Macao."},
+    {"title": "Filippine — emergenze", "detail": "911, numero nazionale gratuito per richieste di soccorso."},
+    {"title": "Consolato Generale d’Italia a Hong Kong", "detail": "Emergenze: +852 9131 5535, riservato a cittadini italiani per effettive urgenze e pericolo di vita."},
+    {"title": "Ambasciata d’Italia a Manila", "detail": "Emergenze fuori orario: +63 917 5375 071. Centralino: +63 2 8892 4531."}
+  ],
   "route": [
     "Bologna ",
     "Hong Kong",
@@ -577,7 +634,15 @@
   ],
   "planning": {
     "documents": [],
-    "emergency": [],
+    "emergency": [
+      {"service": "Hong Kong — polizia, vigili del fuoco e ambulanza", "number": "999", "source": "https://www.gov.hk/en/nonresidents/visitinghk/usefulinfo/emergency.htm"},
+      {"service": "Macao — emergenze generali", "number": "999", "source": "https://www.macaotourism.gov.mo/en/travelessential/useful-info/emergency-numbers"},
+      {"service": "Macao — polizia", "number": "110", "source": "https://www.macaotourism.gov.mo/en/travelessential/useful-info/emergency-numbers"},
+      {"service": "Macao — ambulanza", "number": "112", "source": "https://www.macaotourism.gov.mo/en/travelessential/useful-info/emergency-numbers"},
+      {"service": "Filippine — emergenza nazionale", "number": "911", "source": "https://e911.gov.ph/emergency-call/"},
+      {"service": "Consolato Generale d’Italia a Hong Kong", "number": "+852 9131 5535", "source": "https://conshongkong.esteri.it/it/chi-siamo/"},
+      {"service": "Ambasciata d’Italia a Manila", "number": "+63 917 5375 071", "source": "https://ambmanila.esteri.it/en/chi-siamo/numeri-di-emergenza/"}
+    ],
     "notes": ""
   }
 }

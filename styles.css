@@ -125,6 +125,13 @@ textarea { min-height: 130px; resize: vertical; }
 .completion-stamp { position:absolute; z-index:3; top:.7rem; left:.7rem; display:flex; align-items:center; gap:.35rem; padding:.34rem .5rem; border:1px solid rgba(255,255,255,.5); color:#fff; background:rgba(184,74,61,.84); backdrop-filter:blur(8px); font-size:.54rem; letter-spacing:.06em; text-transform:uppercase; transform:rotate(-2deg); }
 .completion-stamp b { font-size:.66rem; }
 .completion-stamp.is-complete { background:rgba(57,127,131,.9); }
+.trip-status-badge { position:absolute; z-index:3; top:.7rem; right:.7rem; display:grid; gap:.05rem; padding:.36rem .55rem; border:1px solid rgba(255,255,255,.38); color:#fff; background:rgba(22,67,72,.86); backdrop-filter:blur(8px); text-align:right; text-transform:uppercase; }
+.trip-status-badge span { font-size:.5rem; font-weight:700; letter-spacing:.09em; }
+.trip-status-badge b { font-family:var(--font-display); font-size:.85rem; line-height:1; }
+.trip-status-badge.is-completed { color:#f9e7b9; background:rgba(41,59,56,.88); }
+.atlas-card.is-completed .atlas-card-shade { background:linear-gradient(0deg,rgba(24,47,47,.93),rgba(9,18,24,.14) 70%); }
+.atlas-card.is-current::after { top:auto; bottom:.75rem; }
+body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absolute; z-index:3; top:1.2rem; right:1.4rem; padding:.38rem .58rem; border:1px solid rgba(255,255,255,.28); color:#f9e7b9; background:rgba(20,43,43,.65); font-size:.58rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
 
 .atlas-globe-section { display: grid; grid-template-rows: auto minmax(0,1fr); gap: .8rem; min-height: 0; overflow: visible; color: #fff; background: transparent; }
 .atlas-globe-copy { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(180px,.72fr) minmax(0,1fr) auto; align-items: center; column-gap: 1.1rem; padding: .9rem 1.05rem; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: #07111c; box-shadow: 0 12px 30px rgba(15,28,36,.16); }
@@ -263,6 +270,9 @@ textarea { min-height: 130px; resize: vertical; }
 .tag { display: inline-flex; align-items: center; gap: .3rem; padding: .28rem .55rem; border-radius: 999px; color: #795114; background: #f6e5bc; font-size: .67rem; font-weight: 700; text-transform: uppercase; }
 .tag.blue { color: #246b68; background: #d9f1ef; }
 .day-accommodation { margin: 0 0 1.15rem; color: var(--ink-soft); font-size: .83rem; }
+.travel-time { display:flex; align-items:baseline; flex-wrap:wrap; gap:.45rem; margin:0 0 .85rem; padding:.48rem .65rem; border-left:3px solid var(--aqua); background:rgba(57,127,131,.09); }
+.travel-time span { color:var(--aqua); font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.travel-time strong { color:var(--ink); font-size:.72rem; }
 .day-activities { margin: 0; white-space: pre-line; }
 .day-story-actions { margin-top: 1.45rem; }
 .text-action { display: inline-flex; align-items: center; gap: .45rem; padding: 0; border: 0; color: var(--ink-soft); background: transparent; font-size: .76rem; font-weight: 700; }

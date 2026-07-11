@@ -79,6 +79,7 @@ function normalizeData(raw) {
   data.planning ||= {};
   data.planning.documents = Array.isArray(data.planning.documents) ? data.planning.documents : [];
   data.planning.emergency = Array.isArray(data.planning.emergency) ? data.planning.emergency : [];
+  data.planning.notApplicable = Array.isArray(data.planning.notApplicable) ? data.planning.notApplicable : [];
   data.planning.notes ||= "";
   return data;
 }
@@ -97,7 +98,7 @@ function tripCompletion(data) {
     {key:"coordinates",label:"Coordinate di tappe e alloggi",section:"map",done:data.itinerary.length > 0 && data.itinerary.every(day=>Number.isFinite(Number(day.location_coords?.lat))&&Number.isFinite(Number(day.location_coords?.lng)))},
     {key:"route",label:"Ordine completo della rotta",section:"map",done:data.route.length > 1},
     {key:"flights",label:"Voli e orari",section:"flights",done:data.flights.length > 0 && data.flights.every(f=>valuePresent(f.depAirport)&&valuePresent(f.arrAirport)&&valuePresent(f.depTime)&&valuePresent(f.arrTime))},
-    {key:"tours",label:"Esperienze e prenotazioni",section:"tours",done:data.tours.length > 0},
+    {key:"tours",label:"Esperienze e prenotazioni",section:"tours",done:data.tours.length > 0 || data.planning.notApplicable.includes("tours")},
     {key:"budget",label:"Budget e spese",section:"budget",done:Number(data.budget?.total)>0 && data.budget.expenses.length>0},
     {key:"links",label:"Link e documenti utili",section:"links",done:data.usefulLinks.length>0 && data.planning.documents.length>0},
     {key:"checklist",label:"Checklist di preparazione",section:"links",done:(data.checklist||[]).length>0},
@@ -192,6 +193,16 @@ async function getCatalogTrip(slug) {
 function catalogRange(data) {
   const first = data.itinerary[0]?.date, last = data.itinerary.at(-1)?.date;
   return first && last ? `${formatDate(first,{month:"short",year:"numeric"})} · ${data.itinerary.length} giorni` : `${data.itinerary.length} giorni`;
+}
+
+function tripStatusInfo(data) {
+  const years = data.itinerary.map(day=>Number(String(day.date||"").slice(0,4))).filter(Number.isFinite);
+  const finalDate = data.itinerary.at(-1)?.date || "";
+  const inferredStatus = finalDate && finalDate < new Date().toISOString().slice(0,10) ? "completed" : "upcoming";
+  const status = data.main?.tripStatus === "completed" ? "completed" : (data.main?.tripStatus === "upcoming" ? "upcoming" : inferredStatus);
+  const inferredYear = years.length ? (status === "completed" ? Math.min(...years) : Math.max(...years)) : "";
+  const year = data.main?.tripYear || inferredYear;
+  return status === "completed" ? {status,year,label:"Viaggio concluso",short:"Concluso"} : {status,year,label:"In programma",short:"In programma"};
 }
 
 function globeStopsForTrip(slug,data) {
@@ -447,10 +458,12 @@ function renderAtlasHome(trips) {
     const image = safeImage(data.main.image) || safeImage(data.itinerary.find(day => safeImage(day.image))?.image);
     const locations = new Set(data.itinerary.map(day => day.location?.trim()).filter(Boolean)).size;
     const completion = tripCompletion(data);
-    return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""}" style="--card-index:${index}" data-open-trip="${slug}" role="link" tabindex="0" aria-label="Apri l’itinerario ${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}">
+    const timing = tripStatusInfo(data);
+    return `<article class="atlas-card ${slug === activeTrip ? "is-current" : ""} is-${timing.status}" style="--card-index:${index}" data-open-trip="${slug}" role="link" tabindex="0" aria-label="Apri l’itinerario ${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}">
       <div class="atlas-card-media" ${image ? `style="background-image:url('${escapeHtml(image).replace(/'/g,"%27")}')"` : ""}></div>
       <div class="atlas-card-shade"></div>
       <div class="completion-stamp ${completion.percent===100?"is-complete":""}"><b>${completion.percent}%</b><span>${completion.percent===100?"Completo":"Da completare"}</span></div>
+      <div class="trip-status-badge is-${timing.status}"><span>${escapeHtml(timing.short)}</span><b>${escapeHtml(timing.year)}</b></div>
       <div class="atlas-card-content"><p>${escapeHtml(catalogRange(data))}</p><h3>${escapeHtml(data.main.title || CONFIG.catalog[slug].label)}</h3><span>${locations} tappe · ${escapeHtml(CONFIG.catalog[slug].subtitle)}</span><span class="atlas-card-open">Esplora <b>→</b></span></div>
     </article>`;
   }).join("");
@@ -841,6 +854,9 @@ function renderCompletionCenter() {
 
 function renderHero() {
   const stats = tripStats();
+  const timing = tripStatusInfo(currentData);
+  document.body.classList.toggle("trip-completed",timing.status === "completed");
+  $("#hero-kicker").textContent = `${timing.label.toUpperCase()} · ${timing.year}`;
   $("#trip-title").textContent = currentData.main.title;
   $("#hero-subtitle").textContent = currentData.main.subtitle || CONFIG.catalog[activeTrip]?.subtitle || "Un viaggio costruito giorno dopo giorno.";
   const image = safeImage(currentData.main.image) || currentData.itinerary.find(day => safeImage(day.image))?.image;
@@ -870,6 +886,7 @@ function renderItinerary() {
     const image = safeImage(day.image);
     const missingFields = [!valuePresent(day.activities)&&"attività",!valuePresent(day.accommodation)&&!day.isFlight&&"alloggio",!image&&"immagine",(!day.location_coords||!Number.isFinite(Number(day.location_coords.lat)))&&"coordinate"].filter(Boolean);
     const tags = `${day.isFlight ? '<span class="tag">✈ Volo</span>' : ""}${day.isCruise ? '<span class="tag blue">≈ Barca</span>' : ""}`;
+    const travelTime = day.travel?.duration ? `<div class="travel-time"><span>${escapeHtml(day.travel.mode || "Spostamento")}</span><strong>${escapeHtml(day.travel.duration)}</strong></div>` : "";
     const mapButton = day.location_coords?.lat && day.location_coords?.lng ? `<button class="day-focus no-print" type="button" data-focus-day="${index}">◎ Mostra sulla mappa</button>` : "";
     return `<article id="day-${index}" class="day-card ${missingFields.length?"is-incomplete":""}" style="--i:${Math.min(index,12)}">
       <div class="day-marker"><span class="number">${String(index+1).padStart(2,"0")}</span><time datetime="${escapeHtml(day.date)}">${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time></div>
@@ -877,6 +894,7 @@ function renderItinerary() {
         <div class="day-copy">
           <p class="day-kicker">Giorno ${String(index+1).padStart(2,"0")} · ${escapeHtml(formatDate(day.date,{weekday:"long",day:"numeric",month:"long"}))}</p>
           <div class="day-location"><h3>${escapeHtml(day.location || "Tappa da definire")}</h3>${tags}${missingFields.length?`<span class="incomplete-badge" title="Mancano: ${escapeHtml(missingFields.join(", "))}">! Da completare</span>`:""}</div>
+          ${travelTime}
           <p class="day-accommodation">⌂ ${escapeHtml(day.accommodation || "Alloggio da definire")}</p>
           <p class="day-activities">${nl2br(day.activities || "Attività da definire.")}</p>
           <div class="day-story-actions no-print"><button class="text-action" type="button" data-share-day="${index}">Condividi questo giorno <span>↗</span></button></div>

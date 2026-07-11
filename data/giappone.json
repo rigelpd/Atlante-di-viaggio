@@ -1,6 +1,13 @@
 {
   "main": {
     "title": "Viaggio in Giappone",
+    "tripStatus": "completed",
+    "tripYear": 2025,
+    "subtitle": "Dalle luci di Tokyo ai templi di Kyoto, nel cuore dell’autunno giapponese",
+    "participants": [
+      "Leonardo",
+      "Margherita"
+    ],
     "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/giappone.jpg"
   },
   "flights": [
@@ -456,7 +463,37 @@
       "id": 1755870651846,
       "title": "Hakone Free Pass (Odakyu Railway)",
       "url": "https://www.odakyu.jp/english/passes/hakone/"
+    },
+    {
+      "id": "official-japan-visitor-hotline",
+      "title": "Japan Visitor Hotline — numeri ufficiali",
+      "url": "https://www.japan.travel/en/plan/hotline/"
+    },
+    {
+      "id": "official-italian-embassy-tokyo",
+      "title": "Ambasciata d’Italia a Tokyo — emergenze",
+      "url": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"
     }
+  ],
+  "checklist": [
+    {"id": "jp-passports", "title": "Controllare i passaporti", "detail": "Verificare validità, integrità e corrispondenza dei dati con tutte le prenotazioni."},
+    {"id": "jp-insurance", "title": "Salvare l’assicurazione di viaggio", "detail": "Tenere polizza, numero pratica e contatto assistenza disponibili anche offline."},
+    {"id": "jp-offline-copies", "title": "Creare copie offline", "detail": "Salvare sul telefono voli, alloggi, treni e contatti utili; conservare anche una copia separata."},
+    {"id": "jp-entry", "title": "Controllare le procedure d’ingresso", "detail": "Verificare gli adempimenti richiesti e preparare eventuali QR o moduli prima della partenza."},
+    {"id": "jp-esim", "title": "Attivare eSIM o roaming", "detail": "Installare il profilo, conservare il QR e verificare quando deve essere attivato."},
+    {"id": "jp-money", "title": "Preparare pagamenti e yen", "detail": "Avvisare le banche se necessario, controllare i limiti delle carte e prevedere una quota di contanti."},
+    {"id": "jp-transit", "title": "Preparare i trasporti locali", "detail": "Configurare una carta IC compatibile e salvare prenotazioni e pass ferroviari."},
+    {"id": "jp-power", "title": "Mettere in valigia l’adattatore", "detail": "Il Giappone utilizza prevalentemente prese di tipo A; verificare anche la compatibilità dei dispositivi."},
+    {"id": "jp-health", "title": "Preparare farmaci e prescrizioni", "detail": "Portare i medicinali abituali nella confezione originale e controllare eventuali restrizioni d’ingresso."},
+    {"id": "jp-luggage", "title": "Organizzare bagaglio e meteo", "detail": "Prevedere scarpe comode, strati adatti alla stagione e spazio per gli spostamenti in treno."}
+  ],
+  "practicalInfo": [
+    {"title": "Polizia", "detail": "110 — numero nazionale per emergenze urgenti."},
+    {"title": "Vigili del fuoco e ambulanza", "detail": "119 — numero nazionale per incendio o emergenza sanitaria."},
+    {"title": "Japan Visitor Hotline", "detail": "050-3816-2787; dall’estero +81-50-3816-2787. Assistenza JNTO 24 ore su 24 in inglese, cinese e coreano."},
+    {"title": "Ambasciata d’Italia a Tokyo", "detail": "+81 (0)3-3453-5291 — 2-5-4 Mita, Minato-ku, Tokyo 108-0073."},
+    {"title": "Emergenze consolari fuori orario", "detail": "+81 90 3908 1006 — da utilizzare soltanto per comprovate emergenze che riguardano sicurezza e incolumità."},
+    {"title": "Unità di Crisi Farnesina", "detail": "+39 06 36225."}
   ],
   "route": [
     "Bologna",
@@ -475,7 +512,17 @@
   ],
   "planning": {
     "documents": [],
-    "emergency": [],
+    "emergency": [
+      {"service": "Polizia", "number": "110", "source": "https://www.japan.travel/en/plan/hotline/"},
+      {"service": "Vigili del fuoco e ambulanza", "number": "119", "source": "https://www.japan.travel/en/plan/hotline/"},
+      {"service": "Japan Visitor Hotline", "number": "050-3816-2787", "source": "https://www.japan.travel/en/plan/hotline/"},
+      {"service": "Ambasciata d’Italia a Tokyo", "number": "+81 3 3453 5291", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"},
+      {"service": "Emergenze consolari fuori orario", "number": "+81 90 3908 1006", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"},
+      {"service": "Unità di Crisi Farnesina", "number": "+39 06 36225", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"}
+    ],
+    "notApplicable": [
+      "tours"
+    ],
     "notes": ""
   }
 }
