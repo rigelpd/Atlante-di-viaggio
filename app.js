@@ -88,8 +88,8 @@ function mergePublishedAdditions(saved,published) {
   const local = normalizeData(clone(saved)), source = normalizeData(clone(published));
   ["subtitle","participants","tripStatus","tripYear"].forEach(key => { if (!valuePresent(local.main[key]) && valuePresent(source.main[key])) local.main[key] = source.main[key]; });
   const sourceDays = new Map(source.itinerary.map(day => [`${day.date}|${day.location}`,day]));
-  local.itinerary.forEach(day => {
-    const sourceDay = sourceDays.get(`${day.date}|${day.location}`);
+  local.itinerary.forEach((day,index) => {
+    const sourceDay = sourceDays.get(`${day.date}|${day.location}`) || source.itinerary[index];
     if (!sourceDay) return;
     if (!valuePresent(day.activities) && valuePresent(sourceDay.activities)) day.activities = sourceDay.activities;
     if (!day.travel && sourceDay.travel) day.travel = clone(sourceDay.travel);
@@ -1460,5 +1460,5 @@ document.addEventListener("DOMContentLoaded",async()=>{
     sessionStorage.setItem("atlante:access","true"); isAdmin=false; $("#app-shell").classList.remove("is-hidden"); loadTrip(activeTrip,false); return;
   }
   if(sessionStorage.getItem("atlante:access")==="true"){$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-password").focus();}
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js?v=20260711c").catch(()=>{});
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js?v=20260711d").catch(()=>{});
 });
