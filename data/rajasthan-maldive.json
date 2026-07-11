@@ -16,6 +16,12 @@
       "arrTime": "2027-01-01T01:50",
       "depTz": 1,
       "arrTz": 5.5,
+      "airline": "ITA Airways",
+      "bookingStatus": "confirmed",
+      "legs": [
+        {"code":"AZ 1314","airline":"ITA Airways","departure":{"city":"Bologna","code":"BLQ","airport":"Aeroporto Guglielmo Marconi","time":"2026-12-31T11:00"},"arrival":{"city":"Roma Fiumicino","code":"FCO","airport":"Leonardo da Vinci","time":"2026-12-31T12:00"},"duration":"1 h","layover":"1 h 35 min"},
+        {"code":"AZ 770","airline":"ITA Airways","departure":{"city":"Roma Fiumicino","code":"FCO","airport":"Leonardo da Vinci","time":"2026-12-31T13:35"},"arrival":{"city":"Delhi","code":"DEL","airport":"Indira Gandhi International","time":"2027-01-01T01:50"},"duration":"7 h 45 min"}
+      ],
       "notes": "ITA Airways confermato: AZ1314 Bologna (BLQ) 11:00 → Roma Fiumicino (FCO) 12:00; scalo di 1 h 35 min; AZ770 Roma Fiumicino 13:35 → Delhi (DEL) 01:50 del 1 gennaio. Prenotato e pagato."
     },
     {
@@ -49,6 +55,12 @@
       "arrTime": "2027-01-24T09:55",
       "depTz": 5,
       "arrTz": 1,
+      "airline": "Turkish Airlines",
+      "bookingStatus": "confirmed",
+      "legs": [
+        {"code":"TK 735","airline":"Turkish Airlines","departure":{"city":"Malé","code":"MLE","airport":"Velana International","time":"2027-01-23T21:55"},"arrival":{"city":"Istanbul","code":"IST","airport":"Istanbul Airport","time":"2027-01-24T04:30"},"duration":"8 h 35 min","layover":"4 h 40 min"},
+        {"code":"TK 1321","airline":"Turkish Airlines","departure":{"city":"Istanbul","code":"IST","airport":"Istanbul Airport","time":"2027-01-24T09:10"},"arrival":{"city":"Bologna","code":"BLQ","airport":"Aeroporto Guglielmo Marconi","time":"2027-01-24T09:55"},"duration":"2 h 45 min"}
+      ],
       "notes": "Turkish Airlines confermato: TK735 Malé (MLE) 21:55 → Istanbul (IST) 04:30 del 24 gennaio; scalo di 4 h 40 min; TK1321 Istanbul 09:10 → Bologna (BLQ) 09:55. Prenotato e pagato."
     }
   ],

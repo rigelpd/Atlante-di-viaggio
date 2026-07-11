@@ -32,6 +32,9 @@ let originalData = null;
 let isAdmin = sessionStorage.getItem("atlante:admin") === "true";
 let map = null;
 let mapLayers = null;
+let mapBaseLayers = null;
+let selectedMapDesign = "explore";
+let politicalCountryLayer = null;
 let editorState = null;
 let tempRoute = [];
 let publishConfig = { trips: {} };
@@ -47,6 +50,15 @@ let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
 const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
 const budgetIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const transportIcon = type => {
+  const art = {
+    flight: '<path fill="currentColor" stroke="none" d="M8 29h17l10-20h7l-4 20h17l7-8h5l-7 12 7 12h-5l-7-8H38l4 20h-7L25 37H8l9-4Z"/><path d="M8 29h17l10-20h7l-4 20h17l7-8h5l-7 12 7 12h-5l-7-8H38l4 20h-7L25 37H8l9-4Z"/>',
+    train: '<rect x="13" y="4" width="38" height="37" rx="5"/><path d="M21 13h22M21 22h22M21 41l-7 8M43 41l7 8M10 50h44"/><circle cx="22" cy="32" r="3"/><circle cx="42" cy="32" r="3"/>',
+    road: '<path d="M5 34h6l7-15h26l8 15h7v12H5Z"/><path d="M18 34 24 23h17l7 11M5 39h54"/><circle cx="19" cy="46" r="5"/><circle cx="46" cy="46" r="5"/><path d="M26 24v10M40 24v10M10 34h6"/>',
+    boat: '<path d="M7 34h50l-8 12H15Z"/><path d="M19 34V19h22v15M25 19V11h10v8M29 11V5M7 46c5 4 11 4 16 0 5 4 11 4 16 0 5 4 11 4 18 0"/><path d="M24 25h5M35 25h5"/>'
+  };
+  return `<svg viewBox="0 0 64 56" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${art[type] || art.road}</svg>`;
+};
 const BUDGET_CATEGORY_META = {
   flights: { label:"Voli", icon:budgetIcon('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>'), tone:"flight" },
   hotels: { label:"Alloggi", icon:budgetIcon('<path d="m3 10 9-7 9 7v11H3Z"/><path d="M9 21v-6h6v6"/>'), tone:"stay" },
@@ -105,6 +117,8 @@ function mergePublishedAdditions(saved,published) {
     const localFlight = localFlights.get(sourceFlight.idPrefix);
     if (!localFlight) { local.flights.push(clone(sourceFlight)); return; }
     ["depTime","arrTime"].forEach(key => { if (!valuePresent(localFlight[key]) && valuePresent(sourceFlight[key])) localFlight[key] = sourceFlight[key]; });
+    if (!localFlight.legs?.length && sourceFlight.legs?.length) localFlight.legs = clone(sourceFlight.legs);
+    ["airline","bookingStatus","layover"].forEach(key => { if (!valuePresent(localFlight[key]) && valuePresent(sourceFlight[key])) localFlight[key] = sourceFlight[key]; });
     if (isPlaceholder(localFlight.notes) && valuePresent(sourceFlight.notes)) localFlight.notes = sourceFlight.notes;
   });
   const sourceDays = new Map(source.itinerary.map(day => [`${day.date}|${day.location}`,day]));
@@ -930,10 +944,10 @@ function renderCalendar() {
 function calendarTransportIcon(day) {
   const mode = String(day.travel?.mode || "").toLocaleLowerCase("it-IT");
   const duration = String(day.travel?.duration || "").toLocaleLowerCase("it-IT");
-  if (day.isFlight || /aereo|volo/.test(mode)) return { type:"flight", label:"Volo", icon:budgetIcon('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>') };
-  if (/treno/.test(mode)) return { type:"train", label:"Treno", icon:budgetIcon('<rect x="5" y="3" width="14" height="15" rx="2"/><path d="M8 7h8M8 11h8M8 18l-2 3M16 18l2 3"/>') };
-  if (/speedboat/.test(mode) || (/barca|crociera/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration))) return { type:"boat", label:"Barca", icon:budgetIcon('<path d="M3 15h18l-3 5H6Z"/><path d="M12 3v12M12 5l5 4M3 21c2 1 4 1 6 0 2 1 4 1 6 0 2 1 4 1 6 0"/>') };
-  if (/auto|strada|transfer/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration)) return { type:"road", label:"Trasferimento su strada", icon:budgetIcon('<path d="M5 21c5-5 1-9 7-14 2-2 4-3 7-4"/><circle cx="5" cy="21" r="1.5"/><circle cx="19" cy="3" r="1.5"/>') };
+  if (day.isFlight || /aereo|volo/.test(mode)) return { type:"flight", label:"Volo", icon:transportIcon("flight") };
+  if (/treno/.test(mode)) return { type:"train", label:"Treno", icon:transportIcon("train") };
+  if (/speedboat/.test(mode) || (/barca|crociera/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration))) return { type:"boat", label:"Barca", icon:transportIcon("boat") };
+  if (/auto|strada|transfer/.test(mode) && /\b(?:[2-9]|[1-9]\d)\b.*\b(?:h|ore)\b/.test(duration)) return { type:"road", label:"Trasferimento in auto", icon:transportIcon("road") };
   return null;
 }
 
@@ -1008,12 +1022,24 @@ function flightDuration(flight) {
 function renderFlights() {
   const list = $("#flights-list");
   if (!currentData.flights.length) { list.innerHTML = `<div class="empty-state"><h3>Nessun volo inserito</h3><p>Gli spostamenti aerei compariranno qui.</p></div>`; return; }
-  list.innerHTML = currentData.flights.map((flight,index) => `<article class="data-card">
-    <div class="data-card-head"><div><p class="eyebrow">Volo ${String(index+1).padStart(2,"0")}</p><h3>${escapeHtml(flight.title || "Volo da definire")}</h3></div><div class="admin-only"><button class="delete-button" type="button" data-edit-flight="${index}">Modifica</button><button class="delete-button" type="button" data-delete-flight="${index}">Elimina</button></div></div>
-    <div class="route-airports"><div class="airport"><strong>${escapeHtml(flight.depAirport || "Partenza")}</strong><span>${timezoneLabel(flight.depTz)}</span></div><div class="flight-line"></div><div class="airport"><strong>${escapeHtml(flight.arrAirport || "Arrivo")}</strong><span>${timezoneLabel(flight.arrTz)}</span></div></div>
-    <div class="flight-times"><span>${escapeHtml(formatDateTime(flight.depTime))}</span><span>${escapeHtml(formatDateTime(flight.arrTime))}</span></div>
-    <span class="duration-pill">${escapeHtml(flightDuration(flight))}</span>
-  </article>`).join("");
+  list.innerHTML = currentData.flights.map((flight,index) => renderFlightBooking(flight,index)).join("");
+}
+
+function renderFlightBooking(flight,index) {
+  const fallbackLeg = { code:"", airline:flight.airline || "Volo", departure:{ airport:flight.depAirport || "Partenza", time:flight.depTime }, arrival:{ airport:flight.arrAirport || "Arrivo", time:flight.arrTime }, duration:flightDuration(flight) };
+  const legs = flight.legs?.length ? flight.legs : [fallbackLeg];
+  const confirmed = flight.bookingStatus === "confirmed";
+  const stops = Math.max(0,legs.length - 1);
+  const route = legs.map(leg => leg.departure?.city || leg.departure?.airport || "").filter(Boolean).concat(legs.at(-1)?.arrival?.city || legs.at(-1)?.arrival?.airport || "").join(" — ");
+  return `<article class="flight-card ${confirmed ? "is-confirmed" : "is-pending"}">
+    <div class="flight-card-head"><div><p class="flight-booking-label">Prenotazione ${String(index+1).padStart(2,"0")} · ${stops ? `${legs.length} tratte, ${stops} ${stops === 1 ? "scalo" : "scali"}` : "diretto"}</p><h3>${escapeHtml(route || flight.title || "Volo da definire")}</h3><p class="flight-airline">${escapeHtml(flight.airline || "Compagnia da confermare")}</p></div><span class="flight-status">${confirmed ? "Confermato" : "Da confermare"}</span><div class="admin-only"><button class="delete-button" type="button" data-edit-flight="${index}">Modifica</button><button class="delete-button" type="button" data-delete-flight="${index}">Elimina</button></div></div>
+    <ol class="flight-legs">${legs.map((leg,legIndex) => {
+      const departure = leg.departure || {};
+      const arrival = leg.arrival || {};
+      return `<li class="flight-leg"><div class="flight-leg-code"><span>${escapeHtml(leg.code || `Tratta ${legIndex+1}`)}</span><small>${escapeHtml(leg.airline || flight.airline || "Da confermare")}</small></div><div class="flight-leg-place"><strong>${escapeHtml(departure.city || departure.airport || "Partenza")}</strong><span>${escapeHtml(departure.code || "")}</span><time>${escapeHtml(formatDateTime(departure.time))}</time></div><div class="flight-leg-route"><span>${transportIcon("flight")}</span><small>${escapeHtml(leg.duration || "Durata da confermare")}</small></div><div class="flight-leg-place arrival"><strong>${escapeHtml(arrival.city || arrival.airport || "Arrivo")}</strong><span>${escapeHtml(arrival.code || "")}</span><time>${escapeHtml(formatDateTime(arrival.time))}</time></div>${legIndex < legs.length - 1 ? `<p class="flight-layover">Scalo a ${escapeHtml(arrival.city || arrival.airport || "")}${leg.layover ? ` · ${escapeHtml(leg.layover)}` : ""}</p>` : ""}</li>`;
+    }).join("")}</ol>
+    <div class="flight-card-footer"><span>${transportIcon("flight")} ${escapeHtml(flightDuration(flight))} complessive</span>${flight.notes ? `<small>${escapeHtml(flight.notes)}</small>` : ""}</div>
+  </article>`;
 }
 
 function renderTours() {
@@ -1124,10 +1150,12 @@ function updateMapFilter() {
 function initializeMap() {
   if (!window.L || !$("#map") || !currentData) return;
   if (map) map.remove();
-  const street = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 20, attribution: "© OpenStreetMap © CARTO" });
+  const street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" });
   const topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenStreetMap, SRTM" });
   const satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Tiles © Esri" });
-  map = L.map("map", { center: [25,70], zoom: 4, layers: [street], zoomControl: true });
+  const political = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", { maxZoom: 20, attribution: "© OpenStreetMap © CARTO" });
+  mapBaseLayers = { explore:street, terrain:topo, satellite, political };
+  map = L.map("map", { center: [25,70], zoom: 4, layers: [mapBaseLayers[selectedMapDesign] || street], zoomControl: true });
   const places = L.layerGroup().addTo(map), hotels = L.layerGroup().addTo(map), travel = L.layerGroup().addTo(map), routeLayer = L.layerGroup().addTo(map);
   const bounds = [];
   const byLocation = new Map();
@@ -1150,11 +1178,45 @@ function initializeMap() {
   });
   const routePoints = (currentData.route || []).map(name => currentData.itinerary.find(day => day.location?.trim() === String(name).trim())?.location_coords).filter(coords => coords?.lat && coords?.lng).map(coords => [coords.lat,coords.lng]);
   if (routePoints.length > 1) L.polyline(routePoints,{color:"#f06d54",weight:3,opacity:.86,dashArray:"7 9",className:"route-pulse"}).addTo(routeLayer);
-  L.control.layers({"Stradale":street,"Satellite":satellite,"Topografica":topo},{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels,"Spostamenti":travel},{collapsed:true}).addTo(map);
+  L.control.layers({"Esplora":street,"Rilievo":topo,"Satellite":satellite},{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels,"Spostamenti":travel},{collapsed:true}).addTo(map);
   if (bounds.length) map.fitBounds(bounds,{padding:[35,35],maxZoom:8});
   mapLayers = { places, hotels, travel, routeLayer };
   updateMapFilter();
+  if (selectedMapDesign === "political") setMapDesign("political");
   setTimeout(() => map.invalidateSize(), 100);
+}
+
+const POLITICAL_PALETTE = ["#f3a35d","#70b9b1","#d86c70","#9a87cf","#dfc55c","#85ae68","#d890b4","#6c9fd2","#c78d57"];
+function politicalColor(feature) {
+  const key = String(feature.properties?.name || feature.id || "country");
+  return [...key].reduce((sum,char) => sum + char.charCodeAt(0),0) % POLITICAL_PALETTE.length;
+}
+
+async function ensurePoliticalCountries() {
+  if (politicalCountryLayer || !window.L) return politicalCountryLayer;
+  const response = await fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json");
+  if (!response.ok) throw new Error(`Confini politici non disponibili (${response.status})`);
+  const countries = await response.json();
+  politicalCountryLayer = L.geoJSON(countries, {
+    style: feature => ({ color:"#36565a", weight:1.15, opacity:.85, fillColor:POLITICAL_PALETTE[politicalColor(feature)], fillOpacity:.72 }),
+    onEachFeature: (feature,layer) => { const name = feature.properties?.name; if (name) layer.bindTooltip(name,{sticky:true,direction:"top"}); }
+  });
+  return politicalCountryLayer;
+}
+
+async function setMapDesign(design) {
+  if (!mapBaseLayers?.[design] || !map) return;
+  Object.values(mapBaseLayers).forEach(layer => { if (map.hasLayer(layer)) map.removeLayer(layer); });
+  mapBaseLayers[design].addTo(map);
+  selectedMapDesign = design;
+  $$("[data-map-design]").forEach(button => button.classList.toggle("is-active",button.dataset.mapDesign === design));
+  if (politicalCountryLayer && map.hasLayer(politicalCountryLayer)) map.removeLayer(politicalCountryLayer);
+  if (design === "political") {
+    try {
+      const countries = await ensurePoliticalCountries();
+      if (selectedMapDesign === "political" && map) countries.addTo(map);
+    } catch (error) { console.error(error); showToast("Non riesco a caricare i confini politici."); }
+  }
 }
 
 function focusDayOnMap(index) {
@@ -1463,6 +1525,7 @@ function setupEvents() {
   $$(".modal-close,[data-close-dialog]").forEach(button=>button.addEventListener("click",()=>closeDialog(button.closest("dialog"))));
   $$(".section-tab").forEach(button=>button.addEventListener("click",()=>switchPanel(button.dataset.tab)));
   $$("[data-map-filter]").forEach(button=>button.addEventListener("click",()=>{mapFilter=button.dataset.mapFilter;updateMapFilter();}));
+  $$("[data-map-design]").forEach(button=>button.addEventListener("click",()=>setMapDesign(button.dataset.mapDesign)));
   $("#edit-cover-btn").addEventListener("click",()=>openEditor("cover"));
   $("#edit-dates-btn").addEventListener("click",()=>openEditor("dates"));
   $("#add-day-btn").addEventListener("click",()=>openEditor("day"));
@@ -1520,5 +1583,11 @@ document.addEventListener("DOMContentLoaded",async()=>{
     sessionStorage.setItem("atlante:access","true"); isAdmin=false; $("#app-shell").classList.remove("is-hidden"); loadTrip(activeTrip,false); return;
   }
   if(sessionStorage.getItem("atlante:access")==="true"){$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-password").focus();}
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("service-worker.js?v=20260711d").catch(()=>{});
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    const isLocalPreview = ["localhost","127.0.0.1","::1"].includes(location.hostname);
+    if (isLocalPreview) {
+      navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+        .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260711i").catch(()=>{});
+  }
 });

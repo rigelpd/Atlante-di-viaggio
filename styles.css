@@ -236,16 +236,16 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .heading-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
 
 .calendar-strip { display: grid; grid-template-columns: repeat(auto-fit,minmax(62px,1fr)); gap: .45rem; padding: 1rem; border-radius: var(--radius-md); background: rgba(255,255,255,.45); border: 1px solid rgba(20,33,43,.08); }
-.calendar-day { position: relative; min-height: 76px; display: grid; place-items: center; align-content: center; gap: .1rem; border: 0; border-radius: 14px; color: var(--ink); background: transparent; transition: .2s ease; }
+.calendar-day { min-height: 98px; display: grid; place-items: center; align-content: start; grid-template-rows: auto auto auto; gap: .15rem; padding: .65rem .2rem .5rem; border: 0; border-radius: 14px; color: var(--ink); background: transparent; transition: .2s ease; }
 .calendar-day:hover { background: var(--white); transform: translateY(-3px); box-shadow: var(--shadow-soft); }
 .calendar-day strong { font-family: var(--font-display); font-size: 1.35rem; }
-.calendar-transport { position: absolute; top: 6px; right: 6px; display: grid; width: 20px; height: 20px; place-items: center; border-radius: 7px 7px 7px 2px; color: #fff; background: var(--night); box-shadow: 2px 2px 0 rgba(20,33,43,.16); }
-.calendar-transport svg { width: 13px; height: 13px; }
-.calendar-transport--flight { background: var(--coral); }
-.calendar-transport--train { background: #5977ad; }
-.calendar-transport--boat { background: #237e85; }
-.calendar-transport--road { background: #ad7118; }
-.calendar-day span { color: var(--ink-soft); font-size: .62rem; text-transform: uppercase; }
+.calendar-day > span:not(.calendar-transport) { color: var(--ink-soft); font-size: .62rem; text-transform: uppercase; }
+.calendar-transport { display: grid; width: 39px; height: 34px; place-items: center; margin-top: .42rem; border: 2px solid rgba(255,255,255,.96); border-radius: 10px 10px 10px 3px; color: #fff; background: var(--night); box-shadow: 0 3px 0 rgba(20,33,43,.22); }
+.calendar-transport svg { width: 29px; height: 25px; stroke: currentColor; }
+.calendar-transport--flight { background: #c44835; }
+.calendar-transport--train { background: #365baf; }
+.calendar-transport--boat { background: #087f8a; }
+.calendar-transport--road { background: #9a5f08; }
 .calendar-day i { position: absolute; bottom: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--coral); }
 .completion-center { margin:1.2rem 0 4rem; border:1px solid #b9a77f; background:rgba(245,236,215,.82); box-shadow:var(--shadow-soft); }
 .completion-summary { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:1.2rem; padding:1.2rem; }
@@ -305,6 +305,52 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .flight-line::after { content: "✦"; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); color: var(--coral); background: var(--white); padding: 0 .4rem; }
 .flight-times { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.35rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .82rem; }
 .duration-pill { display: inline-block; margin-top: 1rem; padding: .35rem .6rem; border-radius: 999px; color: #246b68; background: #d9f1ef; font-size: .72rem; font-weight: 700; }
+.flight-card { position:relative; padding:clamp(1.25rem,3vw,2rem); overflow:hidden; border:1px solid rgba(245,236,215,.36); border-radius:var(--radius-md); color:#f9f0dc; background:linear-gradient(145deg,#174953,#102e39); box-shadow:var(--shadow); }
+.flight-card::before { content:""; position:absolute; inset:auto -11% -47% auto; width:260px; height:260px; border:1px solid rgba(244,207,120,.27); border-radius:50%; box-shadow:0 0 0 26px rgba(244,207,120,.06),0 0 0 53px rgba(244,207,120,.045); pointer-events:none; }
+.flight-card:nth-child(even) { background:linear-gradient(145deg,#8e4437,#582b35); }
+.flight-card.is-pending { color:#293b39; border-color:#b9a77f; background:linear-gradient(145deg,#f2e4bf,#e6d0a2); }
+.flight-card-head { position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:1rem; align-items:start; }
+.flight-card-head h3 { margin:.35rem 0 .2rem; color:inherit; font-family:var(--font-display); font-size:clamp(1.45rem,3vw,2.25rem); line-height:1.02; }
+.flight-booking-label { margin:0; color:#f4cf78; font-size:.65rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.flight-airline { margin:0; color:rgba(249,240,220,.78); font-size:.8rem; font-weight:700; }
+.is-pending .flight-booking-label { color:#a05c12; }
+.is-pending .flight-airline { color:var(--ink-soft); }
+.flight-status { display:inline-flex; align-items:center; min-height:29px; padding:.25rem .55rem; border:1px solid rgba(244,207,120,.7); border-radius:999px; color:#f4cf78; font-size:.65rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+.is-pending .flight-status { color:#7d5317; border-color:#b98c45; background:rgba(255,255,255,.34); }
+.flight-card .admin-only { grid-column:1/-1; display:flex; gap:.5rem; }
+.flight-card .delete-button { color:inherit; opacity:.78; }
+.flight-legs { position:relative; z-index:1; display:grid; gap:.7rem; margin:1.4rem 0 0; padding:0; list-style:none; }
+.flight-leg { position:relative; display:grid; grid-template-columns:95px minmax(0,1fr) 92px minmax(0,1fr); align-items:center; gap:.6rem; padding:1rem .85rem; border:1px solid rgba(245,236,215,.25); border-radius:12px; background:rgba(255,255,255,.09); }
+.is-pending .flight-leg { border-color:rgba(97,76,41,.2); background:rgba(255,255,255,.32); }
+.flight-leg-code { display:grid; gap:.16rem; }
+.flight-leg-code span { color:#f4cf78; font-family:var(--font-display); font-size:1.05rem; }
+.flight-leg-code small { color:rgba(249,240,220,.68); font-size:.64rem; }
+.is-pending .flight-leg-code span { color:#9a5f08; }
+.is-pending .flight-leg-code small { color:var(--ink-soft); }
+.flight-leg-place { display:grid; gap:.05rem; min-width:0; }
+.flight-leg-place.arrival { text-align:right; }
+.flight-leg-place strong { overflow:hidden; color:inherit; font-size:.94rem; text-overflow:ellipsis; white-space:nowrap; }
+.flight-leg-place span { color:#f4cf78; font-family:var(--font-display); font-size:.85rem; }
+.flight-leg-place time { color:rgba(249,240,220,.75); font-size:.68rem; font-weight:700; }
+.is-pending .flight-leg-place span { color:#9a5f08; }
+.is-pending .flight-leg-place time { color:var(--ink-soft); }
+.flight-leg-route { display:grid; justify-items:center; gap:.08rem; color:#f4cf78; }
+.flight-leg-route span { display:grid; width:37px; height:29px; place-items:center; border-top:1px dashed currentColor; }
+.flight-leg-route svg { width:27px; height:23px; padding:0 .2rem; background:#174953; }
+.flight-card:nth-child(even) .flight-leg-route svg { background:#8e4437; }
+.is-pending .flight-leg-route { color:#9a5f08; }
+.is-pending .flight-leg-route svg { background:#ead6aa; }
+.flight-leg-route small { color:rgba(249,240,220,.7); font-size:.59rem; text-align:center; white-space:nowrap; }
+.is-pending .flight-leg-route small { color:var(--ink-soft); }
+.flight-layover { grid-column:2/-1; margin:.25rem 0 -.2rem; padding-top:.55rem; border-top:1px dashed rgba(245,236,215,.25); color:#f4cf78; font-size:.68rem; font-weight:700; }
+.is-pending .flight-layover { border-color:rgba(97,76,41,.22); color:#9a5f08; }
+.flight-card-footer { position:relative; z-index:1; display:grid; gap:.55rem; margin-top:1rem; padding-top:.85rem; border-top:1px dashed rgba(245,236,215,.28); }
+.flight-card-footer > span { display:flex; align-items:center; gap:.4rem; color:#f4cf78; font-size:.72rem; font-weight:800; }
+.flight-card-footer span svg { width:25px; height:21px; }
+.flight-card-footer small { color:rgba(249,240,220,.7); font-size:.68rem; line-height:1.45; }
+.is-pending .flight-card-footer { border-color:rgba(97,76,41,.22); }
+.is-pending .flight-card-footer > span { color:#9a5f08; }
+.is-pending .flight-card-footer small { color:var(--ink-soft); }
 .delete-button { border: 0; color: var(--coral-dark); background: transparent; font-size: .75rem; font-weight: 700; }
 .empty-state { grid-column: 1/-1; padding: 4rem 2rem; border: 1px dashed var(--line); border-radius: var(--radius-lg); text-align: center; color: var(--ink-soft); }
 .tour-meta { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
@@ -312,15 +358,23 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 
 .map-frame { overflow: hidden; border-radius: var(--radius-lg); background: #dfe5df; box-shadow: var(--shadow); }
 #map { height: min(650px, 72vh); min-height: 420px; z-index: 1; }
-.map-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; margin: -1.1rem 0 1rem; }
+.map-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .7rem; margin: -1.1rem 0 1rem; }
+.map-tool-group { display:flex; align-items:center; flex-wrap:wrap; gap:.45rem; }
+.map-tool-label { color:var(--ink-soft); font-size:.64rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .map-filter { border: 1px solid var(--line); border-radius: 999px; padding: .45rem .8rem; color: var(--ink-soft); background: rgba(255,255,255,.6); font-size: .72rem; font-weight: 700; }
 .map-filter.is-active { border-color: var(--night); color: #fff; background: var(--night); }
+.map-design { display:inline-flex; align-items:center; gap:.35rem; border:1px solid #b9a77f; border-radius:3px; padding:.46rem .62rem; color:var(--ink); background:#f5ecd7; font-family:var(--font-display); font-size:.69rem; transition:.2s ease; }
+.map-design b { display:grid; width:17px; height:17px; place-items:center; border-radius:50%; color:#f5ecd7; background:var(--coral-dark); font:700 .54rem var(--font-body); }
+.map-design:hover { transform:translateY(-2px); box-shadow:var(--shadow-soft); }
+.map-design.is-active { color:#fff; border-color:#1e4c51; background:#1e4c51; }
+.map-design.is-active b { color:#1e4c51; background:#f4cf78; }
 .map-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; color: var(--ink-soft); font-size: .75rem; }
 .map-legend span { display: flex; align-items: center; gap: .4rem; }
 .legend-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--coral); }
 .legend-dot.blue { background: #368f9d; }
 .legend-line { width: 24px; height: 2px; background: var(--coral); }
 .leaflet-control-layers, .leaflet-popup-content-wrapper { border: 0 !important; border-radius: 15px !important; box-shadow: var(--shadow-soft) !important; }
+.leaflet-tile { filter:saturate(1.14) contrast(1.03); }
 .route-pulse { animation: route-dash 1.6s linear infinite; }
 .map-stops { display: flex; gap: .55rem; margin-top: 1.25rem; padding-bottom: .25rem; overflow-x: auto; scrollbar-width: none; }
 .map-stops::-webkit-scrollbar { display: none; }
@@ -630,6 +684,7 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
 }
 
 @media (max-width: 650px) {
+  body { font-size: 17px; line-height: 1.62; }
   .topbar { grid-template-columns: auto 1fr auto; padding: 0 .8rem; }
   .brand > span:last-child { display: none; }
   .trip-select { min-width: 0; width: 100%; max-width: 210px; }
@@ -661,24 +716,51 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .globe-balloon { width: 210px; }
   .globe-drag-hint { right: 50%; transform: translateX(50%); }
   .section-heading { align-items: flex-start; flex-direction: column; }
-  .calendar-strip { grid-template-columns: repeat(5,1fr); }
-  .calendar-day { min-height: 65px; }
+  .calendar-strip { grid-template-columns: repeat(4,minmax(0,1fr)); gap: .55rem; padding: .75rem; }
+  .calendar-day { min-height: 112px; padding: .7rem .15rem .55rem; }
+  .calendar-day strong { font-size: 1.7rem; }
+  .calendar-day > span:not(.calendar-transport) { font-size: .72rem; font-weight: 700; }
+  .calendar-transport { width: 42px; height: 37px; margin-top: .52rem; }
+  .calendar-transport svg { width: 31px; height: 27px; }
   .timeline::before { left: 23px; }
   .day-card { grid-template-columns: 48px minmax(0,1fr); gap: .55rem; }
   .day-marker .number { width: 34px; height: 34px; border-width: 4px; font-size: .85rem; }
   .day-marker time { writing-mode: vertical-rl; margin-top: .6rem; }
   .day-copy { padding: 1.35rem; }
+  .day-location h3 { font-size: 1.72rem; }
+  .day-kicker { font-size: .74rem; }
+  .day-accommodation { font-size: .98rem; }
+  .travel-time { padding: .65rem .75rem; }
+  .travel-time span { font-size: .7rem; }
+  .travel-time strong { font-size: .96rem; }
   .day-image { min-height: 210px; }
   .route-airports { grid-template-columns: 1fr; }
   .airport:last-child { text-align: left; }
   .flight-line { width: 1px; height: 35px; margin-left: .5rem; }
   .flight-line::after { left: 50%; }
+  .map-toolbar { align-items:flex-start; }
+  .map-tool-group { gap:.38rem; }
+  .map-design { padding:.5rem .58rem; font-size:.74rem; }
+  .flight-card { padding:1.2rem; }
+  .flight-card-head { grid-template-columns:1fr; gap:.65rem; }
+  .flight-status { justify-self:start; }
+  .flight-leg { grid-template-columns:1fr 66px 1fr; gap:.7rem .35rem; padding:.9rem .65rem; }
+  .flight-leg-code { grid-column:1/-1; grid-template-columns:auto 1fr; align-items:center; }
+  .flight-leg-code small { text-align:right; }
+  .flight-leg-route { grid-column:2; grid-row:2; }
+  .flight-leg-place strong { font-size:.9rem; white-space:normal; }
+  .flight-leg-place time { font-size:.7rem; }
+  .flight-layover { grid-column:1/-1; margin-top:.25rem; }
   .budget-stats, .form-grid, .editor-fields, .quality-grid, .checklist-grid, .practical-grid, .github-controls, .publish-destination { grid-template-columns: 1fr; }
   .github-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .section-nav { position: fixed; top: auto; bottom: .7rem; left: .5rem; right: .5rem; z-index: 880; justify-content: space-around; gap: 0; padding: .35rem; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; background: rgba(17,28,37,.94); box-shadow: 0 15px 45px rgba(17,28,37,.3); }
   .section-tab { display: grid; place-items: center; gap: .08rem; min-width: 48px; padding: .42rem .45rem; color: rgba(255,255,255,.64); background: transparent; font-size: .52rem; }
   .section-tab.is-active { color: #fff; background: rgba(255,255,255,.13); }
-  .tab-icon { display: block; font-size: 1rem; line-height: 1; }
+  .tab-icon { display: grid; width: 19px; height: 19px; font-size: 1rem; line-height: 1; }
+  .tab-icon svg { width: 18px; height: 18px; }
+  .data-card h3 { font-size: 1.6rem; }
+  .expense-row-main strong { font-size: 1.04rem; }
+  .expense-payer b { font-size: .84rem; }
   .utility-dock { bottom: 4.45rem; width: calc(100% - 1rem); justify-content: center; overflow-x: auto; }
   .utility-dock button { padding: .55rem .62rem; }
   .utility-dock button span { display: none; }
