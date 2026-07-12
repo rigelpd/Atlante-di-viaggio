@@ -738,7 +738,7 @@ async function publishEmbeddedImages(repository,branch) {
   const targets = embeddedImageTargets();
   if (!targets.length) return 0;
   for (let index=0;index<targets.length;index++) {
-    setPublishStatus("working", `Carico e ottimizzo l’immagine ${index + 1} di ${targets.length}…`);
+    setPublishStatus("working", `Salvo la nuova immagine ${index + 1} di ${targets.length} nella libreria (una sola volta)…`);
     const file = mediaFileDetails(targets[index].image,index);
     const encodedPath = file.path.split("/").map(encodeURIComponent).join("/");
     const upload = await githubRequest(`https://api.github.com/repos/${repository}/contents/${encodedPath}`, {
@@ -805,7 +805,7 @@ async function handlePublish(event) {
     }
 
     const uploadedImages = await publishEmbeddedImages(repository,branch);
-    if (uploadedImages) setPublishStatus("working", `${uploadedImages} immagini salvate nella libreria del viaggio. Creo il commit…`);
+    if (uploadedImages) setPublishStatus("working", `${uploadedImages} nuove immagini salvate una sola volta nella libreria del viaggio. Creo il commit…`);
     setPublishStatus("working", "Creo il commit con il nuovo itinerario…");
     const body = {
       message: `Aggiorna ${currentData.main.title} dal sito`,
