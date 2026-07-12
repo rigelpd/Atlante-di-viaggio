@@ -26,6 +26,10 @@ const storageKey = slug => `atlante:${slug}`;
 const safeImage = url => url && !url.endsWith("/") ? url : "";
 const urlState = new URLSearchParams(window.location.search);
 
+// La tipografia grande è una scelta per telefoni, non una conseguenza della risoluzione del display.
+const isPhoneBrowser = navigator.userAgentData?.mobile === true || /Android.*Mobile|iPhone|iPod|IEMobile|Windows Phone|Opera Mini/i.test(navigator.userAgent);
+document.documentElement.classList.toggle("is-phone", isPhoneBrowser);
+
 let activeTrip = window.__EMBEDDED_SLUG__ || urlState.get("trip") || localStorage.getItem("atlante:activeTrip") || "rajasthan-maldive";
 let currentData = null;
 let originalData = null;
@@ -1588,6 +1592,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260711j").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712a").catch(()=>{});
   }
 });

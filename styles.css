@@ -21,6 +21,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+html.is-phone { font-size: 34px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   min-width: 320px;
@@ -684,8 +685,7 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
 }
 
 @media (max-width: 650px) {
-  /* Scala mobile dedicata: 34 px equivale al doppio della precedente base da 17 px. */
-  body { font-size: 34px; line-height: 1.5; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { line-height: 1.5; }
   .topbar { height: 96px; grid-template-columns: auto 1fr auto; padding: 0 .8rem; }
   .brand > span:last-child { display: none; }
   .trip-select { min-width: 0; width: 100%; max-width: 210px; }
