@@ -4,7 +4,7 @@
     "tripStatus": "completed",
     "tripYear": 2026,
     "subtitle": "Dalle luci di Hong Kong alle lagune di Palawan, tra isole, mare e città verticali",
-    "image": "media/filippine/archivio-01.jpg"
+    "image": "media/filippine/archivio-01-riparata.jpg"
   },
   "flights": [
     {
@@ -283,7 +283,7 @@
       "isCruise": false,
       "accommodation": "Two Seasons Coron Bayside Hotel",
       "activities": "Escursione Tour C...",
-      "image": "media/filippine/archivio-15.jpg",
+      "image": "media/filippine/archivio-15-riparata.jpg",
       "location_coords": {
         "lat": 12.071319,
         "lng": 120.17564
@@ -351,7 +351,7 @@
       "isCruise": true,
       "accommodation": "Mahogany Resort & Spa",
       "activities": "crociera da Coron a El Nido, arrivo all'hotel nel pomeriggio tardi",
-      "image": "media/filippine/archivio-19.jpg",
+      "image": "media/filippine/archivio-19-riparata.jpg",
       "location_coords": {
         "lat": 11.19317,
         "lng": 119.420591
