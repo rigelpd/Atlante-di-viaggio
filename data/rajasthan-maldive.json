@@ -493,7 +493,7 @@
         "amount": 0,
         "category": "hotels",
         "person": "Da quotare",
-        "status": "booked",
+        "status": "todo",
         "onSplid": false
       },
       {
@@ -503,7 +503,9 @@
         "category": "hotels",
         "person": "Margherita",
         "status": "booked",
-        "onSplid": false
+        "onSplid": false,
+        "stayStart": "2027-01-01",
+        "stayEnd": "2027-01-02"
       },
       {
         "id": 12,
@@ -512,7 +514,9 @@
         "category": "hotels",
         "person": "Margherita",
         "status": "booked",
-        "onSplid": false
+        "onSplid": false,
+        "stayStart": "2027-01-01",
+        "stayEnd": "2027-01-04"
       },
       {
         "id": 4,
@@ -521,7 +525,9 @@
         "category": "hotels",
         "person": "Margherita",
         "status": "paid",
-        "onSplid": true
+        "onSplid": true,
+        "stayStart": "2027-01-16",
+        "stayEnd": "2027-01-23"
       },
       {
         "id": 5,

@@ -239,10 +239,12 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .heading-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
 
 .calendar-strip { display: grid; grid-template-columns: repeat(auto-fit,minmax(62px,1fr)); gap: .45rem; padding: 1rem; border-radius: var(--radius-md); background: rgba(255,255,255,.45); border: 1px solid rgba(20,33,43,.08); }
-.calendar-day { min-height: 98px; display: grid; place-items: center; align-content: start; grid-template-rows: auto auto auto; gap: .15rem; padding: .65rem .2rem .5rem; border: 0; border-radius: 14px; color: var(--ink); background: transparent; transition: .2s ease; }
+.calendar-day { min-height: 98px; display: grid; place-items: center; align-content: start; grid-template-rows: auto auto auto auto; gap: .15rem; padding: .65rem .2rem .5rem; border: 0; border-radius: 14px; color: var(--ink); background: transparent; transition: .2s ease; }
 .calendar-day:hover { background: var(--white); transform: translateY(-3px); box-shadow: var(--shadow-soft); }
 .calendar-day strong { font-family: var(--font-display); font-size: 1.35rem; }
-.calendar-day > span:not(.calendar-transport) { color: var(--ink-soft); font-size: .62rem; text-transform: uppercase; }
+.calendar-day > span:not(.calendar-transport):not(.calendar-stay) { color: var(--ink-soft); font-size: .62rem; text-transform: uppercase; }
+.calendar-stay { display:grid; width:30px; height:26px; place-items:center; margin-top:.22rem; border:2px solid rgba(255,255,255,.96); border-radius:9px 9px 9px 3px; color:#fff; background:#167f7a; box-shadow:0 3px 0 rgba(20,33,43,.18); }
+.calendar-stay svg { width:19px; height:19px; }
 .calendar-transport { display: grid; width: 39px; height: 34px; place-items: center; margin-top: .42rem; border: 2px solid rgba(255,255,255,.96); border-radius: 10px 10px 10px 3px; color: #fff; background: var(--night); box-shadow: 0 3px 0 rgba(20,33,43,.22); }
 .calendar-transport svg { width: 29px; height: 25px; stroke: currentColor; }
 .calendar-transport--flight { background: #c44835; }
@@ -432,6 +434,20 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .expense-category-icon { display: grid; width: 50px; height: 50px; place-items: center; border: 2px solid var(--category-accent); border-radius: 16px 16px 16px 4px; color: #fff; background: var(--category-accent); box-shadow: 4px 4px 0 color-mix(in srgb,var(--category-accent) 28%,transparent); }
 .expense-category-icon svg { width: 28px; height: 28px; }
 .expense-category-list { display: grid; gap: .55rem; padding: .7rem; }
+.accommodation-coverage { margin-top:.25rem; padding:1rem; border:1px dashed color-mix(in srgb,var(--category-accent) 48%,transparent); border-radius:var(--radius-sm); background:rgba(255,255,255,.68); }
+.accommodation-coverage-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:.9rem; }
+.accommodation-coverage-head h3 { margin:.18rem 0 0; font-size:1.28rem; }
+.accommodation-coverage-head > p { max-width:210px; margin:0; color:var(--ink-soft); font-size:.77rem; text-align:right; }
+.accommodation-coverage-columns { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.accommodation-coverage-columns > div { padding:.75rem; border-radius:var(--radius-sm); background:var(--category-tint); }
+.accommodation-coverage-columns > div:last-child { background:rgba(255,244,222,.9); }
+.accommodation-coverage h4 { margin:0 0 .48rem; font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; }
+.accommodation-coverage ul { display:grid; gap:.38rem; margin:0; padding:0; list-style:none; }
+.accommodation-coverage li { display:grid; grid-template-columns:auto 1fr; gap:.1rem .45rem; padding-bottom:.35rem; border-bottom:1px solid rgba(20,33,43,.1); font-size:.76rem; }
+.accommodation-coverage li:last-child { padding-bottom:0; border-bottom:0; }
+.accommodation-coverage li time { color:var(--category-accent); font-weight:800; }
+.accommodation-coverage li small { grid-column:1/-1; color:var(--ink-soft); line-height:1.35; }
+.accommodation-coverage-note { margin:.8rem 0 0; color:var(--ink-soft); font-size:.7rem; line-height:1.4; }
 .expense-category .expense-row { align-items: flex-start; padding: .9rem; border-color: color-mix(in srgb,var(--category-accent) 22%,transparent); border-left: 4px solid var(--category-accent); background: rgba(255,255,255,.82); }
 .expense-category .expense-amount { display: grid; justify-items: end; gap: .35rem; }
 .expense-category .expense-amount > strong { font-family: var(--font-display); font-size: 1.25rem; }
@@ -729,6 +745,7 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .calendar-day > span:not(.calendar-transport) { font-size: .72rem; font-weight: 700; }
   .calendar-transport { width: 42px; height: 37px; margin-top: .52rem; }
   .calendar-transport svg { width: 31px; height: 27px; }
+  .calendar-stay { width:34px; height:29px; }
   .timeline::before { left: 23px; }
   .day-card { grid-template-columns: 62px minmax(0,1fr); gap: .55rem; }
   .day-marker .number { width: 44px; height: 44px; border-width: 4px; font-size: .85rem; }
@@ -838,6 +855,10 @@ html.is-phone .calendar-day strong { font-size: 1.55rem; }
 html.is-phone .calendar-day > span:not(.calendar-transport) { font-size: .72rem; }
 html.is-phone .calendar-transport { width: 38px; height: 33px; margin-top: .32rem; }
 html.is-phone .calendar-transport svg { width: 28px; height: 24px; }
+html.is-phone .calendar-stay { width:30px; height:26px; }
+html.is-phone .accommodation-coverage-head { align-items:flex-start; flex-direction:column; }
+html.is-phone .accommodation-coverage-head > p { max-width:none; text-align:left; }
+html.is-phone .accommodation-coverage-columns { grid-template-columns:1fr; }
 
 html.is-phone .timeline { gap: 1.45rem; }
 html.is-phone .timeline::before { display: none; }

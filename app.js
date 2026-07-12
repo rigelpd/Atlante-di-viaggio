@@ -151,7 +151,8 @@ function mergePublishedAdditions(saved,published) {
     if (Number(localExpense.amount || 0) <= 0 && Number(sourceExpense.amount || 0) > 0) localExpense.amount = sourceExpense.amount;
     if (isPlaceholder(localExpense.description) && valuePresent(sourceExpense.description)) localExpense.description = sourceExpense.description;
     if (isPlaceholder(localExpense.person) && valuePresent(sourceExpense.person)) localExpense.person = sourceExpense.person;
-    if (sourceExpense.status === "paid") localExpense.status = "paid";
+    if (["paid","todo"].includes(sourceExpense.status)) localExpense.status = sourceExpense.status;
+    ["stayStart","stayEnd"].forEach(key => { if (!valuePresent(localExpense[key]) && valuePresent(sourceExpense[key])) localExpense[key] = sourceExpense[key]; });
     if (sourceExpense.onSplid) localExpense.onSplid = true;
   });
   ["tours","checklist","practicalInfo","usefulLinks"].forEach(key => { if (!local[key]?.length && source[key]?.length) local[key] = clone(source[key]); });
@@ -937,13 +938,48 @@ function renderHero() {
 }
 
 function renderCalendar() {
+  const stays = accommodationCoverage();
   $("#calendar-summary").innerHTML = currentData.itinerary.map((day,index) => {
     const date = dateObject(day.date);
     const number = date ? date.getDate() : index + 1;
     const month = date ? new Intl.DateTimeFormat("it-IT",{month:"short"}).format(date) : "—";
     const transport = calendarTransportIcon(day);
-    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
+    const bookedStays = stays.get(day.date) || [];
+    const stayLabel = bookedStays.length ? `Alloggio ${bookedStays.map(item=>item.description).join(" · ")}` : "";
+    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${stayLabel ? ` · ${escapeHtml(stayLabel)}` : ""}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${bookedStays.length ? `<span class="calendar-stay" title="${escapeHtml(stayLabel)}">${BUDGET_CATEGORY_META.hotels.icon}</span>` : ""}${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
   }).join("") || `<p class="empty-state">Aggiungi le date per vedere il calendario.</p>`;
+}
+
+function accommodationCoverage() {
+  const stays = new Map();
+  currentData.budget.expenses
+    .filter(expense => expense.category === "hotels" && ["booked","paid"].includes(expense.status))
+    .forEach(expense => {
+      const start = dateObject(expense.stayStart);
+      const end = dateObject(expense.stayEnd);
+      if (!start || Number.isNaN(start.getTime())) return;
+      const last = end && !Number.isNaN(end.getTime()) ? end : new Date(start.getTime() + 86400000);
+      for (const cursor = new Date(start); cursor < last; cursor.setDate(cursor.getDate() + 1)) {
+        const key = cursor.toISOString().slice(0,10);
+        const items = stays.get(key) || [];
+        items.push(expense);
+        stays.set(key,items);
+      }
+    });
+  return stays;
+}
+
+function needsAccommodation(day) {
+  return Boolean(day.accommodation) && !/volo notturno|volo di rientro/i.test(String(day.accommodation));
+}
+
+function renderAccommodationCoverage() {
+  const stays = accommodationCoverage();
+  const days = currentData.itinerary.filter(needsAccommodation);
+  const covered = days.filter(day => stays.has(day.date));
+  const missing = days.filter(day => !stays.has(day.date));
+  const renderDay = (day,withStay) => `<li><time>${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time><span>${escapeHtml(day.location || "Tappa")}</span>${withStay ? `<small>${escapeHtml((stays.get(day.date) || []).map(item=>item.description).join(" · "))}</small>` : ""}</li>`;
+  return `<section class="accommodation-coverage"><div class="accommodation-coverage-head"><div><p class="eyebrow">Copertura alloggi</p><h3>${covered.length} giorni con sistemazione</h3></div><p>${missing.length} ${missing.length === 1 ? "giorno resta" : "giorni restano"} da prenotare.</p></div><div class="accommodation-coverage-columns"><div><h4>✓ Prenotata o pagata</h4><ul>${covered.map(day=>renderDay(day,true)).join("") || "<li>Nessuna sistemazione registrata.</li>"}</ul></div><div><h4>Da prenotare</h4><ul>${missing.map(day=>renderDay(day,false)).join("") || "<li>Tutte le sistemazioni sono coperte.</li>"}</ul></div></div><p class="accommodation-coverage-note">La casa nel calendario viene aggiunta automaticamente alle date coperte da una voce Alloggi prenotata o pagata.</p></section>`;
 }
 
 function calendarTransportIcon(day) {
@@ -1062,7 +1098,7 @@ function renderTours() {
 function budgetTotals() {
   const expenses = currentData.budget.expenses;
   const paid = expenses.filter(e => e.status === "paid").reduce((sum,e) => sum + Number(e.amount || 0),0);
-  const booked = expenses.filter(e => e.status !== "paid").reduce((sum,e) => sum + Number(e.amount || 0),0);
+  const booked = expenses.filter(e => e.status === "booked").reduce((sum,e) => sum + Number(e.amount || 0),0);
   const total = Number(currentData.budget.total || 0);
   return { paid, booked, spent: paid + booked, total, remaining: total - paid - booked };
 }
@@ -1073,20 +1109,31 @@ function renderBudget() {
   const bookedPct = totals.total ? Math.min(100-paidPct, totals.booked / totals.total * 100) : 0;
   const renderExpense = (expense,index) => {
     const isPaid = expense.status === "paid";
-    return `<div class="expense-row ${isPaid ? "is-paid" : "is-todo"}">
-    <div class="expense-row-main"><strong>${escapeHtml(expense.description || "Spesa")}</strong><div class="expense-meta"><span class="expense-payer"><small>${isPaid ? "Pagato da" : "Responsabile"}</small><b>${escapeHtml(expense.person || "Da definire")}</b></span>${expense.onSplid ? '<span class="splid-badge">✓ Splid</span>' : ""}</div></div>
-    <div class="expense-amount">${isPaid ? `<strong>${currency(expense.amount)}</strong>` : ""}<button class="status ${isPaid ? "" : "booked"} admin-only" type="button" data-toggle-expense="${index}">${isPaid ? "Pagata" : "Da fare"}</button><span class="status ${isPaid ? "" : "booked"} user-only">${isPaid ? "Pagata" : "Da fare"}</span><label class="splid-control admin-only"><input type="checkbox" data-toggle-splid="${index}" ${expense.onSplid ? "checked" : ""}> Splid</label><button class="delete-button admin-only" type="button" data-delete-expense="${index}">Elimina</button></div>
+    const isBooked = expense.status === "booked";
+    const statusLabel = isPaid ? "Pagata" : (isBooked ? "Prenotata" : "Da fare");
+    const payerLabel = isPaid ? "Pagato da" : (isBooked ? "Prenotato da" : "Responsabile");
+    return `<div class="expense-row ${isPaid ? "is-paid" : (isBooked ? "is-booked" : "is-todo")}">
+    <div class="expense-row-main"><strong>${escapeHtml(expense.description || "Spesa")}</strong><div class="expense-meta"><span class="expense-payer"><small>${payerLabel}</small><b>${escapeHtml(expense.person || "Da definire")}</b></span>${expense.onSplid ? '<span class="splid-badge">✓ Splid</span>' : ""}</div></div>
+    <div class="expense-amount">${Number(expense.amount || 0) > 0 ? `<strong>${currency(expense.amount)}</strong>` : ""}<button class="status ${isPaid ? "" : "booked"} admin-only" type="button" data-toggle-expense="${index}">${statusLabel}</button><span class="status ${isPaid ? "" : "booked"} user-only">${statusLabel}</span><label class="splid-control admin-only"><input type="checkbox" data-toggle-splid="${index}" ${expense.onSplid ? "checked" : ""}> Splid</label><button class="delete-button admin-only" type="button" data-delete-expense="${index}">Elimina</button></div>
   </div>`;
   };
   const expenses = Object.keys(BUDGET_CATEGORY_META).map(category => {
     const meta = BUDGET_CATEGORY_META[category];
     const items = currentData.budget.expenses.map((expense,index) => ({expense,index})).filter(({expense}) => (expense.category || "misc") === category);
     if (!items.length) return "";
-    const amount = items.filter(({expense}) => expense.status === "paid").reduce((sum,{expense}) => sum + Number(expense.amount || 0),0);
+    const amount = items.reduce((sum,{expense}) => sum + Number(expense.amount || 0),0);
     const paid = items.filter(({expense}) => expense.status === "paid").length;
+    const booked = items.filter(({expense}) => expense.status === "booked").length;
+    const todo = items.filter(({expense}) => !["paid","booked"].includes(expense.status)).length;
+    const statusSummary = [
+      `${items.length} ${items.length === 1 ? "voce" : "voci"}`,
+      paid ? `${paid} ${paid === 1 ? "pagata" : "pagate"}` : "",
+      booked ? `${booked} ${booked === 1 ? "prenotata" : "prenotate"}` : "",
+      todo ? `${todo} da fare` : ""
+    ].filter(Boolean).join(" · ");
     return `<section class="expense-category expense-category--${meta.tone}">
-      <header class="expense-category-head"><span class="expense-category-icon">${meta.icon}</span><div><span>${meta.label}</span><strong>${paid ? currency(amount) : "Da definire"}</strong></div><small>${items.length} ${items.length === 1 ? "voce" : "voci"} · ${paid} ${paid === 1 ? "pagata" : "pagate"}</small></header>
-      <div class="expense-category-list">${items.map(({expense,index}) => renderExpense(expense,index)).join("")}</div>
+      <header class="expense-category-head"><span class="expense-category-icon">${meta.icon}</span><div><span>${meta.label}</span><strong>${amount > 0 ? currency(amount) : "Da definire"}</strong></div><small>${statusSummary}</small></header>
+      <div class="expense-category-list">${items.map(({expense,index}) => renderExpense(expense,index)).join("")}${category === "hotels" ? renderAccommodationCoverage() : ""}</div>
     </section>`;
   }).join("");
   $("#budget-content").innerHTML = `
@@ -1099,8 +1146,11 @@ function renderBudget() {
         <div class="field full"><label for="expense-description">Descrizione</label><input id="expense-description" required></div>
         <div class="field"><label for="expense-amount">Importo (€)</label><input id="expense-amount" type="number" min="0" step=".01" required></div>
         <div class="field"><label for="expense-category">Categoria</label><select id="expense-category">${Object.entries(CONFIG.budgetCategories).map(([k,v]) => `<option value="${k}">${v}</option>`).join("")}</select></div>
-        <div class="field"><label for="expense-person">Pagato da</label><input id="expense-person" required></div>
+        <div class="field"><label for="expense-person">Responsabile / pagato da</label><input id="expense-person" required></div>
         <div class="field"><label for="expense-status">Stato</label><select id="expense-status"><option value="paid">Pagata</option><option value="booked">Prenotata</option></select></div>
+        <div class="field"><label for="expense-stay-start">Alloggio: primo giorno coperto</label><input id="expense-stay-start" type="date"></div>
+        <div class="field"><label for="expense-stay-end">Alloggio: checkout</label><input id="expense-stay-end" type="date"></div>
+        <p class="form-help full">Per gli alloggi, inserisci le date: il checkout non è incluso. Il calendario mostrerà automaticamente la casa nei giorni coperti.</p>
         <label class="check-field full"><input id="expense-splid" type="checkbox"> Inserita su Splid</label>
         <div class="field full"><label for="budget-total-input">Budget totale</label><input id="budget-total-input" type="number" min="0" step="1" value="${totals.total}"></div>
         <button class="button button-primary full" type="submit">Aggiungi spesa</button>
@@ -1494,7 +1544,7 @@ async function savePDF(scale=2) {
 function handleExpenseSubmit(event) {
   event.preventDefault();
   currentData.budget.total=Number($("#budget-total-input").value)||0;
-  currentData.budget.expenses.push({id:Date.now(),description:$("#expense-description").value.trim(),amount:Number($("#expense-amount").value)||0,category:$("#expense-category").value,person:$("#expense-person").value.trim(),status:$("#expense-status").value,onSplid:$("#expense-splid").checked});
+  currentData.budget.expenses.push({id:Date.now(),description:$("#expense-description").value.trim(),amount:Number($("#expense-amount").value)||0,category:$("#expense-category").value,person:$("#expense-person").value.trim(),status:$("#expense-status").value,onSplid:$("#expense-splid").checked,stayStart:$("#expense-stay-start").value,stayEnd:$("#expense-stay-end").value});
   saveData(true); renderBudget(); showToast("Spesa aggiunta.");
 }
 
@@ -1588,6 +1638,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712e").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712f").catch(()=>{});
   }
 });

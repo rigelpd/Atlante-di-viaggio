@@ -19,6 +19,10 @@ Quando l'utente chiede di aggiornare un viaggio:
 5. creare un commit descrittivo sulla branch `main` solo quando l'utente chiede anche di pubblicare;
 6. verificare l'esito del workflow GitHub Pages.
 
+## Convenzione budget
+
+Per una spesa già prenotata ma non ancora pagata, registrare comunque l'importo noto, impostare `status: "booked"`, indicare il responsabile e mantenere `onSplid: false` finché non è stata aggiunta a Splid. Nel sito questa condizione deve comparire come **Prenotata**, non come “Da fare”, e l'importo deve contribuire al totale impegnato senza essere conteggiato come pagato. Per gli alloggi aggiungere anche `stayStart` e `stayEnd` (checkout escluso): alimentano automaticamente il riepilogo delle sistemazioni e l'icona casa nel calendario.
+
 ## Esempi di prompt
 
 - `Nel progetto Atlante di viaggio modifica il giorno 8 delle Filippine aggiungendo ... e pubblica.`
