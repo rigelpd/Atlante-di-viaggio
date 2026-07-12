@@ -727,6 +727,27 @@ function embeddedImageTargets() {
   return targets;
 }
 
+function externalImageTargets() {
+  const targets = [];
+  if (/^https?:\/\//i.test(currentData?.main?.image || "")) targets.push(currentData.main);
+  currentData?.itinerary?.forEach(day => { if (/^https?:\/\//i.test(day.image || "")) targets.push(day); });
+  return targets;
+}
+
+async function importExternalImages() {
+  const targets = externalImageTargets();
+  if (!targets.length) return 0;
+  for (let index=0;index<targets.length;index++) {
+    setPublishStatus("working", `Importo la nuova immagine esterna ${index + 1} di ${targets.length}…`);
+    const response = await fetch(targets[index].image);
+    if (!response.ok) throw new Error(`Impossibile importare una delle immagini esterne (${response.status}).`);
+    const blob = await response.blob();
+    if (!/^image\//i.test(blob.type)) throw new Error("Uno dei collegamenti esterni non restituisce un’immagine valida.");
+    targets[index].image = await compressImage(blob);
+  }
+  return targets.length;
+}
+
 function mediaFileDetails(dataUrl,index) {
   const match = String(dataUrl || "").match(/^data:image\/(jpeg|jpg|png|webp);base64,([\s\S]+)$/i);
   if (!match) throw new Error("Una delle immagini caricate non è in un formato supportato.");
@@ -774,6 +795,8 @@ async function handlePublish(event) {
   setPublishStatus("working", "Controllo la versione presente su GitHub…");
 
   try {
+    const importedImages = await importExternalImages();
+    if (importedImages) saveData(true);
     const optimizedImages = await optimizeEmbeddedImages();
     if (optimizedImages.count) {
       saveData(true);

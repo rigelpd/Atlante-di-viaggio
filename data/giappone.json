@@ -8,7 +8,7 @@
       "Leonardo",
       "Margherita"
     ],
-    "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/giappone.jpg"
+    "image": "media/giappone/archivio-01.jpg"
   },
   "flights": [
     {
@@ -40,7 +40,7 @@
       "isCruise": false,
       "accommodation": "Casa",
       "activities": "Partenza dall'aeroporto di Bologna alle 19:35. Arriveremo con almeno 3 ore di anticipo per check-in e controlli.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/casa.png",
+      "image": "media/giappone/archivio-02.jpg",
       "location_coords": {
         "lat": 44.571608,
         "lng": 11.31967
@@ -53,7 +53,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Atterreremo all'aeroporto di Tokyo (HND) alle 19:45 ora locale. Sbrigate le formalità doganali, raggiungeremo I'Hotel Sunroute Plaza Shinjuku in taxi o con il comodo \"Limousine Bus\". Dopo il check-in, avremo la serata libera per una prima passeggiata e una cena nel vivace quartiere di Shinjuku.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20183810.png",
+      "image": "media/giappone/archivio-03.jpg",
       "location_coords": {
         "lat": 35.70149,
         "lng": 139.775427
@@ -70,7 +70,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Dedichiamo la giornata all'esplorazione dei quartieri iconici di Tokyo. Iniziamo con l'ipnotico incrocio di Shibuya e la statua di Hachiko. Proseguiamo per Harajuku, passeggiando lungo la vivace Takeshita Street, cuore della cultura giovanile. Concludiamo la giornata nella quiete del vicino Santuario Meiji Jingu, un'oasi di pace immersa in una foresta.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/tokyo.jpg",
+      "image": "media/giappone/archivio-04.jpg",
       "location_coords": {
         "lat": 35.70149,
         "lng": 139.775427
@@ -87,7 +87,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Esploriamo la parte più tradizionale di Tokyo. La mattina visitiamo Asakusa, con il suo Tempio Senso-ji e la via dello shopping Nakamise-dori. Successivamente, ci spostiamo al Parco di Ueno, dove potremo visitare musei o lo zoo. Nel pomeriggio, ci immergiamo nella cultura \"otaku\" di Akihabara, il quartiere dell'elettronica, dei manga e degli anime.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184018.png",
+      "image": "media/giappone/archivio-05.jpg",
       "location_coords": {
         "lat": 35.70149,
         "lng": 139.775427
@@ -104,7 +104,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Giornata dedicata all'escursione a Nikko, sito UNESCO. Partiamo presto da Asakusa con i treni Tobu (consigliato il \"Nikko Pass\", viaggio di circa 2 ore). Arrivati, un bus locale porterà ai templi. Visitiamo il sontuoso Santuario Toshogu, il Tempio Rinnoji e il Santuario Futarasan. Nel pomeriggio, ammiriamo il ponte Shinkyo prima di riprendere il treno per Tokyo.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184253.png",
+      "image": "media/giappone/archivio-06.jpg",
       "location_coords": {
         "lat": 36.724152,
         "lng": 139.701731
@@ -121,7 +121,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Iniziamo la giornata con una colazione al Mercato Esterno di Tsukiji. Proseguiamo verso Ginza, il quartiere del lusso, per ammirare le vetrine e le architetture. Nel pomeriggio,\nvisitiamo i tranquilli Giardini Orientali del Palazzo Imperiale. Concludiamo la giornata sulla Tokyo Skytree (prenotazione consigliata) per una vista mozzafiato al tramonto.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184319.png",
+      "image": "media/giappone/archivio-07.jpg",
       "location_coords": {
         "lat": 35.70149,
         "lng": 139.775427
@@ -138,7 +138,7 @@
       "isCruise": false,
       "accommodation": "Hotel Sunroute Plaza Shinjuku",
       "activities": "Partenza di buon'ora da Shinjuku per Hakone. Utilizziamo I'\"Hakone Free Pass\" per i trasporti. Seguiamo il classico \"Hakone Loop\": ammiriamo il lago Ashi in battello, saliamo\nsulla funivia Owakudani per vedere le sorgenti sulfuree e, con un po' di fortuna, godere di una vista spettacolare sul Monte Fuji. Non ci perdiamo il Santuario di Hakone. Rientro Tokyo in serata.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184409.png",
+      "image": "media/giappone/archivio-08.jpg",
       "location_coords": {
         "lat": 35.237103,
         "lng": 139.120233
@@ -155,7 +155,7 @@
       "isCruise": false,
       "accommodation": "Rihga Royal Hotel",
       "activities": "La mattina ci svegliamo alle 5 e partiamo da Tokyo con Shinkansen per Hiroshima, se prendiamo treno delle 6 dalla stazione di tokyo arrivamo alle 9:50 a Hiroshima, poi treno e ferry e intorno alle 11 siamo a Myiajima, vediamo il posto e poi la sera torniamo a Hiroshima per dormire al Rihga Royal Hotel.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20185004.png",
+      "image": "media/giappone/archivio-09.jpg",
       "location_coords": {
         "lat": 34.395255,
         "lng": 132.468662
@@ -172,7 +172,7 @@
       "isCruise": false,
       "accommodation": "Nishiyama Ryokan",
       "activities": "Mattinata vediamo Hiroshima, poi a mezzogiorno prendiamo il treno (durata un ora) per Himeji con arrivo alle 13, qui vediamo il castello Airone bianco, poi treno per Kyoto (durata un ora) e raggiungiamo il Nishiyama Ryokan. Per la serata, ci immergiamo nell'atmosfera magica di Gion, l'antico quartiere delle geishe.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184838.png",
+      "image": "media/giappone/archivio-10.jpg",
       "location_coords": {
         "lat": 35.012521,
         "lng": 135.763292
@@ -189,7 +189,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Oggi ci trasferiamo all'HIYORI Stay Kyoto Kamogawa. Dedichiamo poi la giornata alla scoperta della parte orientale di Kyoto. Iniziamo dal Fushimi Inari Shrine con i suoi famosi portali rossi, poi visitiamo il Kiyomizu-dera per la sua vista panoramica. Passeggiamo per le storiche stradine di Higashiyama, Sannenzaka e Ninnenzaka, e concludiamo con una visita al Santuario Yasaka.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184550.png",
+      "image": "media/giappone/archivio-11.jpg",
       "location_coords": {
         "lat": 35.012521,
         "lng": 135.763292
@@ -206,7 +206,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Giornata nella vivace Osaka, raggiungibile in 30 minuti di treno JR da Kyoto. Visitiamo l'imponente Castello di Osaka, poi esploriamo il quartiere di Shinsaibashi per lo shopping. La serata è a Dotonbori, il cuore pulsante della città, con le sue insegne al neon e l'incredibile street food. Assaggiamo takoyaki e okonomiyaki prima di rientrare a Kyoto.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184727.png",
+      "image": "media/giappone/archivio-12.jpg",
       "location_coords": {
         "lat": 34.711176,
         "lng": 135.49952
@@ -223,7 +223,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Oggi andiamo a Nara, raggiungibile in 45 minuti di treno JR da Kyoto. L'attrazione principale è il Parco di Nara, dove i cervi girano liberamente. All'interno del parco, visitiamo il Tempio Todai-ji con la sua enorme statua del Buddha e il Santuario Kasuga Taisha, famoso per le migliaia di lanterne. Una gita facile e rilassante, con rientro a Kyoto in serata.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184808.png",
+      "image": "media/giappone/archivio-13.jpg",
       "location_coords": {
         "lat": 34.689536,
         "lng": 135.806579
@@ -240,7 +240,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Giornata intera a Kyoto",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184636.png",
+      "image": "media/giappone/archivio-14.jpg",
       "location_coords": {
         "lat": 35.012521,
         "lng": 135.763292
@@ -257,7 +257,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Dedichiamo l'ultimo giorno a Kyoto alla parte nordoccidentale. Iniziamo dalla suggestiva foresta di bambù di Arashiyama e visitiamo il vicino Tempio Tenryu-ji. Nel pomeriggio, ammiriamo il Kinkaku-ji, il famoso Padiglione d'Oro. Se avanza tempo, una visita al Tempio Ryoan-ji, con il suo enigmatico giardino di rocce, completerà la giornata.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184918.png",
+      "image": "media/giappone/archivio-15.jpg",
       "location_coords": {
         "lat": 35.012521,
         "lng": 135.763292
@@ -274,7 +274,7 @@
       "isCruise": false,
       "accommodation": "HIYORI Stay Kyoto Kamogawa",
       "activities": "Giornata intera a Kyoto",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20184636.png",
+      "image": "media/giappone/archivio-14.jpg",
       "location_coords": {
         "lat": 35.012521,
         "lng": 135.763292
@@ -291,7 +291,7 @@
       "isCruise": false,
       "accommodation": "Volo per l'Italia",
       "activities": "È il nostro ultimo giorno in Giappone. Dopo il check-out, lasceremo i bagagli in hotel o negli armadietti della stazione di Kyoto per goderci la giornata. La mattinata sarà dedicata allo shopping dell'ultimo minuto nel gigantesco complesso della stazione, esplorando negozi come Isetan e The Cube, o in alternativa, facendo un'ultima visita culturale al vicino Tempio To-ji. Dopo un pranzo rilassato, avremo ancora tempo per qualche acquisto. Intorno alle 18:00, recupereremo i bagagli e prenderemo il treno Haruka Express per l'aeroporto del Kansai (KIX), per arrivare in tempo per il nostro volo delle 22:30.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/Screenshot%202025-08-04%20185142.png",
+      "image": "media/giappone/archivio-16.jpg",
       "location_coords": {
         "lat": 34.432382,
         "lng": 135.236627
@@ -308,7 +308,7 @@
       "isCruise": false,
       "accommodation": "Casa",
       "activities": "L'arrivo a Bologna è previsto per le 9:55.",
-      "image": "https://raw.githubusercontent.com/rigelpd/itinerario-giappone/main/casa.png",
+      "image": "media/giappone/archivio-02.jpg",
       "location_coords": {
         "lat": 44.571608,
         "lng": 11.31967
@@ -476,24 +476,82 @@
     }
   ],
   "checklist": [
-    {"id": "jp-passports", "title": "Controllare i passaporti", "detail": "Verificare validità, integrità e corrispondenza dei dati con tutte le prenotazioni."},
-    {"id": "jp-insurance", "title": "Salvare l’assicurazione di viaggio", "detail": "Tenere polizza, numero pratica e contatto assistenza disponibili anche offline."},
-    {"id": "jp-offline-copies", "title": "Creare copie offline", "detail": "Salvare sul telefono voli, alloggi, treni e contatti utili; conservare anche una copia separata."},
-    {"id": "jp-entry", "title": "Controllare le procedure d’ingresso", "detail": "Verificare gli adempimenti richiesti e preparare eventuali QR o moduli prima della partenza."},
-    {"id": "jp-esim", "title": "Attivare eSIM o roaming", "detail": "Installare il profilo, conservare il QR e verificare quando deve essere attivato."},
-    {"id": "jp-money", "title": "Preparare pagamenti e yen", "detail": "Avvisare le banche se necessario, controllare i limiti delle carte e prevedere una quota di contanti."},
-    {"id": "jp-transit", "title": "Preparare i trasporti locali", "detail": "Configurare una carta IC compatibile e salvare prenotazioni e pass ferroviari."},
-    {"id": "jp-power", "title": "Mettere in valigia l’adattatore", "detail": "Il Giappone utilizza prevalentemente prese di tipo A; verificare anche la compatibilità dei dispositivi."},
-    {"id": "jp-health", "title": "Preparare farmaci e prescrizioni", "detail": "Portare i medicinali abituali nella confezione originale e controllare eventuali restrizioni d’ingresso."},
-    {"id": "jp-luggage", "title": "Organizzare bagaglio e meteo", "detail": "Prevedere scarpe comode, strati adatti alla stagione e spazio per gli spostamenti in treno."}
+    {
+      "id": "jp-passports",
+      "title": "Controllare i passaporti",
+      "detail": "Verificare validità, integrità e corrispondenza dei dati con tutte le prenotazioni."
+    },
+    {
+      "id": "jp-insurance",
+      "title": "Salvare l’assicurazione di viaggio",
+      "detail": "Tenere polizza, numero pratica e contatto assistenza disponibili anche offline."
+    },
+    {
+      "id": "jp-offline-copies",
+      "title": "Creare copie offline",
+      "detail": "Salvare sul telefono voli, alloggi, treni e contatti utili; conservare anche una copia separata."
+    },
+    {
+      "id": "jp-entry",
+      "title": "Controllare le procedure d’ingresso",
+      "detail": "Verificare gli adempimenti richiesti e preparare eventuali QR o moduli prima della partenza."
+    },
+    {
+      "id": "jp-esim",
+      "title": "Attivare eSIM o roaming",
+      "detail": "Installare il profilo, conservare il QR e verificare quando deve essere attivato."
+    },
+    {
+      "id": "jp-money",
+      "title": "Preparare pagamenti e yen",
+      "detail": "Avvisare le banche se necessario, controllare i limiti delle carte e prevedere una quota di contanti."
+    },
+    {
+      "id": "jp-transit",
+      "title": "Preparare i trasporti locali",
+      "detail": "Configurare una carta IC compatibile e salvare prenotazioni e pass ferroviari."
+    },
+    {
+      "id": "jp-power",
+      "title": "Mettere in valigia l’adattatore",
+      "detail": "Il Giappone utilizza prevalentemente prese di tipo A; verificare anche la compatibilità dei dispositivi."
+    },
+    {
+      "id": "jp-health",
+      "title": "Preparare farmaci e prescrizioni",
+      "detail": "Portare i medicinali abituali nella confezione originale e controllare eventuali restrizioni d’ingresso."
+    },
+    {
+      "id": "jp-luggage",
+      "title": "Organizzare bagaglio e meteo",
+      "detail": "Prevedere scarpe comode, strati adatti alla stagione e spazio per gli spostamenti in treno."
+    }
   ],
   "practicalInfo": [
-    {"title": "Polizia", "detail": "110 — numero nazionale per emergenze urgenti."},
-    {"title": "Vigili del fuoco e ambulanza", "detail": "119 — numero nazionale per incendio o emergenza sanitaria."},
-    {"title": "Japan Visitor Hotline", "detail": "050-3816-2787; dall’estero +81-50-3816-2787. Assistenza JNTO 24 ore su 24 in inglese, cinese e coreano."},
-    {"title": "Ambasciata d’Italia a Tokyo", "detail": "+81 (0)3-3453-5291 — 2-5-4 Mita, Minato-ku, Tokyo 108-0073."},
-    {"title": "Emergenze consolari fuori orario", "detail": "+81 90 3908 1006 — da utilizzare soltanto per comprovate emergenze che riguardano sicurezza e incolumità."},
-    {"title": "Unità di Crisi Farnesina", "detail": "+39 06 36225."}
+    {
+      "title": "Polizia",
+      "detail": "110 — numero nazionale per emergenze urgenti."
+    },
+    {
+      "title": "Vigili del fuoco e ambulanza",
+      "detail": "119 — numero nazionale per incendio o emergenza sanitaria."
+    },
+    {
+      "title": "Japan Visitor Hotline",
+      "detail": "050-3816-2787; dall’estero +81-50-3816-2787. Assistenza JNTO 24 ore su 24 in inglese, cinese e coreano."
+    },
+    {
+      "title": "Ambasciata d’Italia a Tokyo",
+      "detail": "+81 (0)3-3453-5291 — 2-5-4 Mita, Minato-ku, Tokyo 108-0073."
+    },
+    {
+      "title": "Emergenze consolari fuori orario",
+      "detail": "+81 90 3908 1006 — da utilizzare soltanto per comprovate emergenze che riguardano sicurezza e incolumità."
+    },
+    {
+      "title": "Unità di Crisi Farnesina",
+      "detail": "+39 06 36225."
+    }
   ],
   "route": [
     "Bologna",
@@ -513,12 +571,36 @@
   "planning": {
     "documents": [],
     "emergency": [
-      {"service": "Polizia", "number": "110", "source": "https://www.japan.travel/en/plan/hotline/"},
-      {"service": "Vigili del fuoco e ambulanza", "number": "119", "source": "https://www.japan.travel/en/plan/hotline/"},
-      {"service": "Japan Visitor Hotline", "number": "050-3816-2787", "source": "https://www.japan.travel/en/plan/hotline/"},
-      {"service": "Ambasciata d’Italia a Tokyo", "number": "+81 3 3453 5291", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"},
-      {"service": "Emergenze consolari fuori orario", "number": "+81 90 3908 1006", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"},
-      {"service": "Unità di Crisi Farnesina", "number": "+39 06 36225", "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"}
+      {
+        "service": "Polizia",
+        "number": "110",
+        "source": "https://www.japan.travel/en/plan/hotline/"
+      },
+      {
+        "service": "Vigili del fuoco e ambulanza",
+        "number": "119",
+        "source": "https://www.japan.travel/en/plan/hotline/"
+      },
+      {
+        "service": "Japan Visitor Hotline",
+        "number": "050-3816-2787",
+        "source": "https://www.japan.travel/en/plan/hotline/"
+      },
+      {
+        "service": "Ambasciata d’Italia a Tokyo",
+        "number": "+81 3 3453 5291",
+        "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"
+      },
+      {
+        "service": "Emergenze consolari fuori orario",
+        "number": "+81 90 3908 1006",
+        "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"
+      },
+      {
+        "service": "Unità di Crisi Farnesina",
+        "number": "+39 06 36225",
+        "source": "https://ambtokyo.esteri.it/it/chi-siamo/numeri-di-emergenza/"
+      }
     ],
     "notApplicable": [
       "tours"
