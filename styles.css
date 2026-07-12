@@ -245,6 +245,7 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .calendar-day > span:not(.calendar-transport):not(.calendar-stay) { color: var(--ink-soft); font-size: .62rem; text-transform: uppercase; }
 .calendar-stay { display:grid; width:30px; height:26px; place-items:center; margin-top:.22rem; border:2px solid rgba(255,255,255,.96); border-radius:9px 9px 9px 3px; color:#fff; background:#167f7a; box-shadow:0 3px 0 rgba(20,33,43,.18); }
 .calendar-stay svg { width:19px; height:19px; }
+.calendar-stay.is-placeholder { visibility:hidden; }
 .calendar-transport { display: grid; width: 39px; height: 34px; place-items: center; margin-top: .42rem; border: 2px solid rgba(255,255,255,.96); border-radius: 10px 10px 10px 3px; color: #fff; background: var(--night); box-shadow: 0 3px 0 rgba(20,33,43,.22); }
 .calendar-transport svg { width: 29px; height: 25px; stroke: currentColor; }
 .calendar-transport--flight { background: #c44835; }
@@ -399,10 +400,17 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .budget-progress div { height: 100%; float: left; }
 .budget-progress .paid { background: var(--aqua); }
 .budget-progress .booked { background: var(--gold); }
-.budget-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
-.budget-stat { padding: 1.5rem; border-radius: var(--radius-md); background: var(--white); border: 1px solid rgba(20,33,43,.08); }
+.budget-progress .remaining { background: #6177bd; }
+.budget-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.budget-stat { min-width:0; padding: 1.5rem; border: 1px solid rgba(20,33,43,.08); border-radius: var(--radius-md); background: var(--white); }
 .budget-stat span { display: block; color: var(--ink-soft); font-size: .75rem; }
-.budget-stat strong { display: block; margin-top: .35rem; font-family: var(--font-display); font-size: 1.65rem; }
+.budget-stat strong { display: block; margin-top: .35rem; color:var(--ink); font-family: var(--font-display); font-size: clamp(1.05rem,2.1vw,1.65rem); line-height:1.05; overflow-wrap:anywhere; }
+.budget-stat.is-paid { border-color:#91d3ca; background:#dff2eb; }
+.budget-stat.is-paid span,.budget-stat.is-paid strong { color:#125c55; }
+.budget-stat.is-booked { border-color:#e6c47a; background:#fff1cb; }
+.budget-stat.is-booked span,.budget-stat.is-booked strong { color:#68480f; }
+.budget-stat.is-remaining { border-color:#aebbe5; background:#e7edff; }
+.budget-stat.is-remaining span,.budget-stat.is-remaining strong { color:#29467f; }
 .expense-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.2rem; }
 .expense-layout.public-expense-layout { grid-template-columns: 1fr; }
 .expense-form, .links-form { padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255,255,255,.45); }
@@ -434,22 +442,9 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .expense-category-icon { display: grid; width: 50px; height: 50px; place-items: center; border: 2px solid var(--category-accent); border-radius: 16px 16px 16px 4px; color: #fff; background: var(--category-accent); box-shadow: 4px 4px 0 color-mix(in srgb,var(--category-accent) 28%,transparent); }
 .expense-category-icon svg { width: 28px; height: 28px; }
 .expense-category-list { display: grid; gap: .55rem; padding: .7rem; }
-.accommodation-coverage { margin-top:.25rem; padding:1rem; border:1px dashed color-mix(in srgb,var(--category-accent) 48%,transparent); border-radius:var(--radius-sm); background:rgba(255,255,255,.68); }
-.accommodation-coverage-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:.9rem; }
-.accommodation-coverage-head h3 { margin:.18rem 0 0; font-size:1.28rem; }
-.accommodation-coverage-head > p { max-width:210px; margin:0; color:var(--ink-soft); font-size:.77rem; text-align:right; }
-.accommodation-coverage-columns { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
-.accommodation-coverage-columns > div { padding:.75rem; border-radius:var(--radius-sm); background:var(--category-tint); }
-.accommodation-coverage-columns > div:last-child { background:rgba(255,244,222,.9); }
-.accommodation-coverage h4 { margin:0 0 .48rem; font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; }
-.accommodation-coverage ul { display:grid; gap:.38rem; margin:0; padding:0; list-style:none; }
-.accommodation-coverage li { display:grid; grid-template-columns:auto 1fr; gap:.1rem .45rem; padding-bottom:.35rem; border-bottom:1px solid rgba(20,33,43,.1); font-size:.76rem; }
-.accommodation-coverage li:last-child { padding-bottom:0; border-bottom:0; }
-.accommodation-coverage li time { color:var(--category-accent); font-weight:800; }
-.accommodation-coverage li small { grid-column:1/-1; color:var(--ink-soft); line-height:1.35; }
-.accommodation-coverage-note { margin:.8rem 0 0; color:var(--ink-soft); font-size:.7rem; line-height:1.4; }
-.expense-category .expense-row { align-items: flex-start; padding: .9rem; border-color: color-mix(in srgb,var(--category-accent) 22%,transparent); border-left: 4px solid var(--category-accent); background: rgba(255,255,255,.82); }
-.expense-category .expense-amount { display: grid; justify-items: end; gap: .35rem; }
+.expense-category .expense-row { min-width:0; align-items: flex-start; padding: .9rem; border-color: color-mix(in srgb,var(--category-accent) 22%,transparent); border-left: 4px solid var(--category-accent); background: rgba(255,255,255,.82); }
+.expense-category .expense-row-main { flex:1 1 auto; min-width:0; overflow-wrap:anywhere; }
+.expense-category .expense-amount { display: grid; flex:0 1 auto; min-width:0; max-width:44%; justify-items: end; gap: .35rem; }
 .expense-category .expense-amount > strong { font-family: var(--font-display); font-size: 1.25rem; }
 .expense-meta { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .52rem; }
 .expense-row-main .expense-meta span { display: inline-flex; overflow: visible; color: inherit; font-size: inherit; text-overflow: clip; }
@@ -742,7 +737,7 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .calendar-strip { grid-template-columns: repeat(4,minmax(0,1fr)); gap: .55rem; padding: .75rem; }
   .calendar-day { min-height: 188px; padding: .7rem .15rem .55rem; }
   .calendar-day strong { font-size: 1.7rem; }
-  .calendar-day > span:not(.calendar-transport) { font-size: .72rem; font-weight: 700; }
+  .calendar-day > span:not(.calendar-transport):not(.calendar-stay) { font-size: .72rem; font-weight: 700; }
   .calendar-transport { width: 42px; height: 37px; margin-top: .52rem; }
   .calendar-transport svg { width: 31px; height: 27px; }
   .calendar-stay { width:34px; height:29px; }
@@ -852,13 +847,10 @@ html.is-phone .eyebrow { font-size: .7rem; }
 html.is-phone .calendar-strip { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78px; gap: .45rem; overflow-x: auto; padding: .65rem; scroll-snap-type: x proximity; scrollbar-width: thin; }
 html.is-phone .calendar-day { min-height: 116px; padding: .55rem .15rem; scroll-snap-align: start; }
 html.is-phone .calendar-day strong { font-size: 1.55rem; }
-html.is-phone .calendar-day > span:not(.calendar-transport) { font-size: .72rem; }
+html.is-phone .calendar-day > span:not(.calendar-transport):not(.calendar-stay) { font-size: .72rem; }
 html.is-phone .calendar-transport { width: 38px; height: 33px; margin-top: .32rem; }
 html.is-phone .calendar-transport svg { width: 28px; height: 24px; }
 html.is-phone .calendar-stay { width:30px; height:26px; }
-html.is-phone .accommodation-coverage-head { align-items:flex-start; flex-direction:column; }
-html.is-phone .accommodation-coverage-head > p { max-width:none; text-align:left; }
-html.is-phone .accommodation-coverage-columns { grid-template-columns:1fr; }
 
 html.is-phone .timeline { gap: 1.45rem; }
 html.is-phone .timeline::before { display: none; }

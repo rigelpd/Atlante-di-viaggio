@@ -946,7 +946,7 @@ function renderCalendar() {
     const transport = calendarTransportIcon(day);
     const bookedStays = stays.get(day.date) || [];
     const stayLabel = bookedStays.length ? `Alloggio ${bookedStays.map(item=>item.description).join(" · ")}` : "";
-    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${stayLabel ? ` · ${escapeHtml(stayLabel)}` : ""}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${bookedStays.length ? `<span class="calendar-stay" title="${escapeHtml(stayLabel)}">${BUDGET_CATEGORY_META.hotels.icon}</span>` : ""}${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
+    return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${stayLabel ? ` · ${escapeHtml(stayLabel)}` : ""}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span><span class="calendar-stay ${bookedStays.length ? "" : "is-placeholder"}"${bookedStays.length ? ` title="${escapeHtml(stayLabel)}"` : ""}>${bookedStays.length ? BUDGET_CATEGORY_META.hotels.icon : ""}</span>${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
   }).join("") || `<p class="empty-state">Aggiungi le date per vedere il calendario.</p>`;
 }
 
@@ -967,19 +967,6 @@ function accommodationCoverage() {
       }
     });
   return stays;
-}
-
-function needsAccommodation(day) {
-  return Boolean(day.accommodation) && !/volo notturno|volo di rientro/i.test(String(day.accommodation));
-}
-
-function renderAccommodationCoverage() {
-  const stays = accommodationCoverage();
-  const days = currentData.itinerary.filter(needsAccommodation);
-  const covered = days.filter(day => stays.has(day.date));
-  const missing = days.filter(day => !stays.has(day.date));
-  const renderDay = (day,withStay) => `<li><time>${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time><span>${escapeHtml(day.location || "Tappa")}</span>${withStay ? `<small>${escapeHtml((stays.get(day.date) || []).map(item=>item.description).join(" · "))}</small>` : ""}</li>`;
-  return `<section class="accommodation-coverage"><div class="accommodation-coverage-head"><div><p class="eyebrow">Copertura alloggi</p><h3>${covered.length} giorni con sistemazione</h3></div><p>${missing.length} ${missing.length === 1 ? "giorno resta" : "giorni restano"} da prenotare.</p></div><div class="accommodation-coverage-columns"><div><h4>✓ Prenotata o pagata</h4><ul>${covered.map(day=>renderDay(day,true)).join("") || "<li>Nessuna sistemazione registrata.</li>"}</ul></div><div><h4>Da prenotare</h4><ul>${missing.map(day=>renderDay(day,false)).join("") || "<li>Tutte le sistemazioni sono coperte.</li>"}</ul></div></div><p class="accommodation-coverage-note">La casa nel calendario viene aggiunta automaticamente alle date coperte da una voce Alloggi prenotata o pagata.</p></section>`;
 }
 
 function calendarTransportIcon(day) {
@@ -1107,6 +1094,7 @@ function renderBudget() {
   const totals = budgetTotals();
   const paidPct = totals.total ? Math.min(100, totals.paid / totals.total * 100) : 0;
   const bookedPct = totals.total ? Math.min(100-paidPct, totals.booked / totals.total * 100) : 0;
+  const remainingPct = totals.total ? Math.max(0,100-paidPct-bookedPct) : 0;
   const renderExpense = (expense,index) => {
     const isPaid = expense.status === "paid";
     const isBooked = expense.status === "booked";
@@ -1133,13 +1121,13 @@ function renderBudget() {
     ].filter(Boolean).join(" · ");
     return `<section class="expense-category expense-category--${meta.tone}">
       <header class="expense-category-head"><span class="expense-category-icon">${meta.icon}</span><div><span>${meta.label}</span><strong>${amount > 0 ? currency(amount) : "Da definire"}</strong></div><small>${statusSummary}</small></header>
-      <div class="expense-category-list">${items.map(({expense,index}) => renderExpense(expense,index)).join("")}${category === "hotels" ? renderAccommodationCoverage() : ""}</div>
+      <div class="expense-category-list">${items.map(({expense,index}) => renderExpense(expense,index)).join("")}</div>
     </section>`;
   }).join("");
   $("#budget-content").innerHTML = `
     <div class="budget-hero">
-      <div class="budget-total"><span>Budget complessivo</span><strong>${currency(totals.total)}</strong><span>${currency(totals.spent)} impegnati</span><div class="budget-progress"><div class="paid" style="width:${paidPct}%"></div><div class="booked" style="width:${bookedPct}%"></div></div></div>
-      <div class="budget-stats"><div class="budget-stat"><span>Pagato</span><strong>${currency(totals.paid)}</strong></div><div class="budget-stat"><span>Rimanente</span><strong>${currency(totals.remaining)}</strong></div></div>
+      <div class="budget-total"><span>Budget complessivo</span><strong>${currency(totals.total)}</strong><span>${currency(totals.spent)} impegnati</span><div class="budget-progress" aria-label="${currency(totals.paid)} pagato, ${currency(totals.booked)} prenotato, ${currency(totals.remaining)} rimanente"><div class="paid" style="width:${paidPct}%"></div><div class="booked" style="width:${bookedPct}%"></div><div class="remaining" style="width:${remainingPct}%"></div></div></div>
+      <div class="budget-stats"><div class="budget-stat is-paid"><span>Pagato</span><strong>${currency(totals.paid)}</strong></div><div class="budget-stat is-booked"><span>Prenotato<br>non pagato</span><strong>${currency(totals.booked)}</strong></div><div class="budget-stat is-remaining"><span>Rimanente</span><strong>${currency(totals.remaining)}</strong></div></div>
     </div>
     <div class="expense-layout ${isAdmin ? "with-expense-form" : "public-expense-layout"}">
       <form id="expense-form" class="expense-form admin-only"><h3>Aggiungi una spesa</h3><div class="form-grid">
@@ -1638,6 +1626,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712f").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712g").catch(()=>{});
   }
 });
