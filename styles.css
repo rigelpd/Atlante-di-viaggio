@@ -684,8 +684,9 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
 }
 
 @media (max-width: 650px) {
-  body { font-size: 17px; line-height: 1.62; }
-  .topbar { grid-template-columns: auto 1fr auto; padding: 0 .8rem; }
+  /* Scala mobile dedicata: 34 px equivale al doppio della precedente base da 17 px. */
+  body { font-size: 34px; line-height: 1.5; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  .topbar { height: 96px; grid-template-columns: auto 1fr auto; padding: 0 .8rem; }
   .brand > span:last-child { display: none; }
   .trip-select { min-width: 0; width: 100%; max-width: 210px; }
   .topbar-center { padding: 0 .5rem; }
@@ -698,7 +699,7 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .completion-toggle { grid-column:1/-1; }
   .completion-center { margin-bottom:2.5rem; }
   .share-sections { grid-template-columns:1fr; }
-  .hero { min-height: 640px; }
+  .hero { min-height: 720px; }
   .hero h1 { font-size: clamp(3rem,17vw,5rem); }
   .content-wrap { width: min(100% - 1.1rem,1180px); }
   .atlas-home { min-height: 100vh; padding: 1.5rem 1rem 7rem; }
@@ -717,14 +718,14 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .globe-drag-hint { right: 50%; transform: translateX(50%); }
   .section-heading { align-items: flex-start; flex-direction: column; }
   .calendar-strip { grid-template-columns: repeat(4,minmax(0,1fr)); gap: .55rem; padding: .75rem; }
-  .calendar-day { min-height: 112px; padding: .7rem .15rem .55rem; }
+  .calendar-day { min-height: 188px; padding: .7rem .15rem .55rem; }
   .calendar-day strong { font-size: 1.7rem; }
   .calendar-day > span:not(.calendar-transport) { font-size: .72rem; font-weight: 700; }
   .calendar-transport { width: 42px; height: 37px; margin-top: .52rem; }
   .calendar-transport svg { width: 31px; height: 27px; }
   .timeline::before { left: 23px; }
-  .day-card { grid-template-columns: 48px minmax(0,1fr); gap: .55rem; }
-  .day-marker .number { width: 34px; height: 34px; border-width: 4px; font-size: .85rem; }
+  .day-card { grid-template-columns: 62px minmax(0,1fr); gap: .55rem; }
+  .day-marker .number { width: 44px; height: 44px; border-width: 4px; font-size: .85rem; }
   .day-marker time { writing-mode: vertical-rl; margin-top: .6rem; }
   .day-copy { padding: 1.35rem; }
   .day-location h3 { font-size: 1.72rem; }
@@ -754,14 +755,14 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .budget-stats, .form-grid, .editor-fields, .quality-grid, .checklist-grid, .practical-grid, .github-controls, .publish-destination { grid-template-columns: 1fr; }
   .github-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .section-nav { position: fixed; top: auto; bottom: .7rem; left: .5rem; right: .5rem; z-index: 880; justify-content: space-around; gap: 0; padding: .35rem; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; background: rgba(17,28,37,.94); box-shadow: 0 15px 45px rgba(17,28,37,.3); }
-  .section-tab { display: grid; place-items: center; gap: .08rem; min-width: 48px; padding: .42rem .45rem; color: rgba(255,255,255,.64); background: transparent; font-size: .52rem; }
+  .section-tab { display: grid; place-items: center; gap: .08rem; min-width: 58px; padding: .42rem .45rem; color: rgba(255,255,255,.64); background: transparent; font-size: .52rem; }
   .section-tab.is-active { color: #fff; background: rgba(255,255,255,.13); }
   .tab-icon { display: grid; width: 19px; height: 19px; font-size: 1rem; line-height: 1; }
   .tab-icon svg { width: 18px; height: 18px; }
   .data-card h3 { font-size: 1.6rem; }
   .expense-row-main strong { font-size: 1.04rem; }
   .expense-payer b { font-size: .84rem; }
-  .utility-dock { bottom: 4.45rem; width: calc(100% - 1rem); justify-content: center; overflow-x: auto; }
+  .utility-dock { bottom: 5.35rem; width: calc(100% - 1rem); justify-content: center; overflow-x: auto; }
   .utility-dock button { padding: .55rem .62rem; }
   .utility-dock button span { display: none; }
   .modal-actions { flex-direction: column-reverse; }
