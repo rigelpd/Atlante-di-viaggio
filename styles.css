@@ -264,26 +264,11 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .missing-chip span { width:18px; height:18px; border-radius:50%; }
 .incomplete-badge { padding:.22rem .4rem; font-size:.55rem; letter-spacing:.04em; text-transform:uppercase; transform:rotate(-1deg); }
 .day-card.is-incomplete .day-body { border-left:4px solid var(--coral); }
+.day-alert { display:grid; gap:.2rem; margin:.95rem 0; padding:.85rem 1rem; color:#5e2800; border:1px solid #f0a141; border-left:5px solid #e36b1f; border-radius:var(--radius-sm); background:#fff1d7; }
+.day-alert b { font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; }
+.day-alert span { font-size:.92rem; font-weight:700; line-height:1.45; }
 
 .timeline { position: relative; display: grid; gap: 2rem; }
-.india-alternatives { margin: -1rem 0 3rem; padding: clamp(1rem,3vw,1.8rem); border: 1px solid var(--line); border-radius: var(--radius-lg); background: rgba(255,255,255,.72); box-shadow: var(--shadow-soft); }
-.alternative-intro { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1rem; }
-.alternative-intro h3 { margin: .15rem 0 0; font-family: var(--font-display); font-size: clamp(1.8rem,3vw,2.7rem); line-height: 1; }
-.alternative-intro > p { max-width: 560px; margin: 0; color: var(--ink-soft); font-size: .9rem; }
-.alternative-switch { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .65rem; }
-.alternative-button { display: grid; gap: .2rem; min-height: 78px; padding: .85rem 1rem; text-align: left; color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--paper); transition: transform .2s,background .2s,border-color .2s; }
-.alternative-button:hover { transform: translateY(-2px); border-color: var(--coral); }
-.alternative-button small { color: var(--ink-soft); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.alternative-button strong { font-size: 1rem; }
-.alternative-button.is-active { color: #fff; border-color: var(--coral); background: var(--coral); box-shadow: 0 9px 22px rgba(240,109,84,.22); }
-.alternative-button.is-active small { color: rgba(255,255,255,.78); }
-.alternative-verdict { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(260px,.8fr); gap: 1.5rem; margin-top: .85rem; padding: 1.1rem 1.2rem; color: #fff; border-radius: var(--radius-md); background: var(--night); }
-.alternative-verdict span { color: var(--gold); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-.alternative-verdict h4 { margin: .25rem 0 .45rem; font-family: var(--font-display); font-size: 1.55rem; }
-.alternative-verdict p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
-.alternative-points { display: grid; align-content: center; gap: .65rem; padding-left: 1.2rem; border-left: 1px solid rgba(255,255,255,.16); }
-.alternative-points p { display: grid; gap: .15rem; }
-.alternative-points b { color: #fff; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
 .timeline::before { content: ""; position: absolute; left: 55px; top: 30px; bottom: 30px; width: 1px; background: var(--line); }
 .day-card { position: relative; display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 1.2rem; opacity: 0; transform: translateY(24px); animation: card-in .6s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--i) * 45ms); }
 .day-marker { position: relative; z-index: 1; align-self: start; display: grid; justify-items: center; padding-top: 1.1rem; }
@@ -699,9 +684,6 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .atlas-grid { grid-template-columns: repeat(3,minmax(0,1fr)); grid-template-rows: none; min-height: 300px; }
   .atlas-card { min-height: 300px; }
   .day-body { grid-template-columns: 1fr; }
-  .alternative-intro { align-items: flex-start; flex-direction: column; }
-  .alternative-verdict { grid-template-columns: 1fr; }
-  .alternative-points { padding: 1rem 0 0; border-left: 0; border-top: 1px solid rgba(255,255,255,.16); }
   .day-image { min-height: 250px; order: -1; }
   .cards-grid, .budget-hero, .expense-layout, .links-layout { grid-template-columns: 1fr; }
   .hero-scroll { display: none; }
@@ -742,9 +724,6 @@ body[data-theme="artistic"] .utility-dock { border-radius:0; border-bottom:3px s
   .globe-drag-hint { right: 50%; transform: translateX(50%); }
   .section-heading { align-items: flex-start; flex-direction: column; }
   .calendar-strip { grid-template-columns: repeat(4,minmax(0,1fr)); gap: .55rem; padding: .75rem; }
-  .india-alternatives { margin-top: 0; padding: .8rem; }
-  .alternative-switch { grid-template-columns: 1fr; }
-  .alternative-button { min-height: 64px; }
   .calendar-day { min-height: 188px; padding: .7rem .15rem .55rem; }
   .calendar-day strong { font-size: 1.7rem; }
   .calendar-day > span:not(.calendar-transport) { font-size: .72rem; font-weight: 700; }

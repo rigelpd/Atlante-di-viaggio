@@ -53,8 +53,6 @@ let atlasGlobeSelection = null;
 let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
 let lastGlobeSurfaceTapAt = 0;
-let activeIndiaAlternative = "deserto";
-let indiaAlternativeBase = null;
 const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
 const budgetIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 const transportIcon = type => {
@@ -119,6 +117,12 @@ function mergePublishedAdditions(saved,published) {
     return !text || /da prenotare|da quotare|da definire|operativo e scalo|^previsto|multi-tratta/.test(text);
   };
   ["subtitle","participants","tripStatus","tripYear"].forEach(key => { if (!valuePresent(local.main[key]) && valuePresent(source.main[key])) local.main[key] = source.main[key]; });
+  const sourceRevision = Number(source.main.contentRevision || 0);
+  if (sourceRevision > Number(local.main.contentRevision || 0)) {
+    local.itinerary = clone(source.itinerary);
+    local.route = clone(source.route);
+    local.main.contentRevision = sourceRevision;
+  }
   const localFlights = new Map(local.flights.map(flight => [flight.idPrefix,flight]));
   source.flights.forEach(sourceFlight => {
     const localFlight = localFlights.get(sourceFlight.idPrefix);
@@ -151,7 +155,6 @@ function mergePublishedAdditions(saved,published) {
     if (sourceExpense.onSplid) localExpense.onSplid = true;
   });
   ["tours","checklist","practicalInfo","usefulLinks"].forEach(key => { if (!local[key]?.length && source[key]?.length) local[key] = clone(source[key]); });
-  if (!local.indiaAlternatives?.length && source.indiaAlternatives?.length) local.indiaAlternatives = clone(source.indiaAlternatives);
   ["emergency","notApplicable"].forEach(key => { if (!local.planning[key]?.length && source.planning[key]?.length) local.planning[key] = clone(source.planning[key]); });
   return local;
 }
@@ -576,12 +579,6 @@ async function loadTrip(slug, preferSaved = true) {
   data ||= savedData && publishedData ? mergePublishedAdditions(savedData,publishedData) : (savedData || publishedData || { main: { title: CONFIG.catalog[activeTrip].label, image: "" }, itinerary: [], flights: [], tours: [], budget: { total: 0, expenses: [] }, usefulLinks: [], route: [] });
   originalData = normalizeData(clone(publishedData || data));
   currentData = normalizeData(data);
-  indiaAlternativeBase = activeTrip === "rajasthan-maldive" ? {
-    days: clone(originalData.itinerary.filter(day => day.date >= "2027-01-01" && day.date <= "2027-01-15")),
-    route: clone(originalData.route || []),
-    internalFlight: clone(originalData.flights.find(flight => flight.idPrefix === "internal") || null)
-  } : null;
-  activeIndiaAlternative = currentData.indiaAlternatives?.[0]?.id || "deserto";
   atlasCatalogCache[activeTrip] = clone(currentData);
   const publishedFingerprint = localStorage.getItem(`atlante:publishedFingerprint:${activeTrip}`);
   const hasUnpublishedLocalData = Boolean(localStorage.getItem(storageKey(activeTrip))) && publishedFingerprint !== fingerprintData(currentData);
@@ -872,7 +869,6 @@ function renderAll() {
   renderHero();
   renderCalendar();
   renderCompletionCenter();
-  renderIndiaAlternatives();
   renderItinerary();
   renderFlights();
   renderTours();
@@ -950,34 +946,6 @@ function renderCalendar() {
   }).join("") || `<p class="empty-state">Aggiungi le date per vedere il calendario.</p>`;
 }
 
-function renderIndiaAlternatives() {
-  const host = $("#india-alternatives");
-  const alternatives = activeTrip === "rajasthan-maldive" ? currentData.indiaAlternatives : null;
-  if (!host || !alternatives?.length) { if (host) host.hidden = true; return; }
-  host.hidden = false;
-  const selected = alternatives.find(item => item.id === activeIndiaAlternative) || alternatives[0];
-  host.innerHTML = `<div class="alternative-intro"><div><p class="eyebrow">Tre modi di vivere l'India</p><h3 id="india-alternatives-title">Confronta le alternative</h3></div><p>Arrivo a Delhi il 1° gennaio · rientro a Delhi entro il 14 · giornata-cuscinetto il 15 · Maldive il 16.</p></div>
-    <div class="alternative-switch" role="group" aria-label="Scegli l'alternativa per l'India">${alternatives.map((item,index) => `<button type="button" class="alternative-button ${item.id === selected.id ? "is-active" : ""}" data-india-alternative="${escapeHtml(item.id)}" aria-pressed="${item.id === selected.id}"><small>Alternativa ${index+1}</small><strong>${escapeHtml(item.label)}</strong></button>`).join("")}</div>
-    <article class="alternative-verdict"><div><span>${escapeHtml(selected.badge || "Il mio parere")}</span><h4>${escapeHtml(selected.title)}</h4><p>${escapeHtml(selected.opinion)}</p></div><div class="alternative-points"><p><b>Punti forti</b>${escapeHtml((selected.strengths || []).join(" · "))}</p><p><b>Da considerare</b>${escapeHtml((selected.tradeoffs || []).join(" · "))}</p></div></article>`;
-}
-
-function selectIndiaAlternative(id) {
-  const alternative = currentData.indiaAlternatives?.find(item => item.id === id);
-  if (!alternative || !indiaAlternativeBase) return;
-  activeIndiaAlternative = id;
-  const days = alternative.useBaseItinerary ? clone(indiaAlternativeBase.days) : clone(alternative.days || []);
-  currentData.itinerary = [...currentData.itinerary.filter(day => day.date < "2027-01-01" || day.date > "2027-01-15"), ...days]
-    .sort((a,b) => String(a.date).localeCompare(String(b.date)));
-  currentData.route = clone(alternative.route || indiaAlternativeBase.route);
-  const internalIndex = currentData.flights.findIndex(flight => flight.idPrefix === "internal");
-  const internalFlight = alternative.internalFlight ? clone(alternative.internalFlight) : clone(indiaAlternativeBase.internalFlight);
-  if (internalIndex >= 0 && internalFlight) currentData.flights[internalIndex] = internalFlight;
-  else if (internalFlight) currentData.flights.splice(Math.min(1,currentData.flights.length),0,internalFlight);
-  renderHero(); renderCalendar(); renderIndiaAlternatives(); renderItinerary(); renderFlights(); renderMapStops(); renderTravelCompanion();
-  if ($('[data-panel="map"]').classList.contains("is-active")) setTimeout(initializeMap,80);
-  showToast(`Selezionata: ${alternative.label}`);
-}
-
 function calendarTransportIcon(day) {
   const mode = String(day.travel?.mode || "").toLocaleLowerCase("it-IT");
   const duration = String(day.travel?.duration || "").toLocaleLowerCase("it-IT");
@@ -999,6 +967,7 @@ function renderItinerary() {
     const missingFields = [!valuePresent(day.activities)&&"attività",!valuePresent(day.accommodation)&&!day.isFlight&&"alloggio",!image&&"immagine",(!day.location_coords||!Number.isFinite(Number(day.location_coords.lat)))&&"coordinate"].filter(Boolean);
     const tags = `${day.isFlight ? '<span class="tag">✈ Volo</span>' : ""}${day.isCruise ? '<span class="tag blue">≈ Barca</span>' : ""}`;
     const travelTime = day.travel?.duration ? `<div class="travel-time"><span>${escapeHtml(day.travel.mode || "Spostamento")}</span><strong>${escapeHtml(day.travel.duration)}</strong></div>` : "";
+    const dayAlert = valuePresent(day.alert) ? `<div class="day-alert" role="note"><b>Promemoria importante</b><span>${escapeHtml(day.alert)}</span></div>` : "";
     const mapButton = day.location_coords?.lat && day.location_coords?.lng ? `<button class="day-focus no-print" type="button" data-focus-day="${index}">◎ Mostra sulla mappa</button>` : "";
     return `<article id="day-${index}" class="day-card ${missingFields.length?"is-incomplete":""}" style="--i:${Math.min(index,12)}">
       <div class="day-marker"><span class="number">${String(index+1).padStart(2,"0")}</span><time datetime="${escapeHtml(day.date)}">${escapeHtml(formatDate(day.date,{day:"numeric",month:"short"}))}</time></div>
@@ -1006,6 +975,7 @@ function renderItinerary() {
         <div class="day-copy">
           <p class="day-kicker">Giorno ${String(index+1).padStart(2,"0")} · ${escapeHtml(formatDate(day.date,{weekday:"long",day:"numeric",month:"long"}))}</p>
           <div class="day-location"><h3>${escapeHtml(day.location || "Tappa da definire")}</h3>${tags}${missingFields.length?`<span class="incomplete-badge" title="Mancano: ${escapeHtml(missingFields.join(", "))}">! Da completare</span>`:""}</div>
+          ${dayAlert}
           ${travelTime}
           <p class="day-accommodation">⌂ ${escapeHtml(day.accommodation || "Alloggio da definire")}</p>
           <p class="day-activities">${nl2br(day.activities || "Attività da definire.")}</p>
@@ -1581,7 +1551,6 @@ function setupEvents() {
     const target=event.target.closest("button"); if(!target)return;
     if(target.classList.contains("completion-toggle")){const details=$(".completion-missing",target.closest("#completion-center"));details.hidden=!details.hidden;target.setAttribute("aria-expanded",String(!details.hidden));target.textContent=details.hidden?"Mostra dettagli":"Nascondi dettagli";}
     if(target.dataset.completionSection) switchPanel(target.dataset.completionSection);
-    if(target.dataset.indiaAlternative) selectIndiaAlternative(target.dataset.indiaAlternative);
     if(target.classList.contains("travel-close")){const host=$("#travel-companion");host.hidden=true;document.body.classList.remove("travel-mode");$("#travel-mode-btn").setAttribute("aria-pressed","false");}
     if(target.dataset.searchTrip){const day=Number(target.dataset.searchDay);closeDialog($("#search-dialog"));loadTrip(target.dataset.searchTrip).then(()=>{if(Number.isInteger(day)&&day>=0)scrollToDay(day);});}
     if(target.dataset.jumpDay!==undefined) scrollToDay(Number(target.dataset.jumpDay));
@@ -1619,6 +1588,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712d").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712e").catch(()=>{});
   }
 });
