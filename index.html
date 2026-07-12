@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#111827">
   <meta name="description" content="Atlante personale per organizzare e raccontare itinerari di viaggio.">
-  <link rel="manifest" href="manifest.webmanifest?v=20260712b">
+  <link rel="manifest" href="manifest.webmanifest?v=20260712c">
   <title>Atlante — Itinerari di viaggio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Fredoka:wght@500;600;700&family=Special+Elite&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=20260712b">
+  <link rel="stylesheet" href="styles.css?v=20260712c">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  <script src="app.js?v=20260712b" defer></script>
+  <script src="app.js?v=20260712c" defer></script>
 </head>
 <body data-theme="travel-map">
   <a class="skip-link" href="#main-content">Vai al contenuto</a>
@@ -60,7 +60,6 @@
       <div class="topbar-actions">
         <button id="search-toggle-btn" class="theme-toggle" type="button" aria-label="Cerca in tutti gli itinerari"><span aria-hidden="true">⌕</span> Cerca</button>
         <button id="travel-mode-btn" class="theme-toggle" type="button" aria-pressed="false"><span aria-hidden="true">◎</span> In viaggio</button>
-        <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-expanded="false" aria-controls="theme-panel"><span aria-hidden="true">◐</span> Stili</button>
         <span id="publish-indicator" class="publish-indicator admin-only" data-state="local"><i></i><span>Solo locale</span></span>
         <button id="quick-save-btn" class="ghost-action admin-only" type="button">Salva</button>
         <button id="admin-login-btn" class="avatar-button" type="button" aria-label="Accedi come amministratore">A</button>
@@ -145,7 +144,6 @@
           </div>
           <div class="map-toolbar no-print" aria-label="Opzioni della mappa">
             <div class="map-tool-group" aria-label="Filtra la mappa"><span class="map-tool-label">Mostra</span><button class="map-filter is-active" data-map-filter="all" type="button">Tutto</button><button class="map-filter" data-map-filter="stops" type="button">Tappe</button><button class="map-filter" data-map-filter="stays" type="button">Alloggi</button><button class="map-filter" data-map-filter="travel" type="button">Spostamenti</button></div>
-            <div class="map-tool-group map-design-switch" aria-label="Scegli lo stile della mappa"><span class="map-tool-label">Stile mappa</span><button class="map-design is-active" data-map-design="explore" type="button"><b>01</b> Esplora</button><button class="map-design" data-map-design="terrain" type="button"><b>02</b> Rilievo</button><button class="map-design" data-map-design="satellite" type="button"><b>03</b> Satellite</button><button class="map-design" data-map-design="political" type="button"><b>04</b> Politica</button></div>
           </div>
           <div class="map-frame"><div id="map" aria-label="Mappa interattiva dell'itinerario"></div></div>
           <div class="map-legend"><span><i class="legend-dot coral"></i> Tappe</span><span><i class="legend-dot blue"></i> Alloggi</span><span><i class="legend-line"></i> Percorso</span></div>
@@ -186,16 +184,6 @@
       <p>Tre viaggi, un solo posto dove immaginarli e organizzarli.</p>
     </footer>
 
-    <aside id="theme-panel" class="theme-panel no-print" aria-label="Scegli il design del sito" hidden>
-      <div class="theme-panel-head"><div><span>LABORATORIO VISIVO</span><strong>Scegli un’atmosfera</strong></div><button type="button" aria-label="Chiudi selettore stili" onclick="toggleThemePanel(false)">×</button></div>
-      <div class="theme-options">
-        <button type="button" class="theme-option" data-theme-choice="original" aria-pressed="false"><i class="theme-swatch swatch-original"></i><span><b class="theme-name">Originale</b><small>Elegante e naturale</small></span><em>01</em></button>
-        <button type="button" class="theme-option" data-theme-choice="cartoon" aria-pressed="false"><i class="theme-swatch swatch-cartoon"></i><span><b class="theme-name">Cartoon</b><small>Allegro, morbido, giocoso</small></span><em>02</em></button>
-        <button type="button" class="theme-option is-active" data-theme-choice="travel-map" aria-pressed="true"><i class="theme-swatch swatch-map"></i><span><b class="theme-name">Mappa di viaggio</b><small>Carta, timbri e rotte</small></span><em>03</em></button>
-        <button type="button" class="theme-option" data-theme-choice="artistic" aria-pressed="false"><i class="theme-swatch swatch-artistic"></i><span><b class="theme-name">Artistico</b><small>Editoriale e sperimentale</small></span><em>04</em></button>
-      </div>
-      <p>La scelta resta salvata solo in questo browser.</p>
-    </aside>
 
     <aside id="travel-companion" class="travel-companion no-print" aria-label="Modalità durante il viaggio" hidden></aside>
 

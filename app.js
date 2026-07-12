@@ -37,7 +37,7 @@ let isAdmin = sessionStorage.getItem("atlante:admin") === "true";
 let map = null;
 let mapLayers = null;
 let mapBaseLayers = null;
-let selectedMapDesign = "explore";
+let selectedMapDesign = "political";
 let politicalCountryLayer = null;
 let editorState = null;
 let tempRoute = [];
@@ -52,6 +52,7 @@ let atlasGlobeTrips = [];
 let atlasGlobeSelection = null;
 let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
+let lastGlobeSurfaceTapAt = 0;
 const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
 const budgetIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 const transportIcon = type => {
@@ -204,25 +205,7 @@ function setAdminMode(enabled) {
   renderAll();
 }
 
-function applySiteTheme(theme,announce=false) {
-  const selected = SITE_THEMES.has(theme) ? theme : "original";
-  document.body.dataset.theme = selected;
-  localStorage.setItem("atlante:theme",selected);
-  $$('[data-theme-choice]').forEach(button => {
-    const active = button.dataset.themeChoice === selected;
-    button.classList.toggle("is-active",active);
-    button.setAttribute("aria-pressed",String(active));
-  });
-  if (announce) showToast(`Stile ${$("[data-theme-choice].is-active .theme-name")?.textContent || selected} attivato.`);
-}
-
-function toggleThemePanel(force) {
-  const panel = $("#theme-panel"), button = $("#theme-toggle-btn");
-  if (!panel || !button) return;
-  const open = force ?? panel.hidden;
-  panel.hidden = !open;
-  button.setAttribute("aria-expanded",String(open));
-}
+function applySiteTheme() { document.body.dataset.theme = "travel-map"; }
 
 function setAppView(view) {
   const isAtlas = view === "atlas";
@@ -326,8 +309,13 @@ function globeMarkerElement(pin) {
   if (pin.balloon) {
     const balloon = document.createElement("div");
     balloon.className = "globe-balloon";
+    balloon.tabIndex = 0;
+    balloon.setAttribute("role","button");
+    balloon.setAttribute("aria-label",`Apri l'itinerario ${pin.itineraryTitle}`);
     balloon.innerHTML = `<small>Itinerario selezionato</small><strong>${escapeHtml(pin.itineraryTitle)}</strong><span>${pin.totalDays} giorni · ${pin.totalStops} tappe</span><button type="button">Apri il viaggio →</button>`;
-    balloon.querySelector("button").addEventListener("click",event => { event.stopPropagation(); loadTrip(pin.slug); });
+    const openTrip = event => { event?.stopPropagation(); loadTrip(pin.slug); };
+    balloon.addEventListener("click",openTrip);
+    balloon.addEventListener("keydown",event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTrip(event); } });
     wrapper.append(balloon);
   }
   return wrapper;
@@ -498,6 +486,13 @@ function initializeAtlasGlobe(trips) {
     controls.enableDamping = true;
     controls.dampingFactor = .08;
     host.addEventListener("pointerdown",() => { controls.autoRotate = false; },{passive:true});
+    host.addEventListener("pointerup",event => {
+      const touchedMarker = event.target.closest?.(".globe-marker-wrap");
+      if (!isPhoneBrowser || !atlasGlobeSelection || event.pointerType !== "touch" || touchedMarker) { lastGlobeSurfaceTapAt = 0; return; }
+      const now = performance.now();
+      if (now - lastGlobeSurfaceTapAt < 340) { resetAtlasGlobe(true,false); lastGlobeSurfaceTapAt = 0; }
+      else lastGlobeSurfaceTapAt = now;
+    },{passive:true});
     host.addEventListener("contextmenu",event => { event.preventDefault(); event.stopPropagation(); resetAtlasGlobe(true,false); },true);
     atlasGlobeResizeObserver = new ResizeObserver(resizeAtlasGlobe);
     atlasGlobeResizeObserver.observe(host);
@@ -1154,12 +1149,9 @@ function updateMapFilter() {
 function initializeMap() {
   if (!window.L || !$("#map") || !currentData) return;
   if (map) map.remove();
-  const street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" });
-  const topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenStreetMap, SRTM" });
-  const satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Tiles © Esri" });
   const political = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", { maxZoom: 20, attribution: "© OpenStreetMap © CARTO" });
-  mapBaseLayers = { explore:street, terrain:topo, satellite, political };
-  map = L.map("map", { center: [25,70], zoom: 4, layers: [mapBaseLayers[selectedMapDesign] || street], zoomControl: true });
+  mapBaseLayers = { political };
+  map = L.map("map", { center: [25,70], zoom: 4, layers: [political], zoomControl: true });
   const places = L.layerGroup().addTo(map), hotels = L.layerGroup().addTo(map), travel = L.layerGroup().addTo(map), routeLayer = L.layerGroup().addTo(map);
   const bounds = [];
   const byLocation = new Map();
@@ -1182,7 +1174,7 @@ function initializeMap() {
   });
   const routePoints = (currentData.route || []).map(name => currentData.itinerary.find(day => day.location?.trim() === String(name).trim())?.location_coords).filter(coords => coords?.lat && coords?.lng).map(coords => [coords.lat,coords.lng]);
   if (routePoints.length > 1) L.polyline(routePoints,{color:"#f06d54",weight:3,opacity:.86,dashArray:"7 9",className:"route-pulse"}).addTo(routeLayer);
-  L.control.layers({"Esplora":street,"Rilievo":topo,"Satellite":satellite},{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels,"Spostamenti":travel},{collapsed:true}).addTo(map);
+  L.control.layers(null,{"Tappe":places,"Percorso":routeLayer,"Alloggi":hotels,"Spostamenti":travel},{collapsed:true}).addTo(map);
   if (bounds.length) map.fitBounds(bounds,{padding:[35,35],maxZoom:8});
   mapLayers = { places, hotels, travel, routeLayer };
   updateMapFilter();
@@ -1503,7 +1495,7 @@ function handleLinkSubmit(event) {
 }
 
 function setupEvents() {
-  applySiteTheme(localStorage.getItem("atlante:theme") || "travel-map");
+  applySiteTheme();
   $("#access-form").addEventListener("submit",event=>{event.preventDefault();if($("#access-password").value===CONFIG.accessPassword){sessionStorage.setItem("atlante:access","true");$("#access-screen").classList.add("is-hidden");$("#app-shell").classList.remove("is-hidden");urlState.has("trip") ? loadTrip(activeTrip) : showAtlasHome();}else{$("#access-error").hidden=false;$("#access-password").select();}});
   $$('[data-toggle-password]').forEach(button=>button.addEventListener("click",()=>{const input=$(`#${button.dataset.togglePassword}`);input.type=input.type==="password"?"text":"password";}));
   $("#trip-select").addEventListener("change",event=>loadTrip(event.target.value));
@@ -1513,8 +1505,6 @@ function setupEvents() {
   $("#search-toggle-btn").addEventListener("click",()=>{openDialog($("#search-dialog"));setTimeout(()=>$("#global-search").focus(),50);});
   $("#global-search").addEventListener("input",event=>runGlobalSearch(event.target.value));
   $("#travel-mode-btn").addEventListener("click",()=>{const host=$("#travel-companion");host.hidden=!host.hidden;$("#travel-mode-btn").setAttribute("aria-pressed",String(!host.hidden));document.body.classList.toggle("travel-mode",!host.hidden);});
-  $("#theme-toggle-btn").addEventListener("click",event=>{event.stopPropagation();toggleThemePanel();});
-  $$('[data-theme-choice]').forEach(button=>button.addEventListener("click",()=>{applySiteTheme(button.dataset.themeChoice,true);toggleThemePanel(false);}));
   $("#admin-login-btn").addEventListener("click",()=>openDialog($("#admin-dialog")));
   $("#admin-form").addEventListener("submit",event=>{event.preventDefault();if($("#admin-password").value===CONFIG.adminPassword){closeDialog($("#admin-dialog"));setAdminMode(true);showToast("Modalità editor attiva.");}else{$("#admin-error").hidden=false;}});
   $("#admin-logout-btn").addEventListener("click",()=>setAdminMode(false));
@@ -1529,7 +1519,6 @@ function setupEvents() {
   $$(".modal-close,[data-close-dialog]").forEach(button=>button.addEventListener("click",()=>closeDialog(button.closest("dialog"))));
   $$(".section-tab").forEach(button=>button.addEventListener("click",()=>switchPanel(button.dataset.tab)));
   $$("[data-map-filter]").forEach(button=>button.addEventListener("click",()=>{mapFilter=button.dataset.mapFilter;updateMapFilter();}));
-  $$("[data-map-design]").forEach(button=>button.addEventListener("click",()=>setMapDesign(button.dataset.mapDesign)));
   $("#edit-cover-btn").addEventListener("click",()=>openEditor("cover"));
   $("#edit-dates-btn").addEventListener("click",()=>openEditor("dates"));
   $("#add-day-btn").addEventListener("click",()=>openEditor("day"));
@@ -1549,7 +1538,6 @@ function setupEvents() {
   $("#reset-btn").addEventListener("click",()=>{if(confirm("Ripristinare il JSON originale di questo viaggio?")){localStorage.removeItem(storageKey(activeTrip));currentData=clone(originalData);renderAll();showToast("Itinerario ripristinato.");}});
 
   document.addEventListener("click",event=>{
-    if (!event.target.closest("#theme-panel") && !event.target.closest("#theme-toggle-btn")) toggleThemePanel(false);
     const tripCard=event.target.closest(".atlas-card[data-open-trip]");
     if(tripCard){loadTrip(tripCard.dataset.openTrip);return;}
     const target=event.target.closest("button"); if(!target)return;
@@ -1592,6 +1580,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712b").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712c").catch(()=>{});
   }
 });
