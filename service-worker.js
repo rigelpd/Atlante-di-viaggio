@@ -1,5 +1,5 @@
-const CACHE = "atlante-20260712g";
-const CORE = ["./","./index.html","./styles.css?v=20260712g","./app.js?v=20260712g","./manifest.webmanifest?v=20260712g","./icon.svg","./data/giappone.json","./data/filippine.json","./data/rajasthan-maldive.json"];
+const CACHE = "atlante-20260712h";
+const CORE = ["./","./index.html","./styles.css?v=20260712h","./app.js?v=20260712h","./manifest.webmanifest?v=20260712h","./icon.svg","./data/giappone.json","./data/filippine.json","./data/rajasthan-maldive.json"];
 
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

@@ -112,6 +112,7 @@ function normalizeData(raw) {
 
 function mergePublishedAdditions(saved,published) {
   const local = normalizeData(clone(saved)), source = normalizeData(clone(published));
+  if (!local.itinerary.length && source.itinerary.length) return source;
   const isPlaceholder = value => {
     const text = String(value || "").trim().toLocaleLowerCase("it-IT");
     return !text || /da prenotare|da quotare|da definire|operativo e scalo|^previsto|multi-tratta/.test(text);
@@ -162,6 +163,10 @@ function mergePublishedAdditions(saved,published) {
 
 function valuePresent(value) {
   return Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && String(value).trim() !== "";
+}
+
+function usableTripData(data) {
+  return Boolean(data?.main && Array.isArray(data.itinerary) && data.itinerary.length);
 }
 
 function tripCompletion(data) {
@@ -237,13 +242,18 @@ function updateUrlState({trip = null, day = null} = {}) {
 async function getCatalogTrip(slug) {
   if (atlasCatalogCache[slug]) return atlasCatalogCache[slug];
   if (slug === activeTrip && currentData) return currentData;
-  let data = null;
-  try { data = JSON.parse(localStorage.getItem(storageKey(slug))); } catch { data = null; }
-  if (!data) {
+  let savedData = null, publishedData = null;
+  try {
+    const candidate = JSON.parse(localStorage.getItem(storageKey(slug)));
+    savedData = usableTripData(candidate) ? candidate : null;
+  } catch { savedData = null; }
+  try {
     const response = await fetch(`${CONFIG.catalog[slug].file}?v=${Date.now()}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    data = await response.json();
-  }
+    publishedData = await response.json();
+  } catch (error) { if (!savedData) throw error; }
+  const data = savedData && publishedData ? mergePublishedAdditions(savedData,publishedData) : (savedData || publishedData);
+  if (!usableTripData(data)) throw new Error(`Itinerario ${slug} non disponibile`);
   atlasCatalogCache[slug] = normalizeData(data);
   return atlasCatalogCache[slug];
 }
@@ -564,7 +574,10 @@ async function loadTrip(slug, preferSaved = true) {
     data = clone(window.__EMBEDDED_DATA__);
     $("#trip-select").disabled = true;
   } else if (preferSaved) {
-    try { savedData = JSON.parse(localStorage.getItem(storageKey(activeTrip))); } catch { savedData = null; }
+    try {
+      const candidate = JSON.parse(localStorage.getItem(storageKey(activeTrip)));
+      savedData = usableTripData(candidate) ? candidate : null;
+    } catch { savedData = null; }
   }
 
   if (!window.__EMBEDDED_DATA__) {
@@ -1626,6 +1639,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712g").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712h").catch(()=>{});
   }
 });

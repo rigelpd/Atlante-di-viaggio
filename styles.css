@@ -441,16 +441,16 @@ body.trip-completed .hero::after { content:"Archivio di viaggio"; position:absol
 .expense-category-head small { grid-column: 1/-1; color: color-mix(in srgb,var(--ink) 68%,var(--category-accent)); font-size: .72rem; font-weight: 700; }
 .expense-category-icon { display: grid; width: 50px; height: 50px; place-items: center; border: 2px solid var(--category-accent); border-radius: 16px 16px 16px 4px; color: #fff; background: var(--category-accent); box-shadow: 4px 4px 0 color-mix(in srgb,var(--category-accent) 28%,transparent); }
 .expense-category-icon svg { width: 28px; height: 28px; }
-.expense-category-list { display: grid; gap: .55rem; padding: .7rem; }
-.expense-category .expense-row { min-width:0; align-items: flex-start; padding: .9rem; border-color: color-mix(in srgb,var(--category-accent) 22%,transparent); border-left: 4px solid var(--category-accent); background: rgba(255,255,255,.82); }
-.expense-category .expense-row-main { flex:1 1 auto; min-width:0; overflow-wrap:anywhere; }
-.expense-category .expense-amount { display: grid; flex:0 1 auto; min-width:0; max-width:44%; justify-items: end; gap: .35rem; }
+.expense-category-list { display: grid; min-width:0; gap: .55rem; padding: .7rem; }
+.expense-category .expense-row { display:grid; width:100%; min-width:0; grid-template-columns:minmax(0,1fr) max-content; align-items:start; padding:.9rem; border-color:color-mix(in srgb,var(--category-accent) 22%,transparent); border-left:4px solid var(--category-accent); background:rgba(255,255,255,.82); }
+.expense-category .expense-row-main { min-width:0; overflow-wrap:anywhere; }
+.expense-category .expense-amount { display:grid; min-width:0; max-width:none; justify-self:end; justify-items:end; gap:.35rem; }
 .expense-category .expense-amount > strong { font-family: var(--font-display); font-size: 1.25rem; }
 .expense-meta { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .52rem; }
 .expense-row-main .expense-meta span { display: inline-flex; overflow: visible; color: inherit; font-size: inherit; text-overflow: clip; }
-.expense-payer { align-items: center; gap: .34rem; padding: .24rem .5rem; border: 1px solid color-mix(in srgb,var(--category-accent) 34%,transparent); border-radius: 999px; color: var(--ink); background: var(--category-tint); }
+.expense-payer { max-width:100%; align-items:center; gap:.34rem; padding:.24rem .5rem; border:1px solid color-mix(in srgb,var(--category-accent) 34%,transparent); border-radius:999px; color:var(--ink); background:var(--category-tint); }
 .expense-payer small { color: color-mix(in srgb,var(--ink) 62%,var(--category-accent)); font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-.expense-payer b { font-size: .76rem; }
+.expense-payer b { min-width:0; font-size:.76rem; overflow-wrap:anywhere; }
 .splid-badge { align-items: center; padding: .24rem .5rem; border-radius: 999px; color: #fff !important; background: #7a5fd0; font-size: .69rem !important; font-weight: 800; letter-spacing: .03em; }
 .expense-amount { flex-shrink: 0; text-align: right; }
 .status { display: inline-flex; padding: .2rem .45rem; border-radius: 999px; color: #266b5f; background: #dff2eb; font-size: .63rem; font-weight: 700; text-transform: uppercase; }

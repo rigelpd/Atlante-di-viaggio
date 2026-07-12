@@ -12,12 +12,13 @@ Questa repository è la fonte unica del sito Atlante di viaggio.
 
 Quando l'utente chiede di aggiornare un viaggio:
 
-1. leggere il JSON corrente dalla branch `main`;
-2. modificare esclusivamente i campi richiesti, preservando le informazioni non coinvolte;
-3. validare la sintassi JSON e lo schema minimo (`main`, `itinerary`, `flights`, `tours`, `budget`, `usefulLinks`, `route`);
-4. segnalare chiaramente eventuali orari, prezzi o prenotazioni non verificabili;
-5. creare un commit descrittivo sulla branch `main` solo quando l'utente chiede anche di pubblicare;
-6. verificare l'esito del workflow GitHub Pages.
+1. eseguire `git pull --ff-only origin main` prima di leggere o modificare i file, così le modifiche pubblicate dal pannello admin del sito vengono incorporate nella cartella locale;
+2. verificare che non esistano modifiche locali in conflitto e leggere il JSON corrente dalla branch `main`;
+3. modificare esclusivamente i campi richiesti, preservando le informazioni non coinvolte;
+4. validare la sintassi JSON e lo schema minimo (`main`, `itinerary`, `flights`, `tours`, `budget`, `usefulLinks`, `route`);
+5. segnalare chiaramente eventuali orari, prezzi o prenotazioni non verificabili;
+6. creare un commit descrittivo sulla branch `main` solo quando l'utente chiede anche di pubblicare;
+7. verificare l'esito del workflow GitHub Pages.
 
 ## Convenzione budget
 
