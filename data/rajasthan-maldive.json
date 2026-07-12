@@ -64,6 +64,94 @@
       "notes": "Turkish Airlines confermato: TK735 Malé (MLE) 21:55 → Istanbul (IST) 04:30 del 24 gennaio; scalo di 4 h 40 min; TK1321 Istanbul 09:10 → Bologna (BLQ) 09:55. Prenotato e pagato."
     }
   ],
+  "indiaAlternatives": [
+    {
+      "id": "deserto",
+      "label": "Deserto e città d'oro",
+      "title": "Il Rajasthan più completo",
+      "badge": "La mia scelta se è il primo viaggio",
+      "opinion": "È l'alternativa più iconica e coerente: in due settimane racconta bene Delhi, il Taj Mahal e le tre grandi città del Rajasthan fino al Thar. La sceglierei se il deserto è una priorità e accettate qualche trasferimento lungo.",
+      "strengths": ["massima varietà", "notte nel Thar", "forti e haveli"],
+      "tradeoffs": ["ritmo più intenso", "Jaisalmer è remota", "volo interno stagionale da verificare"],
+      "useBaseItinerary": true
+    },
+    {
+      "id": "laghi",
+      "label": "Palazzi, laghi e città blu",
+      "title": "Più elegante e meno faticosa",
+      "badge": "La più equilibrata",
+      "opinion": "È quella che consiglierei alla maggior parte dei viaggiatori: conserva Delhi, Agra, Jaipur e Jodhpur, sostituisce la lunga deviazione nel deserto con Udaipur e lascia più tempo per vivere le città. Ha meno effetto avventura, ma un ritmo migliore.",
+      "strengths": ["ritmo più umano", "Udaipur e Lake Pichola", "meno strada"],
+      "tradeoffs": ["niente Jaisalmer", "niente notte nel deserto", "Ranakpur allunga una giornata"],
+      "route": ["Bologna", "Delhi", "Old Delhi", "New Delhi", "Agra", "Fatehpur Sikri → Jaipur", "Jaipur — Amber", "Jaipur — Città Rosa", "Jaipur → Jodhpur", "Jodhpur", "Jodhpur → Udaipur via Ranakpur", "Udaipur", "Udaipur → Delhi", "Delhi → Malé → Dhigurah", "Dhigurah", "South Ari Marine Protected Area", "Atollo di Ari Sud", "Sandbank di Ari Sud", "Dhigurah → Malé → Bologna"],
+      "internalFlight": {
+        "idPrefix": "internal",
+        "title": "Volo interno: Udaipur → Delhi",
+        "depAirport": "Maharana Pratap Airport, Udaipur (UDR)",
+        "arrAirport": "Indira Gandhi International Airport (DEL)",
+        "depTime": "",
+        "arrTime": "",
+        "depTz": 5.5,
+        "arrTz": 5.5,
+        "notes": "Previsto il 14 gennaio. Scegliere un volo diretto diurno e riconfermare l'operativo prima di bloccare gli hotel."
+      },
+      "days": [
+        {"date":"2027-01-01","location":"Delhi","isFlight":true,"travel":{"mode":"Auto","duration":"circa 30–60 minuti dall'aeroporto all'hotel"},"accommodation":"Hotel da prenotare — New Delhi o Aerocity","activities":"Arrivo alle 01:50, formalità e trasferimento privato. Giornata volutamente leggera: riposo, breve passeggiata e cena in hotel.","location_coords":{"lat":28.6139,"lng":77.209}},
+        {"date":"2027-01-02","location":"Old Delhi","accommodation":"Hotel da prenotare — New Delhi","activities":"Jama Masjid, risciò a Chandni Chowk e mercato delle spezie di Khari Baoli. Nel pomeriggio Red Fort dall'esterno e Raj Ghat; cena tranquilla a Connaught Place.","location_coords":{"lat":28.6562,"lng":77.241}},
+        {"date":"2027-01-03","location":"New Delhi","accommodation":"Hotel da prenotare — New Delhi","activities":"Tomba di Humayun all'apertura, quartiere di Nizamuddin e Qutub Minar. Chiusura con India Gate e Lodhi Art District, senza comprimere troppo gli spostamenti.","location_coords":{"lat":28.5933,"lng":77.2507}},
+        {"date":"2027-01-04","location":"Agra","travel":{"mode":"Treno rapido","duration":"circa 1 h 40 min–2 h, più i transfer"},"accommodation":"Hotel da prenotare — Taj Ganj, Agra","activities":"Treno mattutino per Agra. Visita dell'Agra Fort e tramonto da Mehtab Bagh, lasciando il Taj Mahal per la luce del mattino seguente.","location_coords":{"lat":27.1767,"lng":78.0081}},
+        {"date":"2027-01-05","location":"Fatehpur Sikri → Jaipur","travel":{"mode":"Auto privata","duration":"circa 5–6 ore di guida, più la visita"},"accommodation":"Haveli da prenotare — Jaipur","activities":"Taj Mahal all'alba, rientro per colazione e partenza. Sosta guidata a Fatehpur Sikri, poi proseguimento per Jaipur e serata libera.","location_coords":{"lat":26.9124,"lng":75.7873}},
+        {"date":"2027-01-06","location":"Jaipur — Amber","accommodation":"Haveli da prenotare — Jaipur","activities":"Amber Fort presto, salita in jeep o a piedi senza elefanti. Panna Meena ka Kund, Jal Mahal e tramonto da Nahargarh se energie e visibilità lo consentono.","location_coords":{"lat":26.9855,"lng":75.8513}},
+        {"date":"2027-01-07","location":"Jaipur — Città Rosa","accommodation":"Haveli da prenotare — Jaipur","activities":"City Palace, Jantar Mantar e Hawa Mahal. Pomeriggio tra bazaar e laboratori artigiani; cena in terrazza nella città vecchia.","location_coords":{"lat":26.9239,"lng":75.8267}},
+        {"date":"2027-01-08","location":"Jaipur → Jodhpur","travel":{"mode":"Auto privata","duration":"circa 5–6 ore"},"accommodation":"Haveli da prenotare — Jodhpur old city","activities":"Partenza dopo colazione per Jodhpur. Check-in nella città vecchia e primo giro a piedi tra Clock Tower e Sardar Market al tramonto.","location_coords":{"lat":26.2389,"lng":73.0243}},
+        {"date":"2027-01-09","location":"Jodhpur","accommodation":"Haveli da prenotare — Jodhpur old city","activities":"Mehrangarh Fort all'apertura, Jaswant Thada e discesa a piedi nei vicoli blu di Navchokiya. Pomeriggio lento e cena con vista sul forte.","location_coords":{"lat":26.2978,"lng":73.0183}},
+        {"date":"2027-01-10","location":"Jodhpur e villaggi Bishnoi","travel":{"mode":"Jeep con guida","duration":"mezza giornata"},"accommodation":"Haveli da prenotare — Jodhpur old city","activities":"Escursione responsabile nei villaggi Bishnoi, scegliendo una guida locale trasparente. Rientro per il pranzo; pomeriggio libero o Umaid Bhawan Palace Museum.","location_coords":{"lat":26.2389,"lng":73.0243}},
+        {"date":"2027-01-11","location":"Jodhpur → Udaipur via Ranakpur","travel":{"mode":"Auto privata","duration":"circa 6–7 ore incluse le deviazioni"},"accommodation":"Haveli da prenotare — Udaipur","activities":"Trasferimento panoramico verso Udaipur con sosta al tempio giainista di Ranakpur, verificando orari e regole di visita. Arrivo nel tardo pomeriggio sul lago.","location_coords":{"lat":24.5854,"lng":73.7125}},
+        {"date":"2027-01-12","location":"Udaipur","accommodation":"Haveli da prenotare — area Lake Pichola","activities":"City Palace al mattino, passeggiata tra Jagdish Temple e i ghat. Nel pomeriggio giro in barca sul Lake Pichola e tramonto da Ambrai Ghat.","location_coords":{"lat":24.5764,"lng":73.6835}},
+        {"date":"2027-01-13","location":"Udaipur","accommodation":"Haveli da prenotare — area Lake Pichola","activities":"Giornata più morbida: Saheliyon-ki-Bari, mercato e laboratori di miniature. Alternativa: escursione a Eklingji e Nagda; sera con spettacolo al Bagore Ki Haveli.","location_coords":{"lat":24.5854,"lng":73.7125}},
+        {"date":"2027-01-14","location":"Udaipur → Delhi","isFlight":true,"travel":{"mode":"Auto + aereo","duration":"circa 30–45 min per UDR, poi circa 1 h 30 min di volo"},"accommodation":"Hotel da prenotare — Aerocity, Delhi","activities":"Mattina libera e volo diretto per Delhi in fascia diurna. Trasferimento ad Aerocity: il rientro con due notti di margine protegge il volo per Malé.","location_coords":{"lat":28.5562,"lng":77.1}},
+        {"date":"2027-01-15","location":"Delhi","accommodation":"Hotel da prenotare — Aerocity, Delhi","activities":"Giornata-cuscinetto. Riposo, bucato e bagagli; se tutto è regolare, visita breve al Dilli Haat o museo, poi riconferma del volo e del trasferimento a Dhigurah.","location_coords":{"lat":28.5562,"lng":77.1}}
+      ]
+    },
+    {
+      "id": "varanasi",
+      "label": "Rajasthan e Varanasi",
+      "title": "Il contrasto più forte",
+      "badge": "La più intensa culturalmente",
+      "opinion": "È la più memorabile se cercate l'India spirituale oltre ai palazzi: Varanasi cambia completamente tono al viaggio. La sceglierei solo sapendo che aggiunge due voli interni e un passaggio extra da Delhi; è ricca, ma meno lineare.",
+      "strengths": ["Varanasi all'alba", "Rajasthan essenziale", "grande contrasto culturale"],
+      "tradeoffs": ["due voli interni", "più cambi di hotel", "meno Rajasthan occidentale"],
+      "route": ["Bologna", "Delhi", "Old Delhi", "New Delhi", "Agra", "Agra → Jaipur", "Jaipur — Amber", "Jaipur — Città Rosa", "Jaipur → Delhi", "Delhi → Varanasi", "Varanasi", "Sarnath", "Varanasi → Delhi", "Delhi → Malé → Dhigurah", "Dhigurah", "South Ari Marine Protected Area", "Atollo di Ari Sud", "Sandbank di Ari Sud", "Dhigurah → Malé → Bologna"],
+      "internalFlight": {
+        "idPrefix": "internal",
+        "title": "Voli interni: Delhi ↔ Varanasi",
+        "depAirport": "Indira Gandhi International Airport (DEL)",
+        "arrAirport": "Lal Bahadur Shastri International Airport (VNS)",
+        "depTime": "",
+        "arrTime": "",
+        "depTz": 5.5,
+        "arrTz": 5.5,
+        "notes": "Andata prevista il 10 gennaio e ritorno il 14 gennaio. Preferire voli diretti diurni e acquistare le due tratte insieme quando l'operativo 2027 sarà disponibile."
+      },
+      "days": [
+        {"date":"2027-01-01","location":"Delhi","isFlight":true,"travel":{"mode":"Auto","duration":"circa 30–60 minuti dall'aeroporto all'hotel"},"accommodation":"Hotel da prenotare — New Delhi o Aerocity","activities":"Arrivo alle 01:50, formalità e trasferimento privato. Riposo completo e solo una breve passeggiata nel pomeriggio.","location_coords":{"lat":28.6139,"lng":77.209}},
+        {"date":"2027-01-02","location":"Old Delhi","accommodation":"Hotel da prenotare — New Delhi","activities":"Jama Masjid, Chandni Chowk in risciò e Khari Baoli con guida. Nel pomeriggio Red Fort dall'esterno e Raj Ghat.","location_coords":{"lat":28.6562,"lng":77.241}},
+        {"date":"2027-01-03","location":"New Delhi","accommodation":"Hotel da prenotare — New Delhi","activities":"Tomba di Humayun, Nizamuddin e Qutub Minar. Passaggio da India Gate e serata leggera a Lodhi Colony.","location_coords":{"lat":28.5933,"lng":77.2507}},
+        {"date":"2027-01-04","location":"Agra","travel":{"mode":"Treno rapido","duration":"circa 1 h 40 min–2 h, più i transfer"},"accommodation":"Hotel da prenotare — Taj Ganj, Agra","activities":"Treno mattutino, Agra Fort e tramonto da Mehtab Bagh. Cena presto in vista della visita all'alba.","location_coords":{"lat":27.1767,"lng":78.0081}},
+        {"date":"2027-01-05","location":"Agra","accommodation":"Hotel da prenotare — Taj Ganj, Agra","activities":"Taj Mahal all'alba con visita senza fretta. Pomeriggio dedicato a Itmad-ud-Daulah, artigiani dell'intarsio oppure riposo.","location_coords":{"lat":27.1751,"lng":78.0421}},
+        {"date":"2027-01-06","location":"Agra → Jaipur","travel":{"mode":"Auto privata","duration":"circa 5–6 ore più la sosta"},"accommodation":"Haveli da prenotare — Jaipur","activities":"Partenza per Jaipur con visita a Fatehpur Sikri. Arrivo nel pomeriggio, check-in e giro leggero nel quartiere dell'haveli.","location_coords":{"lat":26.9124,"lng":75.7873}},
+        {"date":"2027-01-07","location":"Jaipur — Amber","accommodation":"Haveli da prenotare — Jaipur","activities":"Amber Fort presto, Panna Meena ka Kund e Jal Mahal. Tramonto a Nahargarh oppure pomeriggio libero se il traffico rallenta la giornata.","location_coords":{"lat":26.9855,"lng":75.8513}},
+        {"date":"2027-01-08","location":"Jaipur — Città Rosa","accommodation":"Haveli da prenotare — Jaipur","activities":"City Palace, Jantar Mantar, Hawa Mahal e bazaar. Cena in terrazza e bagagli pronti per il rientro verso Delhi.","location_coords":{"lat":26.9239,"lng":75.8267}},
+        {"date":"2027-01-09","location":"Jaipur → Delhi","travel":{"mode":"Treno o auto privata","duration":"circa 4 h 30 min–6 h"},"accommodation":"Hotel da prenotare — Aerocity, Delhi","activities":"Rientro a Delhi in mattinata o primo pomeriggio. Sistemazione ad Aerocity per semplificare il volo del giorno successivo; serata libera.","location_coords":{"lat":28.5562,"lng":77.1}},
+        {"date":"2027-01-10","location":"Delhi → Varanasi","isFlight":true,"travel":{"mode":"Aereo","duration":"circa 1 h 30 min, più i transfer"},"accommodation":"Hotel da prenotare — Assi Ghat o Bengali Tola","activities":"Volo diretto diurno per Varanasi e trasferimento in hotel. Primo orientamento sui ghat e cerimonia serale Ganga Aarti vista da una posizione rispettosa.","location_coords":{"lat":25.3176,"lng":82.9739}},
+        {"date":"2027-01-11","location":"Varanasi","accommodation":"Hotel da prenotare — Assi Ghat o Bengali Tola","activities":"Uscita in barca all'alba sul Gange, poi passeggiata guidata nei vicoli della città vecchia. Pomeriggio di riposo e ritorno ai ghat al tramonto.","location_coords":{"lat":25.3067,"lng":83.0104}},
+        {"date":"2027-01-12","location":"Sarnath","travel":{"mode":"Auto o tuk-tuk","duration":"circa 45–75 minuti per tratta, secondo il traffico"},"accommodation":"Hotel da prenotare — Varanasi","activities":"Escursione a Sarnath con Dhamek Stupa e museo se aperto. Rientro nel pomeriggio; passeggiata gastronomica guidata in piccoli assaggi.","location_coords":{"lat":25.3814,"lng":83.0214}},
+        {"date":"2027-01-13","location":"Varanasi","accommodation":"Hotel da prenotare — Assi Ghat o Bengali Tola","activities":"Seconda mattina lenta: quartieri artigiani della seta, mercati e tempo libero sui ghat. Nessuna escursione lunga prima del volo del giorno seguente.","location_coords":{"lat":25.3176,"lng":82.9739}},
+        {"date":"2027-01-14","location":"Varanasi → Delhi","isFlight":true,"travel":{"mode":"Auto + aereo","duration":"circa 1 h per VNS, poi circa 1 h 30 min di volo"},"accommodation":"Hotel da prenotare — Aerocity, Delhi","activities":"Volo diretto diurno per Delhi. Arrivo ad Aerocity con due notti di margine prima delle Maldive; evitare l'ultimo volo della sera.","location_coords":{"lat":28.5562,"lng":77.1}},
+        {"date":"2027-01-15","location":"Delhi","accommodation":"Hotel da prenotare — Aerocity, Delhi","activities":"Giornata-cuscinetto per riposo, bucato e bagagli. Riconfermare volo Delhi–Malé, trasferimento a Dhigurah e franchigie bagaglio.","location_coords":{"lat":28.5562,"lng":77.1}}
+      ]
+    }
+  ],
   "itinerary": [
     {
       "date": "2026-12-31",

@@ -53,6 +53,8 @@ let atlasGlobeSelection = null;
 let atlasGlobePreview = null;
 let atlasGlobeResizeObserver = null;
 let lastGlobeSurfaceTapAt = 0;
+let activeIndiaAlternative = "deserto";
+let indiaAlternativeBase = null;
 const SITE_THEMES = new Set(["original","cartoon","travel-map","artistic"]);
 const budgetIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 const transportIcon = type => {
@@ -149,6 +151,7 @@ function mergePublishedAdditions(saved,published) {
     if (sourceExpense.onSplid) localExpense.onSplid = true;
   });
   ["tours","checklist","practicalInfo","usefulLinks"].forEach(key => { if (!local[key]?.length && source[key]?.length) local[key] = clone(source[key]); });
+  if (!local.indiaAlternatives?.length && source.indiaAlternatives?.length) local.indiaAlternatives = clone(source.indiaAlternatives);
   ["emergency","notApplicable"].forEach(key => { if (!local.planning[key]?.length && source.planning[key]?.length) local.planning[key] = clone(source.planning[key]); });
   return local;
 }
@@ -573,6 +576,12 @@ async function loadTrip(slug, preferSaved = true) {
   data ||= savedData && publishedData ? mergePublishedAdditions(savedData,publishedData) : (savedData || publishedData || { main: { title: CONFIG.catalog[activeTrip].label, image: "" }, itinerary: [], flights: [], tours: [], budget: { total: 0, expenses: [] }, usefulLinks: [], route: [] });
   originalData = normalizeData(clone(publishedData || data));
   currentData = normalizeData(data);
+  indiaAlternativeBase = activeTrip === "rajasthan-maldive" ? {
+    days: clone(originalData.itinerary.filter(day => day.date >= "2027-01-01" && day.date <= "2027-01-15")),
+    route: clone(originalData.route || []),
+    internalFlight: clone(originalData.flights.find(flight => flight.idPrefix === "internal") || null)
+  } : null;
+  activeIndiaAlternative = currentData.indiaAlternatives?.[0]?.id || "deserto";
   atlasCatalogCache[activeTrip] = clone(currentData);
   const publishedFingerprint = localStorage.getItem(`atlante:publishedFingerprint:${activeTrip}`);
   const hasUnpublishedLocalData = Boolean(localStorage.getItem(storageKey(activeTrip))) && publishedFingerprint !== fingerprintData(currentData);
@@ -863,6 +872,7 @@ function renderAll() {
   renderHero();
   renderCalendar();
   renderCompletionCenter();
+  renderIndiaAlternatives();
   renderItinerary();
   renderFlights();
   renderTours();
@@ -938,6 +948,34 @@ function renderCalendar() {
     const transport = calendarTransportIcon(day);
     return `<button class="calendar-day" type="button" data-jump-day="${index}" aria-label="Vai al giorno ${index+1}, ${escapeHtml(day.location || "")}${transport ? ` · ${transport.label}` : ""}"><strong>${number}</strong><span>${escapeHtml(month)}</span>${transport ? `<span class="calendar-transport calendar-transport--${transport.type}" title="${transport.label}">${transport.icon}</span>` : ""}</button>`;
   }).join("") || `<p class="empty-state">Aggiungi le date per vedere il calendario.</p>`;
+}
+
+function renderIndiaAlternatives() {
+  const host = $("#india-alternatives");
+  const alternatives = activeTrip === "rajasthan-maldive" ? currentData.indiaAlternatives : null;
+  if (!host || !alternatives?.length) { if (host) host.hidden = true; return; }
+  host.hidden = false;
+  const selected = alternatives.find(item => item.id === activeIndiaAlternative) || alternatives[0];
+  host.innerHTML = `<div class="alternative-intro"><div><p class="eyebrow">Tre modi di vivere l'India</p><h3 id="india-alternatives-title">Confronta le alternative</h3></div><p>Arrivo a Delhi il 1° gennaio · rientro a Delhi entro il 14 · giornata-cuscinetto il 15 · Maldive il 16.</p></div>
+    <div class="alternative-switch" role="group" aria-label="Scegli l'alternativa per l'India">${alternatives.map((item,index) => `<button type="button" class="alternative-button ${item.id === selected.id ? "is-active" : ""}" data-india-alternative="${escapeHtml(item.id)}" aria-pressed="${item.id === selected.id}"><small>Alternativa ${index+1}</small><strong>${escapeHtml(item.label)}</strong></button>`).join("")}</div>
+    <article class="alternative-verdict"><div><span>${escapeHtml(selected.badge || "Il mio parere")}</span><h4>${escapeHtml(selected.title)}</h4><p>${escapeHtml(selected.opinion)}</p></div><div class="alternative-points"><p><b>Punti forti</b>${escapeHtml((selected.strengths || []).join(" · "))}</p><p><b>Da considerare</b>${escapeHtml((selected.tradeoffs || []).join(" · "))}</p></div></article>`;
+}
+
+function selectIndiaAlternative(id) {
+  const alternative = currentData.indiaAlternatives?.find(item => item.id === id);
+  if (!alternative || !indiaAlternativeBase) return;
+  activeIndiaAlternative = id;
+  const days = alternative.useBaseItinerary ? clone(indiaAlternativeBase.days) : clone(alternative.days || []);
+  currentData.itinerary = [...currentData.itinerary.filter(day => day.date < "2027-01-01" || day.date > "2027-01-15"), ...days]
+    .sort((a,b) => String(a.date).localeCompare(String(b.date)));
+  currentData.route = clone(alternative.route || indiaAlternativeBase.route);
+  const internalIndex = currentData.flights.findIndex(flight => flight.idPrefix === "internal");
+  const internalFlight = alternative.internalFlight ? clone(alternative.internalFlight) : clone(indiaAlternativeBase.internalFlight);
+  if (internalIndex >= 0 && internalFlight) currentData.flights[internalIndex] = internalFlight;
+  else if (internalFlight) currentData.flights.splice(Math.min(1,currentData.flights.length),0,internalFlight);
+  renderHero(); renderCalendar(); renderIndiaAlternatives(); renderItinerary(); renderFlights(); renderMapStops(); renderTravelCompanion();
+  if ($('[data-panel="map"]').classList.contains("is-active")) setTimeout(initializeMap,80);
+  showToast(`Selezionata: ${alternative.label}`);
 }
 
 function calendarTransportIcon(day) {
@@ -1543,6 +1581,7 @@ function setupEvents() {
     const target=event.target.closest("button"); if(!target)return;
     if(target.classList.contains("completion-toggle")){const details=$(".completion-missing",target.closest("#completion-center"));details.hidden=!details.hidden;target.setAttribute("aria-expanded",String(!details.hidden));target.textContent=details.hidden?"Mostra dettagli":"Nascondi dettagli";}
     if(target.dataset.completionSection) switchPanel(target.dataset.completionSection);
+    if(target.dataset.indiaAlternative) selectIndiaAlternative(target.dataset.indiaAlternative);
     if(target.classList.contains("travel-close")){const host=$("#travel-companion");host.hidden=true;document.body.classList.remove("travel-mode");$("#travel-mode-btn").setAttribute("aria-pressed","false");}
     if(target.dataset.searchTrip){const day=Number(target.dataset.searchDay);closeDialog($("#search-dialog"));loadTrip(target.dataset.searchTrip).then(()=>{if(Number.isInteger(day)&&day>=0)scrollToDay(day);});}
     if(target.dataset.jumpDay!==undefined) scrollToDay(Number(target.dataset.jumpDay));
@@ -1580,6 +1619,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712c").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260712d").catch(()=>{});
   }
 });
