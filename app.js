@@ -124,6 +124,10 @@ function mergePublishedAdditions(saved,published) {
     local.route = clone(source.route);
     local.main.contentRevision = sourceRevision;
   }
+  const sourceBudgetRevision = Number(source.budget.contentRevision || 0);
+  if (sourceBudgetRevision > Number(local.budget.contentRevision || 0)) {
+    local.budget = clone(source.budget);
+  }
   const localFlights = new Map(local.flights.map(flight => [flight.idPrefix,flight]));
   source.flights.forEach(sourceFlight => {
     const localFlight = localFlights.get(sourceFlight.idPrefix);

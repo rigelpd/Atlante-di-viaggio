@@ -5,7 +5,7 @@
     "image": "media/rajasthan-maldive/archivio-01.jpg",
     "tripStatus": "upcoming",
     "tripYear": 2027,
-    "contentRevision": 2
+    "contentRevision": 3
   },
   "flights": [
     {
@@ -558,6 +558,7 @@
   ],
   "budget": {
     "total": 10000,
+    "contentRevision": 1,
     "expenses": [
       {
         "id": 1,
