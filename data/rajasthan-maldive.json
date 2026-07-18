@@ -199,11 +199,11 @@
       "isFlight": false,
       "isCruise": false,
       "travel": {
-        "mode": "Treno rapido",
-        "duration": "circa 1 h 40 min–2 h da Delhi ad Agra, più i transfer alle stazioni"
+        "mode": "Autista privato",
+        "duration": "circa 3 h 30 min–4 h di guida da Delhi ad Agra"
       },
       "accommodation": "Hotel da prenotare — Taj Ganj, Agra",
-      "activities": "Partenza di prima mattina per Agra con treno rapido da confermare; la nebbia invernale può causare ritardi, quindi evitare coincidenze strette. Transfer dalla stazione all'hotel e deposito bagagli.\nTarda mattina e primo pomeriggio: Agra Fort, palazzi di arenaria e affacci sul Taj Mahal; Itmad-ud-Daulah solo se resta tempo.\nTardo pomeriggio: prima visita al Taj Mahal, entrando con margine sufficiente per vederlo nella luce verso il tramonto. Questa visita garantisce il monumento anche se la mattina seguente ci sarà nebbia fitta.\nSera: preparare biglietti e abiti caldi a strati, giacca antivento e berretto per l'eventuale secondo ingresso all'alba. Verificare sempre giorno di chiusura e regole aggiornate.",
+      "activities": "Partenza di prima mattina da Delhi con l'autista privato già prenotato, che accompagnerà il viaggio in Rajasthan fino al transfer per l'aeroporto di Jaisalmer. Arrivo ad Agra, deposito bagagli e check-in.\nTarda mattina e primo pomeriggio: Agra Fort, palazzi di arenaria e affacci sul Taj Mahal; Itmad-ud-Daulah solo se resta tempo.\nTardo pomeriggio: prima visita al Taj Mahal, entrando con margine sufficiente per vederlo nella luce verso il tramonto. Questa visita garantisce il monumento anche se la mattina seguente ci sarà nebbia fitta.\nSera: preparare biglietti e abiti caldi a strati, giacca antivento e berretto per l'eventuale secondo ingresso all'alba. Verificare sempre giorno di chiusura e regole aggiornate.",
       "image": "media/rajasthan-maldive/archivio-05.jpg",
       "location_coords": {
         "lat": 27.1767,
@@ -357,7 +357,7 @@
         "duration": "circa 20–30 min hotel → aeroporto, poi circa 1 h 45 min di volo per Delhi"
       },
       "accommodation": "Hotel da prenotare — Aerocity, Delhi",
-      "activities": "Mattina libera e check-out secondo l'orario del volo. Transfer al piccolo aeroporto di Jaisalmer con margine adeguato.\nVolo interno diretto per Delhi, soggetto a operativo stagionale. All'arrivo trasferimento ad Aerocity per semplificare la partenza internazionale.\nSera: lavanderia, cena in hotel e riposo. Piano B se il diretto non opera: volo via Jaipur o Jodhpur, oppure treno notturno da prenotare con largo anticipo.",
+      "activities": "Mattina libera e check-out secondo l'orario del volo. L'autista privato accompagna al piccolo aeroporto di Jaisalmer con margine adeguato: qui termina il servizio previsto per il Rajasthan.\nVolo interno diretto per Delhi, soggetto a operativo stagionale. All'arrivo trasferimento ad Aerocity per semplificare la partenza internazionale.\nSera: lavanderia, cena in hotel e riposo. Piano B se il diretto non opera: volo via Jaipur o Jodhpur, oppure treno notturno da prenotare con largo anticipo.",
       "image": "media/rajasthan-maldive/archivio-08.jpg",
       "location_coords": {
         "lat": 28.5562,
@@ -590,19 +590,10 @@
       },
       {
         "id": 5,
-        "description": "Auto privata Rajasthan e transfer",
-        "amount": 0,
+        "description": "Autista privato Rajasthan e spese associate — Delhi → Agra fino all'aeroporto di Jaisalmer",
+        "amount": 760,
         "category": "car_rental",
-        "person": "Da quotare",
-        "status": "booked",
-        "onSplid": false
-      },
-      {
-        "id": 6,
-        "description": "Treno Delhi–Agra",
-        "amount": 0,
-        "category": "car_rental",
-        "person": "Da quotare",
+        "person": "Margherita",
         "status": "booked",
         "onSplid": false
       },
