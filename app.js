@@ -218,7 +218,10 @@ function setAdminMode(enabled) {
   document.body.classList.toggle("admin-mode", enabled);
   sessionStorage.setItem("atlante:admin", String(enabled));
   $("#admin-login-btn").hidden = enabled;
-  renderAll();
+  if (!enabled && currentData) {
+    atlasCatalogCache = {};
+    loadTrip(activeTrip, false);
+  } else renderAll();
 }
 
 function applySiteTheme() { document.body.dataset.theme = "travel-map"; }
@@ -247,10 +250,12 @@ async function getCatalogTrip(slug) {
   if (atlasCatalogCache[slug]) return atlasCatalogCache[slug];
   if (slug === activeTrip && currentData) return currentData;
   let savedData = null, publishedData = null;
-  try {
-    const candidate = JSON.parse(localStorage.getItem(storageKey(slug)));
-    savedData = usableTripData(candidate) ? candidate : null;
-  } catch { savedData = null; }
+  if (isAdmin) {
+    try {
+      const candidate = JSON.parse(localStorage.getItem(storageKey(slug)));
+      savedData = usableTripData(candidate) ? candidate : null;
+    } catch { savedData = null; }
+  }
   try {
     const response = await fetch(`${CONFIG.catalog[slug].file}?v=${Date.now()}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -577,7 +582,7 @@ async function loadTrip(slug, preferSaved = true) {
   if (window.__EMBEDDED_DATA__) {
     data = clone(window.__EMBEDDED_DATA__);
     $("#trip-select").disabled = true;
-  } else if (preferSaved) {
+  } else if (preferSaved && isAdmin) {
     try {
       const candidate = JSON.parse(localStorage.getItem(storageKey(activeTrip)));
       savedData = usableTripData(candidate) ? candidate : null;
@@ -1666,6 +1671,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
     if (isLocalPreview) {
       navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
         .then(() => caches.keys()).then(keys => Promise.all(keys.map(key => caches.delete(key)))).catch(()=>{});
-    } else navigator.serviceWorker.register("service-worker.js?v=20260712h").catch(()=>{});
+    } else navigator.serviceWorker.register("service-worker.js?v=20260718a").catch(()=>{});
   }
 });
